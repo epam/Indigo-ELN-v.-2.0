@@ -131,10 +131,15 @@ function fetchProject(id: UUID, signal?: AbortSignal): Promise<ProjectDetails> {
   return apiFetch<ProjectDetails>(`/api/eln/projects/${id}`, { signal });
 }
 
-export function useProject(id: UUID) {
+/**
+ * `enabled` defers the request for a caller that only needs the project on demand — the list's
+ * actions menu, which learns from it whether the user may rename the project.
+ */
+export function useProject(id: UUID, { enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: projectKeys.detail(id),
     queryFn: ({ signal }) => fetchProject(id, signal),
+    enabled,
   });
 }
 

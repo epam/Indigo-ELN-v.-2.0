@@ -5,7 +5,7 @@ import { FormDialog } from '@/components/common/form-dialog';
 import { KeywordCombobox } from '@/components/ui/keyword-combobox';
 import {
   EMPTY_PROJECT_FORM,
-  projectNameSchema,
+  projectNameValidators,
   toProjectEditRequest,
   toProjectFormValues,
   toProjectRequest,
@@ -14,11 +14,9 @@ import { PROJECT_NAME_MAX_LENGTH } from '@/lib/types/projects.ts';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
-import { checkProjectNameExists, useCreateProject, useEditProject } from '@/lib/api/projects';
+import { useCreateProject, useEditProject } from '@/lib/api/projects';
 
 import type { ProjectDetails } from '@/lib/types/projects.ts';
-
-const NAME_CHECK_DEBOUNCE_MS = 300;
 
 /**
  * The project modal, in both of its modes: `project` absent creates one, `project` present
@@ -74,22 +72,7 @@ function ProjectFormDialog({
           submitDisabled={submitDisabled}
           onSubmit={() => form.handleSubmit()}
         >
-          <form.Field
-            name="name"
-            validators={{
-              onChange: ({ value }) => projectNameSchema.safeParse(value).error?.issues[0]?.message,
-              // The unique constraint has no friendly server-side message, so the duplicate
-              // has to be caught here. Skipped while the sync rules already fail.
-              onChangeAsyncDebounceMs: NAME_CHECK_DEBOUNCE_MS,
-              onChangeAsync: async ({ value }) => {
-                const name = value.trim();
-                if (!projectNameSchema.safeParse(value).success) return undefined;
-                // The project's own name is not a duplicate of itself.
-                if (name === project?.name) return undefined;
-                return (await checkProjectNameExists(name)) ? `Project with name '${name}' already exists` : undefined;
-              },
-            }}
-          >
+          <form.Field name="name" validators={projectNameValidators(project?.name)}>
             {(field) => (
               <Field
                 id={field.name}
