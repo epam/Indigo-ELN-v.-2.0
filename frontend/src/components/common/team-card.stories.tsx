@@ -65,6 +65,80 @@ export const AuthorIsNotEditable: Story = {
   },
 };
 
+/** IMPLICIT_VIEW is derived by the backend from nested access, so it is shown but never a menu. */
+export const ImplicitViewIsNotEditable: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Limited View')).toBeInTheDocument();
+    await expect(canvas.queryByRole('button', { name: /Limited View/ })).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * The level menu offers only levels a manager can grant: not the backend's AUTHOR or
+ * IMPLICIT_VIEW, and not NONE, which is Remove Member under its own name.
+ */
+export const LevelMenuChoices: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: /Can View/ }));
+
+    const items = await screen.findAllByRole('menuitem');
+    await expect(items.map((item) => item.textContent)).toEqual(['Admin', 'Can Edit', 'Can View', 'Remove Member']);
+  },
+};
+
+/**
+ * An inherited entry comes from a parent's ACL, so there is nothing on this entity to remove —
+ * it can still be re-levelled, but its menu carries no Remove Member.
+ */
+export const InheritedIsNotRemovable: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Sofia Rossi, the one inherited entry.
+    await userEvent.click(canvas.getByRole('button', { name: /Can Edit/ }));
+
+    await expect(await screen.findByRole('menuitem', { name: 'Admin' })).toBeInTheDocument();
+    await expect(screen.queryByRole('menuitem', { name: 'Remove Member' })).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * Remove Member asks first, then posts NONE; the recomputed ACL comes back without the entry,
+ * so the row disappears without a refetch.
+ */
+export const RemoveMember: Story = {
+  render: () => <TeamCardFromCache />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole('button', { name: /Can View/ }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Remove Member' }));
+
+    const dialog = await screen.findByRole('dialog', { name: 'Remove Member' });
+    await expect(within(dialog).getByText('Tom Becker')).toBeInTheDocument();
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Remove' }));
+
+    await waitFor(() => expect(canvas.queryByText('Tom Becker')).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Remove Member' })).not.toBeInTheDocument());
+  },
+};
+
+/** Cancel leaves the team as it was — nothing is posted. */
+export const RemoveMemberCancelled: Story = {
+  render: () => <TeamCardFromCache />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByRole('button', { name: /Can View/ }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Remove Member' }));
+
+    const dialog = await screen.findByRole('dialog', { name: 'Remove Member' });
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Remove Member' })).not.toBeInTheDocument());
+    await expect(canvas.getByText('Tom Becker')).toBeInTheDocument();
+  },
+};
+
 /**
  * The POST answers with the whole recomputed ACL, which replaces `acl` in the cache — so the
  * row reads back at its new level without a refetch. The menu is portalled, so `screen`

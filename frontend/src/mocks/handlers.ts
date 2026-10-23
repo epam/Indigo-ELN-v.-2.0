@@ -127,7 +127,8 @@ function suggestedUsers(search: string): UserRef[] {
 
 /**
  * What `POST /access` answers with: the recomputed ACL for the whole entity — existing
- * entries re-levelled, new ones appended.
+ * entries re-levelled, new ones appended, and NONE ones gone, since `applyAccess` deletes the
+ * entry rather than storing the level.
  */
 function recomputedAcl(existing: ACLEntry[], updates: AccessForm[]): ACLEntry[] {
   const changed = new Map(updates.map((update) => [update.username, update.level]));
@@ -143,7 +144,7 @@ function recomputedAcl(existing: ACLEntry[], updates: AccessForm[]): ACLEntry[] 
       level: update.level,
       inherited: false,
     }));
-  return [...relevelled, ...added];
+  return [...relevelled, ...added].filter((entry) => entry.level !== 'NONE');
 }
 
 /** The one name the mock backend claims is taken, so the duplicate path is reachable. */

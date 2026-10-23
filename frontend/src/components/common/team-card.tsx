@@ -1,10 +1,11 @@
-import { Check, ChevronDown, Copy, UserPlus } from 'lucide-react';
+import { Check, ChevronDown, Copy, UserMinus, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 
+import { FormDialog } from '@/components/common/form-dialog';
 import { MultiCombobox } from '@/components/ui/combobox';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/ui/menu';
+import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from '@/components/ui/menu';
 import { useUserSuggestions } from '@/lib/api/user';
 import { cn } from '@/lib/utils';
 import type { UseMutationResult } from '@tanstack/react-query';
@@ -60,14 +61,22 @@ function MemberRow({
   canManage,
   updating,
   onLevelChange,
+  onRemove,
 }: {
   member: ACLEntry;
   canManage: boolean;
   updating: boolean;
   onLevelChange: (level: AccessLevel) => void;
+  onRemove: () => void;
 }) {
-  // AUTHOR is the creator's own entry; the backend rejects any change to it.
+  // AUTHOR and IMPLICIT_VIEW belong to the backend, not to whoever manages the team.
   const locked = isImmutableLevel(member.level) || !canManage;
+  /*
+    An inherited entry has nothing on this entity to remove: it comes from a parent's ACL, and
+    `POST /access` with NONE only deletes the entity's own entry, so it would answer unchanged.
+    Re-levelling it still works — that adds an own entry, which outranks the inherited one.
+  */
+  const removable = !member.inherited;
 
   return (
     <li className={cn('grid items-center gap-x-2 py-2 text-[14px]/6', ROW_COLUMNS)}>
@@ -106,6 +115,15 @@ function MemberRow({
                 {ACL_LEVEL_LABELS[level]}
               </MenuItem>
             ))}
+            {removable && (
+              <>
+                <MenuSeparator />
+                <MenuItem className="text-destructive" onClick={onRemove}>
+                  <UserMinus className="size-4" />
+                  Remove Member
+                </MenuItem>
+              </>
+            )}
           </MenuContent>
         </Menu>
       )}
@@ -114,9 +132,9 @@ function MemberRow({
 }
 
 /**
- * The members of a project, notebook or experiment, with the controls to add one and to
- * re-level an existing one — the card's contents without its frame, so the Team sheet can show
- * the same list under its own title instead of a card nested in a card.
+ * The members of a project, notebook or experiment, with the controls to add one, to re-level
+ * an existing one and to remove one — the card's contents without its frame, so the Team sheet
+ * can show the same list under its own title instead of a card nested in a card.
  *
  * The two mutations arrive as props rather than being made here: they post to different
  * endpoints per entity, and each caller's `onSuccess` patches its own cached detail. They stay
@@ -140,6 +158,9 @@ export function TeamMembers({
 }) {
   const [inputValue, setInputValue] = useState('');
   const [selected, setSelected] = useState<UserRef[]>([]);
+  // Two pieces of state so the name stays in the dialog while it animates shut.
+  const [removing, setRemoving] = useState<ACLEntry>();
+  const [removeOpen, setRemoveOpen] = useState(false);
   const suggestions = useUserSuggestions(inputValue);
 
   // Already-members are dropped from the list rather than shown and rejected on submit.
@@ -204,9 +225,36 @@ export function TeamMembers({
             canManage={canManage}
             updating={updatingUsername === member.username}
             onLevelChange={(level) => changeLevel?.mutate([{ username: member.username, level }])}
+            onRemove={() => {
+              setRemoving(member);
+              setRemoveOpen(true);
+            }}
           />
         ))}
       </ul>
+
+      {/*
+        Removal goes through `changeLevel` — it is the same one-entry POST, with NONE, which the
+        backend answers by deleting the entry — so the row spins behind the dialog as well.
+        A failed POST rejects `mutateAsync`, which `FormDialog` takes as its cue to stay open.
+      */}
+      <FormDialog
+        open={removeOpen}
+        onOpenChange={setRemoveOpen}
+        title="Remove Member"
+        submitLabel="Remove"
+        submitVariant="destructive"
+        onSubmit={async () => {
+          if (!removing || !changeLevel) return;
+          await changeLevel.mutateAsync([{ username: removing.username, level: 'NONE' }]);
+          setRemoveOpen(false);
+        }}
+      >
+        <p className="text-[14px]/6 text-neutral-800">
+          Remove <span className="font-semibold">{removing?.displayName}</span> from the team? They will lose the access
+          granted here.
+        </p>
+      </FormDialog>
     </>
   );
 }

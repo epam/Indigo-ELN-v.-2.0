@@ -743,13 +743,17 @@ export const ATTACHMENTS: Attachment[] = [
   makeAttachment('raw-trace.dat', { size: 512 }),
 ];
 
-/** Mixed levels and one inherited entry, so every branch of a Team row is reachable. */
+/**
+ * Mixed levels and one inherited entry, so every branch of a Team row is reachable. The
+ * IMPLICIT_VIEW entry is not `inherited`, matching `recalculateACL`: it is derived from a nested
+ * entity's ACL, not a parent's.
+ */
 export const PROJECT_ACL: ACLEntry[] = [
   makeAclEntry('Administrator', { level: 'AUTHOR' }),
   makeAclEntry('Mark Liu', { level: 'ADMIN' }),
   makeAclEntry('Sofia Rossi', { level: 'EDIT', inherited: true }),
   makeAclEntry('Tom Becker', { level: 'VIEW' }),
-  makeAclEntry('Anna Petrova', { level: 'IMPLICIT_VIEW', inherited: true }),
+  makeAclEntry('Anna Petrova', { level: 'IMPLICIT_VIEW' }),
 ];
 
 export function makeProjectDetails(overrides: Partial<ProjectDetails> = {}): ProjectDetails {
