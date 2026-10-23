@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import {
   COMPOUND_COLUMNS,
+  HIDEABLE_INPUT_COLUMN_IDS,
   SAMPLE_COLUMNS,
   SAMPLE_INDENT_SPAN,
   shortBatchNumber,
+  visibleInputColumns,
 } from '@/components/experiments/stoichiometry/inputs/columns';
 
 describe('the host grid', () => {
@@ -58,5 +60,30 @@ describe('shortBatchNumber', () => {
 
   it('has nothing to show for a batch with no number yet', () => {
     expect(shortBatchNumber(undefined)).toBeUndefined();
+  });
+});
+
+describe('visibleInputColumns', () => {
+  /** The host-grid invariant above, for every column choice rather than only the default one. */
+  it('keeps a sample row as wide as a compound row whatever is hidden', () => {
+    // Every prefix of the hideable list, down to all of it: each hides one more compound column.
+    for (let count = 0; count <= HIDEABLE_INPUT_COLUMN_IDS.length; count++) {
+      const { compound, sample } = visibleInputColumns(new Set(HIDEABLE_INPUT_COLUMN_IDS.slice(0, count)));
+      const spanned = SAMPLE_INDENT_SPAN + sample.reduce((sum, column) => sum + column.span, 0);
+      expect(spanned).toBe(compound.length + 1);
+      expect(sample.every((column) => column.span >= 1)).toBe(true);
+    }
+  });
+
+  it('takes a hidden batch detail out of its group, leaving the rest in order', () => {
+    const { sample } = visibleInputColumns(new Set(['hazards', 'density']));
+    const group = sample.find((column) => column.kind === 'group');
+    expect(group?.kind === 'group' && group.parts.map((part) => part.id)).toEqual(['molarity', 'purity', 'comment']);
+  });
+
+  it('never offers the columns the table is built on', () => {
+    for (const fixed of ['index', 'compoundId', 'weight', 'volume', 'mol', 'role', 'limiting', 'delete', 'batch']) {
+      expect(HIDEABLE_INPUT_COLUMN_IDS).not.toContain(fixed);
+    }
   });
 });

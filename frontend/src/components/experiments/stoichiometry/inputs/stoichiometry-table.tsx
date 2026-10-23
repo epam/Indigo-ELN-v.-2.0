@@ -1,4 +1,5 @@
 import { ChevronDown, ChevronRight, Plus, SquarePlus } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useMemo, useRef, useState } from 'react';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
@@ -22,13 +23,17 @@ import {
   alignOf,
 } from '@/components/experiments/stoichiometry/columns';
 import { LimitingCell, RoleCell } from '@/components/experiments/stoichiometry/inputs/cells';
-import type { InputColumn, SamplePart } from '@/components/experiments/stoichiometry/inputs/columns';
+import type { InputColumn, SampleColumn, SamplePart } from '@/components/experiments/stoichiometry/inputs/columns';
 import {
-  COMPOUND_COLUMNS,
+  HIDEABLE_INPUT_COLUMN_IDS,
+  HIDEABLE_INPUT_COLUMNS,
   SAMPLE_COLUMNS,
   SAMPLE_INDENT_SPAN,
   shortBatchNumber,
+  visibleInputColumns,
 } from '@/components/experiments/stoichiometry/inputs/columns';
+import { ColumnSelector } from '@/components/experiments/stoichiometry/column-selector';
+import { useHiddenColumns } from '@/lib/hooks/experiments/use-hidden-columns';
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { equalWidth, useEqualWidths } from '@/lib/hooks/use-equal-widths';
@@ -130,6 +135,9 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
   const table = useRef<HTMLTableElement>(null);
   useEqualWidths(table, EQUAL_WIDTH_PARTS);
 
+  const columnChoice = useHiddenColumns('stoichiometryInputs', HIDEABLE_INPUT_COLUMN_IDS);
+  const columns = useMemo(() => visibleInputColumns(columnChoice.hidden), [columnChoice.hidden]);
+
   const inputs = useMemo(() => {
     const term = search.trim().toLowerCase();
     if (term === '') return reaction.inputs;
@@ -156,6 +164,14 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
         onSearchChange={setSearch}
         mutations={mutations}
         onAddMaterial={() => setAddMaterialOpen(true)}
+        columnSelector={
+          <ColumnSelector
+            columns={HIDEABLE_INPUT_COLUMNS}
+            hidden={columnChoice.hidden}
+            onToggle={columnChoice.toggle}
+            onReset={columnChoice.reset}
+          />
+        }
       />
 
       {/*
@@ -179,7 +195,7 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
             <tr>
               {/* The chevron column has no header text; the chevrons speak for themselves. */}
               <th className={cn(HEADER_CELL_CLASS, ALIGN_CLASS.center)} />
-              {COMPOUND_COLUMNS.map((column) =>
+              {columns.compound.map((column) =>
                 // A spacer names nothing, so it is a plain cell rather than an empty `<th>`.
                 // `px-0` because the shared padding would be a 26px floor under a column whose
                 // whole purpose is to have no minimum of its own.
@@ -211,6 +227,7 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
               onToggle={() => toggle(input.anchor)}
               canEdit={canEdit}
               mutations={mutations}
+              columns={columns}
             />
           ))}
         </table>
@@ -252,6 +269,7 @@ function Toolbar({
   onSearchChange,
   mutations,
   onAddMaterial,
+  columnSelector,
 }: {
   experiment: ExperimentDetails;
   reaction: Reaction;
@@ -261,6 +279,8 @@ function Toolbar({
   mutations: StoichiometryMutations;
   /** Opens the catalog search that appends a row for a registered compound. */
   onAddMaterial: () => void;
+  /** Open to anyone who can see the table: which columns show is the reader's choice, not an edit. */
+  columnSelector: ReactNode;
 }) {
   const significantFigures = experiment.model.significantFigures;
   const addInputCell = cellId(reaction.anchor, 'addInput');
@@ -319,6 +339,8 @@ function Toolbar({
           so the usual fast `AddEmptyInput` shows nothing at all instead of a spinner that blinks,
           and it inerts the button meanwhile, so the row cannot be added twice.
         */}
+        {columnSelector}
+
         <SavingOverlay pending={mutations.savingCells.has(addInputCell)} spinner="center">
           <Button
             variant="ghost"
@@ -365,6 +387,7 @@ function CompoundRow({
   onToggle,
   canEdit,
   mutations,
+  columns,
 }: {
   input: ReactionInput;
   index: number;
@@ -372,6 +395,8 @@ function CompoundRow({
   onToggle: () => void;
   canEdit: boolean;
   mutations: StoichiometryMutations;
+  /** Both levels' columns with the Column Selector's choice applied — see `visibleInputColumns`. */
+  columns: { compound: InputColumn[]; sample: SampleColumn[] };
 }) {
   return (
     <tbody>
@@ -389,7 +414,7 @@ function CompoundRow({
             {expanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
           </button>
         </td>
-        {COMPOUND_COLUMNS.map((column) => (
+        {columns.compound.map((column) => (
           <td
             key={column.id}
             className={cn(
@@ -417,7 +442,7 @@ function CompoundRow({
           */}
           <tr>
             <td colSpan={SAMPLE_INDENT_SPAN} />
-            {SAMPLE_COLUMNS.map((column) => (
+            {columns.sample.map((column) => (
               <th
                 key={column.id}
                 scope="col"
@@ -455,7 +480,7 @@ function CompoundRow({
             // inherit this hover and follows it explicitly.
             <tr key={sample.anchor} className="group/row hover:bg-neutral-100">
               <td colSpan={SAMPLE_INDENT_SPAN} />
-              {SAMPLE_COLUMNS.map((column) => (
+              {columns.sample.map((column) => (
                 <td
                   key={column.id}
                   colSpan={column.span}
