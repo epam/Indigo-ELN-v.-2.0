@@ -15,17 +15,20 @@ import {
   HEADER_CELL_CLASS,
   alignOf,
 } from '@/components/experiments/stoichiometry/columns';
+import { ColumnHeader } from '@/components/experiments/stoichiometry/column-header';
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import { AddBatchCell, OutputTypeCell } from '@/components/experiments/stoichiometry/products/cells';
 import type { ProductColumn, ProductRow } from '@/components/experiments/stoichiometry/products/columns';
 import { PRODUCT_COLUMNS, productHaystack } from '@/components/experiments/stoichiometry/products/columns';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { cellId, useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
+import { findByAnchor } from '@/lib/reactions';
 import { cn } from '@/lib/utils';
 import { SearchInput } from '@/components/ui/search-input';
 import { Switch } from '@/components/ui/switch';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
+import type { ExperimentModel } from '@/lib/types/reactions.ts';
 import { OUTPUT_TYPES } from '@/lib/types/reactions.ts';
 
 /**
@@ -118,7 +121,7 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
                   )}
                   style={{ minWidth: column.minWidth }}
                 >
-                  {column.header}
+                  <ColumnHeader header={column.header} unit={column.unit} model={experiment.model} />
                 </th>
               ))}
             </tr>
@@ -137,7 +140,14 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
                       column.kind === 'addBatch' && ACTIONS_CELL_CLASS,
                     )}
                   >
-                    <ProductCell column={column} row={row} index={index} canEdit={canEdit} mutations={mutations} />
+                    <ProductCell
+                      column={column}
+                      row={row}
+                      previousRow={previousProductRow(experiment.model, mutations.previousModel, row)}
+                      index={index}
+                      canEdit={canEdit}
+                      mutations={mutations}
+                    />
                   </td>
                 ))}
               </tr>
@@ -155,15 +165,27 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
   );
 }
 
+/**
+ * The same row in the model before the last patch, found by anchor; undefined when the patch
+ * added it.
+ */
+function previousProductRow(model: ExperimentModel, previousModel: ExperimentModel, row: ProductRow) {
+  const previousReaction = findByAnchor(previousModel.reactions, model.reactions[row.step].anchor);
+  const output = findByAnchor(previousReaction?.outputs, row.output.anchor);
+  return output && { output, step: row.step };
+}
+
 function ProductCell({
   column,
   row,
+  previousRow,
   index,
   canEdit,
   mutations,
 }: {
   column: ProductColumn;
   row: ProductRow;
+  previousRow: ProductRow | undefined;
   index: number;
   canEdit: boolean;
   mutations: StoichiometryMutations;
@@ -199,9 +221,8 @@ function ProductCell({
       return (
         <NumericCell
           value={column.value(row)}
-          units={column.units}
-          suffix={column.suffix}
-          patch={mutations.patch}
+          previous={previousRow && column.value(previousRow)}
+          generation={mutations.generation}
           editable={false}
           pending={false}
           label={label}
@@ -213,9 +234,8 @@ function ProductCell({
       return (
         <NumericCell
           value={column.value(row)}
-          units={column.units}
-          suffix={column.suffix}
-          patch={mutations.patch}
+          previous={previousRow && column.value(previousRow)}
+          generation={mutations.generation}
           editable={canEdit && (column.editable?.(row) ?? true)}
           pending={pending}
           label={label}

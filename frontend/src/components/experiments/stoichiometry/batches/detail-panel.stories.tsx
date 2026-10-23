@@ -37,7 +37,8 @@ const REGISTERED = rowAt(1, 0);
 const IDLE: StoichiometryMutations = {
   save: async () => true,
   savingCells: new Set(),
-  patch: { nodes: new Map(), generation: 0 },
+  previousModel: EXPERIMENT.model,
+  generation: 0,
 };
 
 /** Records the mutations that actually reached the wire, so a story can assert the payload. */

@@ -49,7 +49,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole('columnheader', { name: 'Total Weight' })).toBeInTheDocument();
+    await expect(canvas.getByRole('columnheader', { name: 'Total Weight, mg' })).toBeInTheDocument();
     await expect(canvas.getAllByRole('row')).toHaveLength(6); // header + five batches
     // The server's zero-padded short form, not the full notebook batch number.
     await expect(canvas.getByText('001')).toBeInTheDocument();
@@ -62,7 +62,8 @@ export const SortedByBatchNumber: Story = {
   args: { reaction: { ...REACTION, outputs: [...REACTION.outputs].reverse() } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const numbers = canvas.getAllByText(/^\d{3}$/).map((cell) => cell.textContent);
+    // Zero-padded, which is what tells a batch number from a bare quantity such as `246`.
+    const numbers = canvas.getAllByText(/^0\d{2}$/).map((cell) => cell.textContent);
     await expect(numbers).toEqual(['001', '002', '003', '004', '005']);
   },
 };
@@ -78,7 +79,7 @@ export const ColumnsAlignAsOne: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    const number = canvas.getByRole('columnheader', { name: 'Total Weight' });
+    const number = canvas.getByRole('columnheader', { name: 'Total Weight, mg' });
     const text = canvas.getByRole('columnheader', { name: 'Product Name' });
     const pill = canvas.getByRole('columnheader', { name: 'Product Type' });
 
@@ -93,8 +94,12 @@ export const ColumnsAlignAsOne: Story = {
   },
 };
 
-/** Yield and purity are percentages, though the wire carries them as `NO_UNIT`. */
-export const PercentagesShowTheirUnit: Story = {
+/**
+ * Units are in the headers, read off the experiment and not editable here — the stoichiometry
+ * table is where they are picked. Yield and purity are percentages, though the wire carries them
+ * as `NO_UNIT`. The cells are bare numbers.
+ */
+export const UnitsAreInTheHeaders: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const display = (name: string) =>
@@ -103,8 +108,14 @@ export const PercentagesShowTheirUnit: Story = {
         .closest('[data-slot="numeric-cell"]')!
         .querySelector('[data-slot="numeric-cell-value"]');
 
-    await expect(display('Yield, batch 001')).toHaveTextContent(/^27\.5 %$/);
-    await expect(display('Purity, batch 001')).toHaveTextContent(/^98\.5 %$/);
+    const weight = canvas.getByRole('columnheader', { name: 'Total Weight, mg' });
+    await expect(within(weight).queryByRole('button')).not.toBeInTheDocument();
+    await expect(canvas.getByRole('columnheader', { name: 'Total Moles, mmol' })).toBeInTheDocument();
+    await expect(canvas.getByRole('columnheader', { name: 'Molarity, M' })).toBeInTheDocument();
+    await expect(canvas.getByRole('columnheader', { name: 'Yield, %' })).toBeInTheDocument();
+
+    await expect(display('Yield, batch 001')).toHaveTextContent(/^27\.5$/);
+    await expect(display('Purity, batch 001')).toHaveTextContent(/^98\.5$/);
   },
 };
 
@@ -133,7 +144,7 @@ export const ProductTypeIsReadOnly: Story = {
   },
 };
 
-/** One of the four editable numbers. Value and unit are sent together or not at all. */
+/** One of the four editable numbers. Only the value is sent — the unit is the experiment's. */
 export const EditsTotalWeight: Story = {
   parameters: { msw: { handlers: spyHandlers } },
   render: () => <TableFromCache />,
@@ -152,7 +163,6 @@ export const EditsTotalWeight: Story = {
           type: 'SetOutputActualWeight',
           anchor: 'ous00001',
           actualWeight: '500',
-          unit: 'MG',
         },
       ]),
     );
@@ -193,9 +203,7 @@ export const EditsMolarity: Story = {
     await userEvent.clear(input);
     await userEvent.type(input, '0.5{Enter}');
 
-    await waitFor(() =>
-      expect(sent).toEqual([{ type: 'SetOutputMolarity', anchor: 'ous00001', molarity: '0.5', unit: 'M' }]),
-    );
+    await waitFor(() => expect(sent).toEqual([{ type: 'SetOutputMolarity', anchor: 'ous00001', molarity: '0.5' }]));
   },
 };
 

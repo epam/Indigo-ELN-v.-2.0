@@ -18,12 +18,6 @@ type JSONObject = { [key: string]: JSONNode };
  * Anything else is an object patch, merged key by key.
  */
 export class JSONPatcher {
-  /**
-   * new node → the node it replaced, for every object rebuilt by the last `apply`. The
-   * stoichiometry table uses this to tell a recalculated cell from an untouched one.
-   */
-  updatedNodes = new Map<unknown, unknown>();
-
   setPaths: Record<string, string>;
   listPaths: Record<string, string>;
 
@@ -32,10 +26,8 @@ export class JSONPatcher {
     this.listPaths = listPaths;
   }
 
-  apply(base: unknown, patch: unknown): [unknown, Map<unknown, unknown>] {
-    this.updatedNodes = new Map();
-    const updated = this.doApply(structuredClone(base) as JSONNode, patch as JSONNode, '');
-    return [updated, this.updatedNodes];
+  apply(base: unknown, patch: unknown): unknown {
+    return this.doApply(structuredClone(base) as JSONNode, patch as JSONNode, '');
   }
 
   private doApply(base: JSONNode, patch: JSONNode, path: string): JSONNode {
@@ -46,20 +38,15 @@ export class JSONPatcher {
     if (typeof patch !== 'object' || Array.isArray(patch)) {
       throw Error('patch expected to be an object');
     }
-    let result: JSONNode;
     if ('$old' in patch || '$new' in patch) {
-      result = '$new' in patch ? patch['$new'] : null;
+      return '$new' in patch ? patch['$new'] : null;
     } else if (path in this.setPaths) {
-      result = this.doRestoreSet(base as JSONObject[], patch, path);
+      return this.doRestoreSet(base as JSONObject[], patch, path);
     } else if (path in this.listPaths) {
-      result = this.doRestoreList(base as JSONObject[], patch, path);
+      return this.doRestoreList(base as JSONObject[], patch, path);
     } else {
-      result = this.doRestoreObject(base as JSONObject, patch, path);
+      return this.doRestoreObject(base as JSONObject, patch, path);
     }
-    if (result != null && typeof result === 'object' && !Array.isArray(result)) {
-      this.updatedNodes.set(result, base as JSONObject);
-    }
-    return result;
   }
 
   // `JSONObject`, not `JSONNode`: `doApply` has already ruled out null, arrays and scalars,

@@ -8,6 +8,7 @@ import type { Project, ProjectDetails, TotalCounts } from '@/lib/types/projects.
 import type {
   CompoundRef,
   EnteredValue,
+  ExperimentModel,
   Reaction,
   ReactionInput,
   ReactionInputSample,
@@ -292,6 +293,18 @@ export const DICTIONARY_ITEMS = makeDictionaryItems([
   'Gloves required',
   'Fume hood',
 ]);
+
+/**
+ * The experiment-wide units the fixtures' values are written in — mg and mmol, the scale a
+ * bench reaction is weighed at, rather than the backend's g/mol defaults. Spread into every
+ * fixture model, so a value and the header above it agree.
+ */
+export const MODEL_UNITS = {
+  weightUnit: 'MG',
+  volumeUnit: 'ML',
+  molUnit: 'MMOL',
+  molarityUnit: 'M',
+} as const satisfies Pick<ExperimentModel, 'weightUnit' | 'volumeUnit' | 'molUnit' | 'molarityUnit'>;
 
 /** A short helper for the `EnteredValue`s below — every numeric cell in the model is one. */
 function entered<U extends string>(value: string, unit: U, source: EnteredValue<U>['source']): EnteredValue<U> {
@@ -700,7 +713,7 @@ export function makeExperimentDetails(overrides: Partial<ExperimentDetails> = {}
     acl: EXPERIMENT_ACL,
     currentPermissions: ['VIEW_EXPERIMENTS', 'EDIT_EXPERIMENTS', 'MANAGE_EXPERIMENT_ACCESS'],
     // `ExperimentModel.reactions` is @NotEmpty on the backend, and the screen relies on it.
-    model: { reactions: [makeReaction()], significantFigures: 5 },
+    model: { ...MODEL_UNITS, reactions: [makeReaction()], significantFigures: 5 },
     projectId: '11111111-1111-1111-1111-111111111111',
     projectName: 'Kinase Inhibitor Screening',
     notebookId: '77777777-7777-7777-7777-777777777777',

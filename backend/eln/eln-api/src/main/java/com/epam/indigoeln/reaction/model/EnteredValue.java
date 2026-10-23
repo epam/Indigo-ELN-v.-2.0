@@ -4,6 +4,7 @@ import com.epam.indigoeln.common.model.units.EnteredValueSource;
 import com.epam.indigoeln.common.model.units.MeasurementUnit;
 import com.epam.indigoeln.common.model.units.NoUnit;
 import com.epam.indigoeln.reaction.util.MeasurementUtil;
+import com.epam.indigoeln.reaction.util.UnitUtils;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -110,6 +111,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
     }
 
     public static <U extends MeasurementUnit> EnteredValue<U> cleared(int revision) {
+        //noinspection unchecked
         return new EnteredValue<>(false, 0.0, false, 0, null, (U) NoUnit.NO_UNIT, EnteredValueSource.userEntered(revision), false);
     }
 
@@ -138,14 +140,7 @@ public final class EnteredValue<U extends MeasurementUnit> {
             return empty();
         }
         checkArgument(left.unit.getClass().equals(right.unit.getClass()), "Inconvertible units: %s and %s", left.unit, right.unit);
-        R unit;
-        if (left.getValue() == 0.0 && right.getValue() != 0.0) {
-            unit = right.unit;
-        } else if (right.getValue() == 0.0 && left.getValue() != 0.0) {
-            unit = left.unit;
-        } else {
-            unit = left.unit.getMultiplier() >= right.getUnit().getMultiplier() ? left.unit : right.unit;
-        }
+        R unit = UnitUtils.getByUnit(left.unit);
         return calculated(left.convert(unit) + rightSign * right.convert(unit), unit);
     }
 
@@ -153,26 +148,32 @@ public final class EnteredValue<U extends MeasurementUnit> {
         if (left.isEmpty() || right.isEmpty()) {
             return empty();
         }
-        MeasurementUtil.UnitAndMultiplier pair = MeasurementUtil.multiply(left.unit, right.unit);
+        MeasurementUnit baseUnit = MeasurementUtil.multiply(left.unit, right.unit);
+        double baseAmount = left.toBase() * right.toBase();
         //noinspection unchecked
-        return (EnteredValue<R>) calculated(left.value * right.value * pair.multiplier(), pair.unit());
+        R unit = UnitUtils.getByUnit((R) baseUnit);
+        return calculated(baseAmount / unit.getMultiplier(), unit);
     }
 
     public static <U extends MeasurementUnit> EnteredValue<U> multiply(EnteredValue<U> self, double by) {
-        return calculated(self.value * by, self.unit);
+        U unit = UnitUtils.getByUnit(self.unit);
+        return calculated(self.convert(unit) * by, unit);
     }
 
     public static <R extends MeasurementUnit> EnteredValue<R> divide(EnteredValue<?> left, EnteredValue<?> right) {
         if (left.isEmpty() || right.isEmpty()) {
             return empty();
         }
-        MeasurementUtil.UnitAndMultiplier pair = MeasurementUtil.divide(left.unit, right.unit);
+        MeasurementUnit baseUnit = MeasurementUtil.divide(left.unit, right.unit);
+        double baseAmount = left.toBase() / right.toBase();
         //noinspection unchecked
-        return (EnteredValue<R>) calculated(left.value / right.value * pair.multiplier(), pair.unit());
+        R unit = UnitUtils.getByUnit((R) baseUnit);
+        return calculated(baseAmount / unit.getMultiplier(), unit);
     }
 
     public static <U extends MeasurementUnit> EnteredValue<U> divide(EnteredValue<U> self, double by) {
-        return calculated(self.value / by, self.unit);
+        U unit = UnitUtils.getByUnit(self.unit);
+        return calculated(self.convert(unit) / by, unit);
     }
 
     @JsonIgnore
@@ -260,7 +261,17 @@ public final class EnteredValue<U extends MeasurementUnit> {
         return new EnteredValue<>(present, value, exact, significantFigures, stringValue, unit, source, overwritten);
     }
 
+    private double toBase() {
+        if (unit == unit.getBaseUnit()) {
+            return value;
+        }
+        return value * unit.getMultiplier();
+    }
+
     private double convert(U toUnit) {
+        if (unit == toUnit) {
+            return value;
+        }
         return value * unit.getMultiplier() / toUnit.getMultiplier();
     }
 

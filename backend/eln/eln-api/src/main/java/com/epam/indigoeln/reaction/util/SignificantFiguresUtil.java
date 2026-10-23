@@ -28,10 +28,6 @@ public class SignificantFiguresUtil {
         return ScopedValue.where(SIGNIFICANT_FIGURES, significantFigures).call(action);
     }
 
-    public static String formatToSignificantFigures(double value) {
-        return formatToSignificantFigures(value, SIGNIFICANT_FIGURES.get());
-    }
-
     public static double roundToSignificantFigures(double value, int significantFigures) {
         return BigDecimal.valueOf(value).round(new MathContext(significantFigures, RoundingMode.HALF_UP)).doubleValue();
     }

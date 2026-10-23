@@ -1,7 +1,6 @@
 package com.epam.indigoeln.reaction.model.units;
 
 import com.epam.indigoeln.common.model.units.DensityUnit;
-import com.epam.indigoeln.reaction.model.EnteredValue;
 import com.epam.indigoeln.common.model.units.MeasurementUnit;
 import com.epam.indigoeln.common.model.units.MolUnit;
 import com.epam.indigoeln.common.model.units.MolWeightUnit;
@@ -9,12 +8,18 @@ import com.epam.indigoeln.common.model.units.MolarityUnit;
 import com.epam.indigoeln.common.model.units.NoUnit;
 import com.epam.indigoeln.common.model.units.VolumeUnit;
 import com.epam.indigoeln.common.model.units.WeightUnit;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.reaction.util.UnitUtils;
 import one.util.streamex.StreamEx;
 import org.assertj.core.api.AbstractThrowableAssert;
 import org.assertj.core.api.Assertions;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.*;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.InvocationInterceptor;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.converter.ArgumentConversionException;
 import org.junit.jupiter.params.converter.ArgumentConverter;
@@ -27,10 +32,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.epam.indigoeln.common.model.units.WeightUnit.G;
 import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
 import static com.epam.indigoeln.reaction.model.EnteredValue.userEntered;
-import static com.epam.indigoeln.common.model.units.WeightUnit.G;
-import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.callWithSignificantFigures;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
@@ -53,11 +57,11 @@ class EnteredValueTest {
     static final InvocationInterceptor SIG_FIGS_5 = new InvocationInterceptor() {
         @Override
         public void interceptTestMethod(Invocation<@Nullable Void> invocation, ReflectiveInvocationContext<Method> ctx, ExtensionContext ext) throws Throwable {
-            callWithSignificantFigures(5, invocation::proceed);
+            UnitUtils.callWithUnitsAndSignificantFigures(WeightUnit.G, VolumeUnit.ML, MolUnit.MOL, MolarityUnit.M, 5, invocation::proceed);
         }
         @Override
         public void interceptTestTemplateMethod(Invocation<@Nullable Void> invocation, ReflectiveInvocationContext<Method> ctx, ExtensionContext ext) throws Throwable {
-            callWithSignificantFigures(5, invocation::proceed);
+            interceptTestMethod(invocation, ctx, ext);
         }
     };
 
@@ -87,8 +91,8 @@ class EnteredValueTest {
             "1,G,2,G,3,G",
             "1,G,500,MG,1.5,G", // take bigger units (regardless of operand order)
             "500,MG,1,G,1.5,G",
-            "0,G,1,MG,1,MG", // except for zero: zero doesn't affect target units (regardless of operand order)
-            "1,MG,0,G,1,MG",
+            "0,G,1,MG,0.001,G", // except for zero: zero doesn't affect target units (regardless of operand order)
+            "1,MG,0,G,0.001,G",
             "0,G,0,MG,0,G", // if both operands are zero, take bigger units
     })
     void testAddUnitsSuccess(String aValue, @ConvertWith(UnitConverter.class) WeightUnit aUnit, String bValue, @ConvertWith(UnitConverter.class) WeightUnit bUnit, double expectedValue, @ConvertWith(UnitConverter.class) WeightUnit expectedUnit) {
@@ -112,8 +116,8 @@ class EnteredValueTest {
             "3,G,1,G,2,G",
             "1,G,500,MG,0.5,G", // take bigger units (regardless of operand order)
             "1500,MG,1,G,0.5,G",
-            "0,G,1,MG,-1,MG", // except for zero: zero doesn't affect target units (regardless of operand order)
-            "1,MG,0,G,1,MG",
+            "0,G,1,MG,-0.001,G", // except for zero: zero doesn't affect target units (regardless of operand order)
+            "1,MG,0,G,0.001,G",
             "0,G,0,MG,0,G", // if both operands are zero, take bigger units
     })
     void testSubtractUnitsSuccess(String aValue, @ConvertWith(UnitConverter.class) WeightUnit aUnit, String bValue, @ConvertWith(UnitConverter.class) WeightUnit bUnit, double expectedValue, @ConvertWith(UnitConverter.class) WeightUnit expectedUnit) {
@@ -143,52 +147,52 @@ class EnteredValueTest {
     @CsvSource({
             // NO_UNIT left identity
             "NO_UNIT,NO_UNIT,NO_UNIT,1",
-            "NO_UNIT,UMOL,UMOL,1",
-            "NO_UNIT,MMOL,MMOL,1",
+            "NO_UNIT,UMOL,MOL,0.000001",
+            "NO_UNIT,MMOL,MOL,0.001",
             "NO_UNIT,MOL,MOL,1",
             "NO_UNIT,G_PER_MOL,G_PER_MOL,1",
             "NO_UNIT,ML,ML,1",
-            "NO_UNIT,L,L,1",
-            "NO_UNIT,MG,MG,1",
+            "NO_UNIT,L,ML,1000",
+            "NO_UNIT,MG,G,0.001",
             "NO_UNIT,G,G,1",
-            "NO_UNIT,KG,KG,1",
-            "NO_UNIT,MM,MM,1",
+            "NO_UNIT,KG,G,1000",
+            "NO_UNIT,MM,M,0.001",
             "NO_UNIT,M,M,1",
             "NO_UNIT,G_ML,G_ML,1",
             // NO_UNIT right identity
-            "UMOL,NO_UNIT,UMOL,1",
-            "MMOL,NO_UNIT,MMOL,1",
+            "UMOL,NO_UNIT,MOL,0.000001",
+            "MMOL,NO_UNIT,MOL,0.001",
             "MOL,NO_UNIT,MOL,1",
             "G_PER_MOL,NO_UNIT,G_PER_MOL,1",
             "ML,NO_UNIT,ML,1",
-            "L,NO_UNIT,L,1",
-            "MG,NO_UNIT,MG,1",
+            "L,NO_UNIT,ML,1000",
+            "MG,NO_UNIT,G,0.001",
             "G,NO_UNIT,G,1",
-            "KG,NO_UNIT,KG,1",
-            "MM,NO_UNIT,MM,1",
+            "KG,NO_UNIT,G,1000",
+            "MM,NO_UNIT,M,0.001",
             "M,NO_UNIT,M,1",
             "G_ML,NO_UNIT,G_ML,1",
             // Molarity × Volume
-            "MM,ML,UMOL,1",
-            "MM,L,MMOL,1",
-            "M,ML,MMOL,1",
+            "MM,ML,MOL,0.000001",
+            "MM,L,MOL,0.001",
+            "M,ML,MOL,0.001",
             "M,L,MOL,1",
-            "ML,MM,UMOL,1",
-            "L,MM,MMOL,1",
-            "ML,M,MMOL,1",
+            "ML,MM,MOL,0.000001",
+            "L,MM,MOL,0.001",
+            "ML,M,MOL,0.001",
             "L,M,MOL,1",
             // MolWeight × Mol (both orderings)
             "G_PER_MOL,MOL,G,1",
-            "G_PER_MOL,MMOL,MG,1",
-            "G_PER_MOL,UMOL,MG,0.001",
+            "G_PER_MOL,MMOL,G,0.001",
+            "G_PER_MOL,UMOL,G,0.000001",
             "MOL,G_PER_MOL,G,1",
-            "MMOL,G_PER_MOL,MG,1",
-            "UMOL,G_PER_MOL,MG,0.001",
+            "MMOL,G_PER_MOL,G,0.001",
+            "UMOL,G_PER_MOL,G,0.000001",
             // Density × Volume (both orderings)
             "G_ML,ML,G,1",
-            "G_ML,L,KG,1",
+            "G_ML,L,G,1000",
             "ML,G_ML,G,1",
-            "L,G_ML,KG,1",
+            "L,G_ML,G,1000",
             // Molarity × MolWeight (both orderings) → Density
             "MM,G_PER_MOL,G_ML,0.000001",
             "M,G_PER_MOL,G_ML,0.001",
@@ -216,6 +220,17 @@ class EnteredValueTest {
         EnteredValue<WeightUnit> self = userEntered("6.0", G, 1);
         EnteredValue<WeightUnit> result = EnteredValue.divide(self, 3.0);
         assertThat(result).hasValue(2, G);
+    }
+
+    @Test
+    void testScalarResultInScopedUnits() {
+        UnitUtils.callWithUnitsAndSignificantFigures(WeightUnit.MG, VolumeUnit.L, MolUnit.MMOL, MolarityUnit.MM, 5, () -> {
+            assertThat(EnteredValue.multiply(userEntered("2.0", G, 1), 3.0)).hasValue(6000, WeightUnit.MG);
+            assertThat(EnteredValue.divide(userEntered("6.0", MolUnit.MOL, 1), 3.0)).hasValue(2000, MolUnit.MMOL);
+            assertThat(EnteredValue.multiply(userEntered("500", VolumeUnit.ML, 1), 2.0)).hasValue(1, VolumeUnit.L);
+            assertThat(EnteredValue.divide(userEntered("1", MolarityUnit.M, 1), 2.0)).hasValue(500, MolarityUnit.MM);
+            return null;
+        });
     }
 
     @ParameterizedTest
@@ -252,26 +267,26 @@ class EnteredValueTest {
             "MM,M,NO_UNIT,0.001",
             "M,MM,NO_UNIT,1000",
             // Divide by NO_UNIT → same unit, 1
-            "UMOL,NO_UNIT,UMOL,1",
-            "MMOL,NO_UNIT,MMOL,1",
+            "UMOL,NO_UNIT,MOL,0.000001",
+            "MMOL,NO_UNIT,MOL,0.001",
             "MOL,NO_UNIT,MOL,1",
             "G_PER_MOL,NO_UNIT,G_PER_MOL,1",
             "ML,NO_UNIT,ML,1",
-            "L,NO_UNIT,L,1",
-            "MG,NO_UNIT,MG,1",
+            "L,NO_UNIT,ML,1000",
+            "MG,NO_UNIT,G,0.001",
             "G,NO_UNIT,G,1",
-            "KG,NO_UNIT,KG,1",
-            "MM,NO_UNIT,MM,1",
+            "KG,NO_UNIT,G,1000",
+            "MM,NO_UNIT,M,0.001",
             "M,NO_UNIT,M,1",
             "G_ML,NO_UNIT,G_ML,1",
             // Weight / MolWeight → Mol
-            "MG,G_PER_MOL,MMOL,1",
+            "MG,G_PER_MOL,MOL,0.001",
             "G,G_PER_MOL,MOL,1",
             "KG,G_PER_MOL,MOL,1000",
             // Weight / Density → Volume
             "MG,G_ML,ML,0.001",
             "G,G_ML,ML,1",
-            "KG,G_ML,L,1",
+            "KG,G_ML,ML,1000",
             // Weight / Volume → Density
             "MG,ML,G_ML,0.001",
             "MG,L,G_ML,0.000001",
@@ -294,13 +309,13 @@ class EnteredValueTest {
             "UMOL,M,ML,0.001",
             "MMOL,MM,ML,1000",
             "MMOL,M,ML,1",
-            "MOL,MM,L,1000",
-            "MOL,M,L,1",
+            "MOL,MM,ML,1000000",
+            "MOL,M,ML,1000",
             // Mol / Volume → Molarity
-            "UMOL,ML,MM,1",
-            "UMOL,L,MM,0.001",
+            "UMOL,ML,M,0.001",
+            "UMOL,L,M,0.000001",
             "MMOL,ML,M,1",
-            "MMOL,L,MM,1",
+            "MMOL,L,M,0.001",
             "MOL,ML,M,1000",
             "MOL,L,M,1",
             // Density / Molarity → MolWeight

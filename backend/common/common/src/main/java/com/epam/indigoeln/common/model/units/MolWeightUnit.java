@@ -11,4 +11,10 @@ public enum MolWeightUnit implements MeasurementUnit {
 
     private final double multiplier;
     private final String displayName;
+
+
+    @Override
+    public MeasurementUnit getBaseUnit() {
+        return G_PER_MOL;
+    }
 }

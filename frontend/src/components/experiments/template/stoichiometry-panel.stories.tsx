@@ -1,5 +1,5 @@
 import { StoichiometryPanel } from '@/components/experiments/template/stoichiometry-panel';
-import { makeExperimentDetails, makeReaction } from '@/mocks/fixtures';
+import { makeExperimentDetails, makeReaction, MODEL_UNITS } from '@/mocks/fixtures';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -41,6 +41,7 @@ export const MultipleSteps: Story = {
   args: {
     experiment: makeExperimentDetails({
       model: {
+        ...MODEL_UNITS,
         significantFigures: 5,
         reactions: [makeReaction(), makeReaction({ anchor: 'rxn00002' }), makeReaction({ anchor: 'rxn00003' })],
       },

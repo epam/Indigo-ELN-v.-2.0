@@ -19,11 +19,12 @@ export type MolUnit = 'UMOL' | 'MMOL' | 'MOL';
 export type WeightUnit = 'MG' | 'G' | 'KG';
 export type VolumeUnit = 'ML' | 'L';
 export type DensityUnit = 'G_ML';
-export type MolarityUnit = 'MM' | 'M';
+/** `KM` is the backend's internal base unit for molarity, never offered as a choice. */
+export type MolarityUnit = 'MM' | 'M' | 'KM';
 export type MolWeightUnit = 'G_PER_MOL';
 export type NoUnit = 'NO_UNIT';
 
-/** Every measurement unit, matching the backend's `MeasurementUnit.ALL_UNITS`. */
+/** Every measurement unit, matching the backend's `UnitUtils.ALL_UNITS`. */
 export type MeasurementUnit = MolUnit | WeightUnit | VolumeUnit | DensityUnit | MolarityUnit | MolWeightUnit | NoUnit;
 
 /**
@@ -31,7 +32,7 @@ export type MeasurementUnit = MolUnit | WeightUnit | VolumeUnit | DensityUnit | 
  * enums — the wire carries the enum name (`MMOL`) and never the label (`mmol`), so this is
  * the only place the two are tied together.
  *
- * One flat map over every unit type, matching `MeasurementUnit.ALL_UNITS`: the names are
+ * One flat map over every unit type, matching `UnitUtils.ALL_UNITS`: the names are
  * unique across all seven enums, and a per-type map would make `unitLabel` generic for no
  * gain. `NO_UNIT` is the empty string, so a unitless value renders as a bare number.
  */
@@ -46,6 +47,7 @@ const UNIT_LABELS: Record<MeasurementUnit, string> = {
   L: 'L',
   MM: 'mM',
   M: 'M',
+  KM: 'KM',
   G_ML: 'g/mL',
   G_PER_MOL: 'g/mol',
   NO_UNIT: '',
@@ -61,98 +63,40 @@ export function unitLabel(unit: string | undefined): string {
 }
 
 /**
- * What each unit is worth in the base unit of its kind. The mirror of `getMultiplier()` on the
- * backend's `MeasurementUnit` enums (`model/units/WeightUnit.java` and its siblings), which is
- * the only reason the numbers here can be trusted — they are not derived from the names.
- */
-const UNIT_MULTIPLIERS: Record<MeasurementUnit, number> = {
-  UMOL: 1e-6,
-  MMOL: 1e-3,
-  MOL: 1,
-  MG: 1e-3,
-  G: 1,
-  KG: 1e3,
-  ML: 1e-3,
-  L: 1,
-  MM: 1e-3,
-  M: 1,
-  G_ML: 1,
-  G_PER_MOL: 1,
-  NO_UNIT: 1,
-};
-
-/**
- * The same quantity written in another unit — `676.5` mg is `0.6765` g.
- *
- * **It moves the decimal point rather than multiplying.** Every pair of units in this model is a
- * power of ten apart, and the arithmetic is on values the user typed and will read back: `4.9`
- * mmol as mol is `0.0049`, where `4.9 * 1e-3` is `0.0049000000000000002`. Shifting the string
- * also makes the conversion reversible, so stepping mg → g → mg returns the digits it started
- * with rather than a rounding of them.
- *
- * Returns the value untouched when there is nothing safe to do: a unit it does not know, a ratio
- * that is not a power of ten, or anything but a plain decimal (`1e3` typed into the number input
- * parses, but is not something to take apart).
- */
-export function convertUnitValue(value: string, from: string, to: string): string {
-  const fromUnit = UNIT_MULTIPLIERS[from as MeasurementUnit];
-  const toUnit = UNIT_MULTIPLIERS[to as MeasurementUnit];
-  if (fromUnit === undefined || toUnit === undefined) return value;
-
-  const exponent = Math.log10(fromUnit / toUnit);
-  if (Math.abs(exponent - Math.round(exponent)) > 1e-9) return value;
-
-  return shiftDecimal(value, Math.round(exponent));
-}
-
-/** `('676.5', -3)` → `'0.6765'`. The digits are carried across; only the point moves. */
-function shiftDecimal(value: string, exponent: number): string {
-  const parsed = /^([+-]?)(\d*)(?:\.(\d*))?$/.exec(value.trim());
-  if (!parsed) return value;
-
-  const [, sign, whole, fraction = ''] = parsed;
-  if (whole === '' && fraction === '') return value;
-
-  const digits = whole + fraction;
-  // Where the point lands among those digits. Outside them at either end, it is zeros that close
-  // the gap — `0.0049` on the left, `5000` on the right.
-  const point = whole.length + exponent;
-  const shifted =
-    point <= 0
-      ? `0.${'0'.repeat(-point)}${digits}`
-      : point >= digits.length
-        ? digits + '0'.repeat(point - digits.length)
-        : `${digits.slice(0, point)}.${digits.slice(point)}`;
-
-  return sign + trim(shifted);
-}
-
-/** Drops the zeros the shift padded with but the reader has no use for: `0676.50` → `676.5`. */
-function trim(value: string): string {
-  const [whole, fraction] = value.split('.');
-  const trimmedWhole = whole.replace(/^0+(?=\d)/, '');
-  const trimmedFraction = fraction?.replace(/0+$/, '') ?? '';
-  return trimmedFraction === '' ? trimmedWhole : `${trimmedWhole}.${trimmedFraction}`;
-}
-
-/**
- * The options a unit picker offers, in the order the backend enum declares them (ascending
- * magnitude). `as const` on each so a column can state which list it takes and have the
- * element type flow through to the mutation it builds.
+ * The options the experiment's unit pickers offer, in the order the backend enum declares them
+ * (ascending magnitude).
  */
 export const MOL_UNITS = ['UMOL', 'MMOL', 'MOL'] as const satisfies readonly MolUnit[];
 export const WEIGHT_UNITS = ['MG', 'G', 'KG'] as const satisfies readonly WeightUnit[];
 export const VOLUME_UNITS = ['ML', 'L'] as const satisfies readonly VolumeUnit[];
-export const MOLARITY_UNITS = ['MM', 'M'] as const satisfies readonly MolarityUnit[];
-export const DENSITY_UNITS = ['G_ML'] as const satisfies readonly DensityUnit[];
-export const MOL_WEIGHT_UNITS = ['G_PER_MOL'] as const satisfies readonly MolWeightUnit[];
 
 /**
- * A unitless quantity — EQ, purity, salt EQ. The model still types these `EnteredValue<NoUnit>`
- * and the backend still expects `NO_UNIT` back, so they are a one-option list rather than a
- * separate cell kind: the picker hides itself when there is nothing to choose between.
+ * The unit a column's values are in, named by quantity rather than by unit — the header reads
+ * it off the experiment (`columnUnitLabel`), so a column states *what* it measures and the model
+ * says in which unit. Every value of a quantity is in that one unit, which is why no cell shows
+ * one of its own.
  */
-export const NO_UNITS = ['NO_UNIT'] as const satisfies readonly NoUnit[];
+export type ColumnUnit = 'weight' | 'volume' | 'mol' | 'molarity' | 'density' | 'molWeight' | 'percent';
+
+/** How a column's unit is written in its header: `g`, `mL`, `g/mol`, `%`. */
+export function columnUnitLabel(model: ExperimentModel, unit: ColumnUnit): string {
+  switch (unit) {
+    case 'weight':
+      return unitLabel(model.weightUnit);
+    case 'volume':
+      return unitLabel(model.volumeUnit);
+    case 'mol':
+      return unitLabel(model.molUnit);
+    case 'molarity':
+      return unitLabel(model.molarityUnit);
+    case 'density':
+      return unitLabel('G_ML');
+    case 'molWeight':
+      return unitLabel('G_PER_MOL');
+    case 'percent':
+      return '%';
+  }
+}
 
 /**
  * Who set a value, and how strongly it holds. `fixed` > a user edit > `calculated` >
@@ -478,4 +422,9 @@ export interface Reaction {
 export interface ExperimentModel {
   reactions: Reaction[];
   significantFigures: number;
+  /** The unit every value of each quantity is in, experiment-wide. */
+  weightUnit: WeightUnit;
+  volumeUnit: VolumeUnit;
+  molUnit: MolUnit;
+  molarityUnit: MolarityUnit;
 }

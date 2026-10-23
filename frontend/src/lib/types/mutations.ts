@@ -2,7 +2,6 @@ import type { AccessForm, DocumentStatus, UserRef, UUID } from '@/lib/types/comm
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import type { ExperimentRef } from '@/lib/types/experiments.ts';
 import type {
-  DensityUnit,
   ExternalSupplier,
   MeltingPoint,
   MolarityUnit,
@@ -28,7 +27,7 @@ import type { SampleDTO } from '@/lib/types/samples.ts';
  * `@JsonTypeInfo(Id.SIMPLE_NAME, property = "type")`, so the wire shape is a discriminated
  * union whose tag is the record's own class name.
  *
- * **This is the complete set** — all 94 members of the backend's `@JsonSubTypes` list, in its
+ * **This is the complete set** — all 98 members of the backend's `@JsonSubTypes` list, in its
  * order — rather than only the ones a screen sends today. The unions below mirror the Java
  * interface hierarchy one for one, so a member that exists there and not here is a diff of two
  * files rather than a search through the app.
@@ -71,6 +70,10 @@ export type ExperimentMutation =
  */
 export type ModelMutation =
   | SetExperimentSignificantFigures
+  | SetExperimentWeightUnit
+  | SetExperimentVolumeUnit
+  | SetExperimentMolUnit
+  | SetExperimentMolarityUnit
   | SetBatchCreator
   | Undo
   | Redo
@@ -80,10 +83,14 @@ export type ModelMutation =
   | ReactionOutputMutation
   | ReactionOutputSampleMutation;
 
-/** The seventeen mutations declared on `ExperimentMutation` itself — no row anchor involved. */
+/** The twenty-one mutations declared on `ExperimentMutation` itself — no row anchor involved. */
 export type ExperimentLevelMutation =
   | CreateExperiment
   | SetExperimentSignificantFigures
+  | SetExperimentWeightUnit
+  | SetExperimentVolumeUnit
+  | SetExperimentMolUnit
+  | SetExperimentMolarityUnit
   | EditExperimentAttributes
   | EditExperimentAccess
   | SetBatchCreator
@@ -222,6 +229,31 @@ export interface CreateExperiment {
 export interface SetExperimentSignificantFigures {
   type: 'SetExperimentSignificantFigures';
   significantFigures: number;
+}
+
+/**
+ * The unit every value of a quantity is shown and entered in, experiment-wide. The backend
+ * converts the user-entered values to it and recalculates the rest, so the patch carries every
+ * affected value already in the new unit.
+ */
+export interface SetExperimentWeightUnit {
+  type: 'SetExperimentWeightUnit';
+  weightUnit: WeightUnit;
+}
+
+export interface SetExperimentVolumeUnit {
+  type: 'SetExperimentVolumeUnit';
+  volumeUnit: VolumeUnit;
+}
+
+export interface SetExperimentMolUnit {
+  type: 'SetExperimentMolUnit';
+  molUnit: MolUnit;
+}
+
+export interface SetExperimentMolarityUnit {
+  type: 'SetExperimentMolarityUnit';
+  molarityUnit: MolarityUnit;
 }
 
 /** `PUT /experiments/{id}`, not `/mutate`. Every member is a `JsonNullable` — see above. */
@@ -409,7 +441,8 @@ export interface ImportSDF {
  * coerces a JSON string into it, and the records are due to be changed to match. Do not
  * "correct" it to a number.
  *
- * Clearing a value sends `null` for the value *and* its unit.
+ * A value is in the experiment's unit for its quantity (`ExperimentModel.weightUnit` and its
+ * siblings), so none of these carries one. Clearing a value sends `null`.
  */
 export interface SetInputRowRole {
   type: 'SetInputRowRole';
@@ -418,12 +451,10 @@ export interface SetInputRowRole {
   role: ReactionRole;
 }
 
-/** Note `molUnit`, not `unit` — the sample-level `SetInputMol` spells the same thing `unit`. */
 export interface SetInputRowMol {
   type: 'SetInputRowMol';
   anchor: UUID;
   mol: string | null;
-  molUnit: MolUnit | null;
 }
 
 export interface SetInputRowChemicalName {
@@ -486,21 +517,18 @@ export interface SetInputDensity {
   type: 'SetInputDensity';
   anchor: UUID;
   density: string | null;
-  unit: DensityUnit | null;
 }
 
 export interface SetInputMolarity {
   type: 'SetInputMolarity';
   anchor: UUID;
   molarity: string | null;
-  unit: MolarityUnit | null;
 }
 
 export interface SetInputVolume {
   type: 'SetInputVolume';
   anchor: UUID;
   volume: string | null;
-  unit: VolumeUnit | null;
 }
 
 /** Purity is a percentage and carries no unit — the model types it `EnteredValue<NoUnit>`. */
@@ -521,14 +549,12 @@ export interface SetInputMol {
   type: 'SetInputMol';
   anchor: UUID;
   mol: string | null;
-  unit: MolUnit | null;
 }
 
 export interface SetInputWeight {
   type: 'SetInputWeight';
   anchor: UUID;
   weight: string | null;
-  unit: WeightUnit | null;
 }
 
 export interface SetInputComment {
@@ -659,21 +685,18 @@ export interface SetOutputDensity {
   type: 'SetOutputDensity';
   anchor: UUID;
   density: string | null;
-  unit: DensityUnit | null;
 }
 
 export interface SetOutputMolarity {
   type: 'SetOutputMolarity';
   anchor: UUID;
   molarity: string | null;
-  unit: MolarityUnit | null;
 }
 
 export interface SetOutputVolume {
   type: 'SetOutputVolume';
   anchor: UUID;
   volume: string | null;
-  unit: VolumeUnit | null;
 }
 
 export interface SetOutputPurity {
@@ -693,14 +716,12 @@ export interface SetOutputActualMol {
   type: 'SetOutputActualMol';
   anchor: UUID;
   actualMol: string | null;
-  unit: MolUnit | null;
 }
 
 export interface SetOutputActualWeight {
   type: 'SetOutputActualWeight';
   anchor: UUID;
   actualWeight: string | null;
-  unit: WeightUnit | null;
 }
 
 /** Sends the batch to the compound registry. Its `registrationStatus` then drives the UI. */

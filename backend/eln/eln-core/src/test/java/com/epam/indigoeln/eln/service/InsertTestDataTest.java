@@ -5,8 +5,6 @@ import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.SortOrder;
 import com.epam.indigoeln.common.model.UserRef;
 import com.epam.indigoeln.common.model.units.DensityUnit;
-import com.epam.indigoeln.common.model.units.MolUnit;
-import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
 import com.epam.indigoeln.compound.model.search.SearchCatalog;
@@ -70,8 +68,8 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
-import java.net.URI;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -235,7 +233,7 @@ class InsertTestDataTest {
         experiment.mutate(new ReactionOutputMutation.SetOutputCompoundStereoisomerCode(experiment.output(1).getAnchor(), stereoisomerCode));
 
         // set input weight
-        experiment.mutateSetInputWeight(1, 1, "100.0", WeightUnit.G);
+        experiment.mutateSetInputWeight(1, 1, "100.0");
 
         // set input eq
         experiment.mutateSetInputRowEQ(2, "2");
@@ -244,13 +242,13 @@ class InsertTestDataTest {
         experiment.mutateAddProductSample(2);
 
         // set output actual mol
-        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualMol(experiment.outputSample(2, 1).getAnchor(), "200.0", MolUnit.MMOL));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualMol(experiment.outputSample(2, 1).getAnchor(), "0.2"));
 
         // set output purity
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputPurity(experiment.outputSample(2, 1).getAnchor(), "0.5"));
 
         // set actual weight
-        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(experiment.outputSample(2, 1).getAnchor(), "10.0", WeightUnit.G));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(experiment.outputSample(2, 1).getAnchor(), "10.0"));
 
         // fill secondary fields
         SampleSourceRef source = dictionaryClient.getFirst(BuiltInDictionary.SAMPLE_SOURCE);

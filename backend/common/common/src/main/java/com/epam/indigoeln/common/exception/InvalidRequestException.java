@@ -1,6 +1,6 @@
 package com.epam.indigoeln.common.exception;
 
-public class InvalidRequestException extends RuntimeException {
+public class InvalidRequestException extends RuntimeException implements UserFacingException {
 
     public InvalidRequestException(String message) {
         super(message);

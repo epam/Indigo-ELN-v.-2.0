@@ -10,6 +10,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 /** What the Approves handler recorded, so its play function can assert on the request itself. */
 const signed: { id: string; keystore: string; password: string }[] = [];
 
+/** The ids the Rejects handler was posted. */
+const rejected: string[] = [];
+
 const meta = {
   title: 'Signatures/SignatureRow',
   component: SignatureRow,
@@ -97,5 +100,36 @@ export const Approves: Story = {
     await waitFor(() =>
       expect(signed).toEqual([{ id: SIGNATURE_DOCUMENTS[2].id, keystore: 'john.p12', password: 'secret' }]),
     );
+  },
+};
+
+/** Rejecting asks first; backing out of the dialog posts nothing. */
+export const RejectAsksFirst: Story = {
+  args: { item: SIGNATURE_DOCUMENTS[2] },
+  parameters: {
+    msw: {
+      handlers: [
+        http.post('/api/signature/documents/:id/reject', ({ params }) => {
+          rejected.push(String(params.id));
+          return HttpResponse.json(SIGNATURE_DOCUMENTS[2]);
+        }),
+        ...handlers,
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    rejected.length = 0;
+    const canvas = within(canvasElement);
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Reject' }));
+    let dialog = within(await screen.findByRole('dialog'));
+    await userEvent.click(dialog.getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    await expect(rejected).toEqual([]);
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Reject' }));
+    dialog = within(await screen.findByRole('dialog'));
+    await userEvent.click(dialog.getByRole('button', { name: 'Reject' }));
+    await waitFor(() => expect(rejected).toEqual([SIGNATURE_DOCUMENTS[2].id]));
   },
 };

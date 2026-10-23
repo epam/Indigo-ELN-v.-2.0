@@ -43,8 +43,8 @@ class SetOutputActualMolHandler extends AbstractReactionOutputSampleMutationHand
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualMol mutation, ExperimentMutationContext context) {
-        setEnteredValue(sample.getActualMol(), sample::setActualMol, mutation.actualMol(), mutation.unit(), experiment.getRevision());
-        return formatSetterSummary("batch actual mol", mutation.actualMol(), mutation.unit());
+        setEnteredValue(sample.getActualMol(), sample::setActualMol, mutation.actualMol(), model.getMolUnit(), experiment.getRevision());
+        return formatSetterSummary("batch actual mol", mutation.actualMol(), model.getMolUnit());
     }
 }
 
@@ -54,8 +54,8 @@ class SetOutputActualWeightHandler extends AbstractReactionOutputSampleMutationH
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualWeight mutation, ExperimentMutationContext context) {
-        setEnteredValue(sample.getActualWeight(), sample::setActualWeight, mutation.actualWeight(), mutation.unit(), experiment.getRevision());
-        return formatSetterSummary("batch actual weight", mutation.actualWeight(), mutation.unit());
+        setEnteredValue(sample.getActualWeight(), sample::setActualWeight, mutation.actualWeight(), model.getWeightUnit(), experiment.getRevision());
+        return formatSetterSummary("batch actual weight", mutation.actualWeight(), model.getWeightUnit());
     }
 }
 
