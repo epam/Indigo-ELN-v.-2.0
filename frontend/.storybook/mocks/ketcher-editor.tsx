@@ -10,12 +10,20 @@ let isReaction = false;
 let atomCount = 1;
 
 const fakeKetcher = {
+  // Called by `StructureEditorDialog` before seeding a structure it opened with.
+  setSettings: () => {},
   setMolecule: () => Promise.resolve(),
   containsReaction: () => isReaction,
   getMolfile: () => Promise.resolve(MOLFILE),
   getRxn: () => Promise.resolve(MOLFILE),
-  // What `StructureEditorDialog` reads to refuse a canvas with nothing on it.
-  editor: { struct: () => ({ atoms: { size: atomCount } }) },
+  layout: () => Promise.resolve(),
+  // What `StructureEditorDialog` reads: the size to refuse an empty canvas, the positions to tell
+  // whether a seeded structure needs laying out. Spread along x, so it never does.
+  editor: {
+    struct: () => ({
+      atoms: new Map(Array.from({ length: atomCount }, (_, i) => [i, { pp: { x: i, y: 0 } }])),
+    }),
+  },
 } as unknown as Ketcher;
 
 /**

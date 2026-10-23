@@ -20,7 +20,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useAddMaterial } from '@/lib/hooks/experiments/use-add-material';
 import { prewarmKetcher } from '@/lib/ketcher';
 import { getAllInputSampleKeys } from '@/lib/reactions';
-import { notifyError } from '@/lib/toast';
+import { notifyAndThrow } from '@/lib/toast';
 
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import type { Reaction } from '@/lib/types/reactions.ts';
@@ -91,14 +91,10 @@ export function AddMaterialDialog({
   /**
    * Takes the drawing, or refuses it. Throwing is what holds the sketcher open with the drawing
    * intact — `StructureEditorDialog` swallows a rejection from `onSave` on the grounds that
-   * whoever rejected has already reported it, which is what the toast above is for.
+   * whoever rejected has already reported it, which `notifyAndThrow` does.
    */
   function handleStructure(next: StructureEditorResult | null) {
-    if (next?.isReaction) {
-      const error = new Error(REACTION_NOT_SEARCHABLE);
-      notifyError(error);
-      throw error;
-    }
+    if (next?.isReaction) notifyAndThrow(REACTION_NOT_SEARCHABLE);
     patch({ structure: next?.structure ?? null });
   }
 
