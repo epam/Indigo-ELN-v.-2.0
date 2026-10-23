@@ -9,8 +9,9 @@ import type { ReactNode } from 'react';
 import type { Page } from '@/lib/types/common.ts';
 import type { SampleDTO } from '@/lib/types/samples.ts';
 
-const fetchAuthSession = vi.fn().mockResolvedValue({ tokens: { accessToken: { toString: () => 'token' } } });
-vi.mock('aws-amplify/auth', () => ({ fetchAuthSession, signOut: vi.fn() }));
+vi.mock('@/lib/auth', () => ({
+  auth: { getAccessToken: async () => 'token', requireLogin: async () => false, signOut: vi.fn() },
+}));
 
 /**
  * Every request the dialog makes, path and body. This is where the endpoint contract is pinned:

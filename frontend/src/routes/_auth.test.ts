@@ -1,8 +1,9 @@
 import { createMemoryHistory, createRouter } from '@tanstack/react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const fetchAuthSession = vi.fn();
-vi.mock('aws-amplify/auth', () => ({ fetchAuthSession, signOut: vi.fn() }));
+const getAccessToken = vi.fn();
+const requireLogin = vi.fn();
+vi.mock('@/lib/auth', () => ({ auth: { getAccessToken, requireLogin, signOut: vi.fn() } }));
 
 const { routeTree } = await import('@/routeTree.gen');
 
@@ -12,11 +13,13 @@ function routerAt(path: string) {
 
 describe('_auth guard', () => {
   beforeEach(() => {
-    fetchAuthSession.mockReset();
+    getAccessToken.mockReset();
+    // The Cognito answer: the provider has not taken over, so the guard routes to /login itself.
+    requireLogin.mockReset().mockResolvedValue(false);
   });
 
   it('sends unauthenticated visitors to /login with a redirect back', async () => {
-    fetchAuthSession.mockResolvedValue({ tokens: undefined });
+    getAccessToken.mockResolvedValue(undefined);
 
     const router = routerAt('/projects');
     await router.load();
@@ -25,17 +28,31 @@ describe('_auth guard', () => {
     expect(router.state.location.search).toEqual({ redirect: '/projects' });
   });
 
+  it('leaves the redirect to the provider when it handles the login itself', async () => {
+    // What Keycloak does: requireLogin navigates to the hosted login page, so the guard must not
+    // also send the user to the in-app /login form, which that environment does not render.
+    getAccessToken.mockResolvedValue(undefined);
+    requireLogin.mockResolvedValue(true);
+
+    const router = routerAt('/projects');
+    await router.load();
+
+    expect(requireLogin).toHaveBeenCalledWith('/projects');
+    expect(router.state.location.pathname).not.toBe('/login');
+  });
+
   it('lets an authenticated visitor through to the guarded route', async () => {
-    fetchAuthSession.mockResolvedValue({ tokens: { accessToken: { toString: () => 'token' } } });
+    getAccessToken.mockResolvedValue('token');
 
     const router = routerAt('/projects');
     await router.load();
 
     expect(router.state.location.pathname).toBe('/projects');
+    expect(requireLogin).not.toHaveBeenCalled();
   });
 
   it('redirects the index route to /projects', async () => {
-    fetchAuthSession.mockResolvedValue({ tokens: { accessToken: { toString: () => 'token' } } });
+    getAccessToken.mockResolvedValue('token');
 
     const router = routerAt('/');
     await router.load();

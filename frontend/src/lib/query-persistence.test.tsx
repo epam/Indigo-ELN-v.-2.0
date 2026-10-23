@@ -2,18 +2,18 @@ import { dehydrate, QueryClient, useIsRestoring } from '@tanstack/react-query';
 import { act, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const fetchAuthSession = vi.fn();
-vi.mock('aws-amplify/auth', () => ({ fetchAuthSession }));
-
-// Stands in for Amplify's event bus: `auth` is a protected channel, so `Hub.dispatch`
-// from application code is dropped and the listeners have to be driven directly.
-type AuthListener = (capsule: { payload: { event: string } }) => void;
+// Stands in for the auth facade. The subscription is held here so the tests can drive it
+// directly — whichever provider is selected, the provider owns the event source, and this
+// suite is about what the cache does in response.
+type AuthListener = (event: 'signedIn' | 'signedOut') => void;
 const listeners = new Set<AuthListener>();
-vi.mock('aws-amplify/utils', () => ({
-  Hub: {
-    listen: (_channel: string, callback: AuthListener) => {
-      listeners.add(callback);
-      return () => listeners.delete(callback);
+const getUserId = vi.fn();
+vi.mock('@/lib/auth', () => ({
+  auth: {
+    getUserId,
+    onAuthChange: (listener: AuthListener) => {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
     },
   },
 }));
@@ -48,9 +48,9 @@ async function flush() {
   });
 }
 
-async function emit(event: string) {
+async function emit(event: 'signedIn' | 'signedOut') {
   await act(async () => {
-    listeners.forEach((callback) => callback({ payload: { event } }));
+    listeners.forEach((callback) => callback(event));
   });
   await flush();
 }
@@ -73,7 +73,7 @@ const restoringFlag = () => screen.getByTestId('restoring').textContent;
 const restoredUser = () => queryClient.getQueryData(userKeys.currentUser());
 
 beforeEach(() => {
-  fetchAuthSession.mockReset();
+  getUserId.mockReset();
   window.localStorage.clear();
   queryClient.clear();
 });
@@ -96,7 +96,7 @@ describe('QueryPersistenceProvider', () => {
     // The regression: signing in is an SPA navigation, so a page that opened signed out
     // never reloads and used to spend the rest of its life unpersisted.
     seedStoredCache();
-    fetchAuthSession.mockResolvedValue({ userSub: SUB });
+    getUserId.mockResolvedValue(SUB);
 
     renderProvider();
     await flush();
@@ -137,7 +137,7 @@ describe('QueryPersistenceProvider', () => {
     renderProvider();
     expect(restoringFlag()).toBe('false');
 
-    fetchAuthSession.mockResolvedValue({ userSub: SUB });
+    getUserId.mockResolvedValue(SUB);
     await emit('signedIn');
     expect(restoringFlag()).toBe('false');
 
@@ -164,7 +164,7 @@ describe('QueryPersistenceProvider', () => {
     await emit('signedOut');
 
     const otherSub = 'cognito-sub-2';
-    fetchAuthSession.mockResolvedValue({ userSub: otherSub });
+    getUserId.mockResolvedValue(otherSub);
     await emit('signedIn');
 
     // Nothing was ever stored for the second user, so their cache starts empty rather

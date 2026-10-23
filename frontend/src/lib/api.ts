@@ -1,5 +1,4 @@
-import { fetchAuthSession } from 'aws-amplify/auth';
-
+import { auth } from '@/lib/auth';
 import { buildReportErrorContext, INCIDENTS_PATH } from '@/lib/report-error';
 import { notifyError } from '@/lib/toast';
 
@@ -36,14 +35,14 @@ type ApiRequestInit = Omit<RequestInit, 'body'> & {
 };
 
 /**
- * The backend resolves the principal from the `username` claim, which only exists
- * on a Cognito *access* token (an ID token spells it `cognito:username`), so this
- * must stay accessToken. See UserHolder.java.
+ * The backend resolves the principal from the first of these claims it finds:
+ * `preferred_username` (Keycloak), then `username` (a Cognito *access* token — an ID token
+ * spells it `cognito:username`), then the principal name. So both providers must hand back an
+ * access token, never an ID token. See UserHolder.java.
  */
 async function authHeader(): Promise<Record<string, string>> {
-  const session = await fetchAuthSession();
-  const accessToken = session.tokens?.accessToken;
-  return accessToken ? { Authorization: `Bearer ${accessToken.toString()}` } : {};
+  const token = await auth.getAccessToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 async function parseSuccessBody(response: Response, responseType: ResponseType): Promise<unknown> {

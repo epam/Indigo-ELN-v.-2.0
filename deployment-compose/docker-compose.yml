@@ -53,10 +53,11 @@ services:
     build:
       context: ./../frontend
       dockerfile: Dockerfile
-    environment:
-      - KEYCLOAK_URL=http://localhost:8088
-      - KEYCLOAK_REALM=indigo-eln
-      - KEYCLOAK_CLIENT_ID=frontend-client
+      args:
+        VITE_AUTH_PROVIDER: keycloak
+        VITE_KEYCLOAK_URL: http://localhost:8088
+        VITE_KEYCLOAK_REALM: indigo-eln
+        VITE_KEYCLOAK_CLIENT_ID: frontend-client
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/"]
       interval: 10s

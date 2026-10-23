@@ -7,8 +7,9 @@ import { makeExperimentDetails } from '@/mocks/fixtures';
 
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 
-const fetchAuthSession = vi.fn().mockResolvedValue({ tokens: { accessToken: { toString: () => 'token' } } });
-vi.mock('aws-amplify/auth', () => ({ fetchAuthSession, signOut: vi.fn() }));
+vi.mock('@/lib/auth', () => ({
+  auth: { getAccessToken: async () => 'token', requireLogin: async () => false, signOut: vi.fn() },
+}));
 
 const apiFetch = vi.fn();
 vi.mock('@/lib/api', async () => {

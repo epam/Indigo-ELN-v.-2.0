@@ -1,6 +1,7 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 
 import { LoginCard } from '@/components/auth/login-card';
+import { auth } from '@/lib/auth';
 import { usePageTitle } from '@/lib/hooks/use-page-title';
 import { z } from '@/lib/zod';
 
@@ -8,6 +9,9 @@ export const Route = createFileRoute('/login')({
   validateSearch: z.object({
     redirect: z.string().optional(),
   }),
+  beforeLoad: async ({ search }) => {
+    await auth.requireLogin(search.redirect ?? '/');
+  },
   component: LoginPage,
 });
 
