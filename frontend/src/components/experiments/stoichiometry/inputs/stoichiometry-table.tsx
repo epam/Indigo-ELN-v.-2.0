@@ -22,22 +22,21 @@ import {
   HEADER_CELL_CLASS,
   alignOf,
 } from '@/components/experiments/stoichiometry/columns';
+import { ColumnSelector } from '@/components/experiments/stoichiometry/column-selector';
 import { LimitingCell, RoleCell } from '@/components/experiments/stoichiometry/inputs/cells';
 import type { InputColumn, SampleColumn, SamplePart } from '@/components/experiments/stoichiometry/inputs/columns';
 import {
-  HIDEABLE_INPUT_COLUMN_IDS,
   HIDEABLE_INPUT_COLUMNS,
   SAMPLE_COLUMNS,
   SAMPLE_INDENT_SPAN,
   shortBatchNumber,
   visibleInputColumns,
 } from '@/components/experiments/stoichiometry/inputs/columns';
-import { ColumnSelector } from '@/components/experiments/stoichiometry/column-selector';
-import { useHiddenColumns } from '@/lib/hooks/experiments/use-hidden-columns';
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { equalWidth, useEqualWidths } from '@/lib/hooks/use-equal-widths';
 import { cellId, useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
+import { useHiddenColumns } from '@/lib/hooks/experiments/use-hidden-columns';
 import { Button } from '@/components/ui/button';
 import { SearchInput } from '@/components/ui/search-input';
 import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/ui/menu';
@@ -135,7 +134,7 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
   const table = useRef<HTMLTableElement>(null);
   useEqualWidths(table, EQUAL_WIDTH_PARTS);
 
-  const columnChoice = useHiddenColumns('stoichiometryInputs', HIDEABLE_INPUT_COLUMN_IDS);
+  const columnChoice = useHiddenColumns('stoichiometryInputs', HIDEABLE_INPUT_COLUMNS);
   const columns = useMemo(() => visibleInputColumns(columnChoice.hidden), [columnChoice.hidden]);
 
   const inputs = useMemo(() => {
@@ -333,14 +332,14 @@ function Toolbar({
           </MenuContent>
         </Menu>
 
+        {columnSelector}
+
         {/*
           Wrapped rather than given `Button`'s own `loading`, matching `AddBatchCell` — the same
           add-a-row action one level down. `SavingOverlay` runs the flag through the 300 ms delay,
           so the usual fast `AddEmptyInput` shows nothing at all instead of a spinner that blinks,
           and it inerts the button meanwhile, so the row cannot be added twice.
         */}
-        {columnSelector}
-
         <SavingOverlay pending={mutations.savingCells.has(addInputCell)} spinner="center">
           <Button
             variant="ghost"

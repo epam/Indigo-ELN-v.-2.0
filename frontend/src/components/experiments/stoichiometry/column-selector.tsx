@@ -3,6 +3,8 @@ import { Columns3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Menu, MenuCheckboxItem, MenuContent, MenuItem, MenuTrigger } from '@/components/ui/menu';
 
+import type { HideableColumn } from '@/lib/hooks/experiments/use-hidden-columns';
+
 /**
  * The Column Selector in a stoichiometry table's toolbar: one tick per column the user may switch
  * off, and Reset to put them all back.
@@ -18,7 +20,7 @@ export function ColumnSelector({
   onToggle,
   onReset,
 }: {
-  columns: readonly { id: string; header: string }[];
+  columns: readonly HideableColumn[];
   hidden: ReadonlySet<string>;
   onToggle: (id: string, visible: boolean) => void;
   onReset: () => void;

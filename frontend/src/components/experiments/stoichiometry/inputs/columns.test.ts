@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   COMPOUND_COLUMNS,
-  HIDEABLE_INPUT_COLUMN_IDS,
+  HIDEABLE_INPUT_COLUMNS,
   SAMPLE_COLUMNS,
   SAMPLE_INDENT_SPAN,
   shortBatchNumber,
@@ -65,10 +65,12 @@ describe('shortBatchNumber', () => {
 
 describe('visibleInputColumns', () => {
   /** The host-grid invariant above, for every column choice rather than only the default one. */
+  const hideableIds = HIDEABLE_INPUT_COLUMNS.map((column) => column.id);
+
   it('keeps a sample row as wide as a compound row whatever is hidden', () => {
     // Every prefix of the hideable list, down to all of it: each hides one more compound column.
-    for (let count = 0; count <= HIDEABLE_INPUT_COLUMN_IDS.length; count++) {
-      const { compound, sample } = visibleInputColumns(new Set(HIDEABLE_INPUT_COLUMN_IDS.slice(0, count)));
+    for (let count = 0; count <= hideableIds.length; count++) {
+      const { compound, sample } = visibleInputColumns(new Set(hideableIds.slice(0, count)));
       const spanned = SAMPLE_INDENT_SPAN + sample.reduce((sum, column) => sum + column.span, 0);
       expect(spanned).toBe(compound.length + 1);
       expect(sample.every((column) => column.span >= 1)).toBe(true);
@@ -81,9 +83,32 @@ describe('visibleInputColumns', () => {
     expect(group?.kind === 'group' && group.parts.map((part) => part.id)).toEqual(['molarity', 'purity', 'comment']);
   });
 
-  it('never offers the columns the table is built on', () => {
-    for (const fixed of ['index', 'compoundId', 'weight', 'volume', 'mol', 'role', 'limiting', 'delete', 'batch']) {
-      expect(HIDEABLE_INPUT_COLUMN_IDS).not.toContain(fixed);
-    }
+  /**
+   * Positive, so a `hideable` flag dropped or misplaced fails by name — a missing flag would
+   * otherwise just quietly take a column out of the menu.
+   */
+  it('offers exactly the optional compound columns, then the batch details', () => {
+    expect(hideableIds).toEqual([
+      'eq',
+      'formula',
+      'molWeight',
+      'casNumber',
+      'chemicalName',
+      'saltCode',
+      'saltEQ',
+      'stereoisomerCode',
+      'density',
+      'molarity',
+      'purity',
+      'hazards',
+      'comment',
+    ]);
+  });
+
+  /** The details group gives up a column per hidden compound column, so it must start wider. */
+  it('starts the details group wider than the hideable compound columns', () => {
+    const group = SAMPLE_COLUMNS.find((column) => column.kind === 'group');
+    const hideableCompound = COMPOUND_COLUMNS.filter((column) => column.hideable).length;
+    expect(group?.span).toBeGreaterThan(hideableCompound);
   });
 });

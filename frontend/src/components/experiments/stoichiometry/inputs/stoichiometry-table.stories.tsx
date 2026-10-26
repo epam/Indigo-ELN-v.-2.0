@@ -3,6 +3,7 @@ import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
 import { StoichiometryTable } from '@/components/experiments/stoichiometry/inputs/stoichiometry-table';
 import { useExperiment } from '@/lib/api/experiments';
+import { clearColumnChoices } from '@/mocks/column-choices';
 import { makeExperimentDetails, makeReaction } from '@/mocks/fixtures';
 import { failingMutateHandlers, handlers, recalculatingMutateHandlers, slowMutateHandlers } from '@/mocks/handlers';
 
@@ -40,11 +41,6 @@ const meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
-
-/** The Column Selector remembers its choice in localStorage; a story that changes it starts and ends clean. */
-function clearColumnChoices() {
-  for (const key of Object.keys(localStorage)) if (key.endsWith('.hiddenColumns')) localStorage.removeItem(key);
-}
 
 /** Five compounds, every one of them open — the batches are what the table is for. */
 export const Default: Story = {

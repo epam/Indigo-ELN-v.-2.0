@@ -3,6 +3,7 @@ import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
 import { ReactionProductsTable } from '@/components/experiments/stoichiometry/products/products-table';
 import { useExperiment } from '@/lib/api/experiments';
+import { clearColumnChoices } from '@/mocks/column-choices';
 import { makeExperimentDetails, makeReaction, makeReactionOutput } from '@/mocks/fixtures';
 import { failingMutateHandlers, handlers, slowMutateHandlers } from '@/mocks/handlers';
 
@@ -56,11 +57,6 @@ const meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
-
-/** The Column Selector remembers its choice in localStorage; a story that changes it starts and ends clean. */
-function clearColumnChoices() {
-  for (const key of Object.keys(localStorage)) if (key.endsWith('.hiddenColumns')) localStorage.removeItem(key);
-}
 
 /**
  * Three products, and the fourth fixture row — the one with `intended: false` — deliberately

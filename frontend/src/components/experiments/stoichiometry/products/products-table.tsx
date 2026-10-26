@@ -15,19 +15,18 @@ import {
   HEADER_CELL_CLASS,
   alignOf,
 } from '@/components/experiments/stoichiometry/columns';
+import { ColumnSelector } from '@/components/experiments/stoichiometry/column-selector';
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import { AddBatchCell, OutputTypeCell } from '@/components/experiments/stoichiometry/products/cells';
 import type { ProductColumn, ProductRow } from '@/components/experiments/stoichiometry/products/columns';
 import {
-  HIDEABLE_PRODUCT_COLUMN_IDS,
   HIDEABLE_PRODUCT_COLUMNS,
   PRODUCT_COLUMNS,
   productHaystack,
 } from '@/components/experiments/stoichiometry/products/columns';
-import { ColumnSelector } from '@/components/experiments/stoichiometry/column-selector';
-import { useHiddenColumns } from '@/lib/hooks/experiments/use-hidden-columns';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { cellId, useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
+import { useHiddenColumns } from '@/lib/hooks/experiments/use-hidden-columns';
 import { cn } from '@/lib/utils';
 import { SearchInput } from '@/components/ui/search-input';
 import { Switch } from '@/components/ui/switch';
@@ -65,7 +64,7 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
   const canEdit = canEditExperiment(experiment);
   const reactions = experiment.model.reactions;
 
-  const columnChoice = useHiddenColumns('stoichiometryProducts', HIDEABLE_PRODUCT_COLUMN_IDS);
+  const columnChoice = useHiddenColumns('stoichiometryProducts', HIDEABLE_PRODUCT_COLUMNS);
   const columns = useMemo(
     () => PRODUCT_COLUMNS.filter((column) => !columnChoice.hidden.has(column.id)),
     [columnChoice.hidden],
