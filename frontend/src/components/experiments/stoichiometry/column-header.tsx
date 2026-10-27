@@ -24,17 +24,17 @@ const PICKABLE: Partial<
 > = {
   weight: {
     options: WEIGHT_UNITS,
-    current: (model) => model.weightUnit,
+    current: (model) => model.unitSource.weightUnit,
     mutation: (unit) => ({ type: 'SetExperimentWeightUnit', weightUnit: unit as WeightUnit }),
   },
   volume: {
     options: VOLUME_UNITS,
-    current: (model) => model.volumeUnit,
+    current: (model) => model.unitSource.volumeUnit,
     mutation: (unit) => ({ type: 'SetExperimentVolumeUnit', volumeUnit: unit as VolumeUnit }),
   },
   mol: {
     options: MOL_UNITS,
-    current: (model) => model.molUnit,
+    current: (model) => model.unitSource.molUnit,
     mutation: (unit) => ({ type: 'SetExperimentMolUnit', molUnit: unit as MolUnit }),
   },
 };

@@ -18,10 +18,16 @@ const NON_POSITIVE_CLASSES = ['text-red-200'];
  * undefined when the cell did not exist there. With no patch the caller passes the value itself,
  * so nothing has changed.
  */
-export function hasChanged(value: EnteredValue<unknown>, previous: EnteredValue<unknown> | undefined): boolean {
-  return (
-    value.value !== previous?.value || value.source !== previous?.source || value.overwritten !== previous?.overwritten
-  );
+export function hasChanged(value: EnteredValue | undefined, previous: EnteredValue | undefined): boolean {
+  return value?.value !== previous?.value || value?.source !== previous?.source;
+}
+
+/**
+ * Whether the last patch threw away a value the user had entered: it was theirs before, and the
+ * backend has now calculated it, or left it empty, to resolve a conflict.
+ */
+export function isOverwritten(value: EnteredValue | undefined, previous: EnteredValue | undefined): boolean {
+  return previous?.source === 'U' && (value?.source === 'C' || value?.value == null);
 }
 
 /**
@@ -30,40 +36,37 @@ export function hasChanged(value: EnteredValue<unknown>, previous: EnteredValue<
  *
  * Three independent things are encoded, which is why the result is a list rather than one class:
  *
- * - **Provenance**, a steady state. `EnteredValue.source` is `'fixed' | 'default' |
- *   'calculated'`, or a **number** — the revision a user entered the value in. So "was this
- *   typed by a person" is `typeof source === 'number'`, not a named enum member.
+ * - **Provenance**, a steady state, read off `EnteredValue.source`: `U` is a value a person
+ *   typed, `D` a default.
  * - **What just happened to it**, a one-shot flash. Green when the backend recalculated the
- *   value, red when it overwrote one the user had entered.
+ *   value, red when it overwrote one the user had entered (`isOverwritten`).
  * - **Validity**: a value of zero or less is written in red.
  *
  * Both flashes compare the value with `previous`, the same cell before the last patch — see
  * `hasChanged`. That keeps the table still on first load, when there is no patch and the caller
  * passes the value itself, and leaves alone every cell a patch did not move.
  */
-export function determineCellClasses(
-  value: EnteredValue<unknown> | undefined,
-  previous: EnteredValue<unknown> | undefined,
-): string[] {
-  if (value == null) return [];
+export function determineCellClasses(value: EnteredValue | undefined, previous: EnteredValue | undefined): string[] {
+  // An empty cell has nothing to style, unless emptying it is what overwrote the user's value.
+  if (value?.value == null && !isOverwritten(value, previous)) return [];
 
-  const nonPositive = value.value != null && Number(value.value) <= 0;
+  const nonPositive = value?.value != null && Number(value.value) <= 0;
 
   // A user-entered value never animates: the user knows what they just typed, and the whole
   // point of the flash is to point out a change they did *not* make.
-  if (typeof value.source === 'number') {
+  if (value?.source === 'U') {
     return nonPositive ? [...USER_ENTERED_CLASSES, ...NON_POSITIVE_CLASSES] : USER_ENTERED_CLASSES;
   }
 
   const classes: string[] = [];
 
-  if (value.source === 'default') {
+  if (value?.source === 'D') {
     classes.push('text-neutral-700', 'italic');
   }
 
-  if (value.overwritten && hasChanged(value, previous)) {
+  if (isOverwritten(value, previous)) {
     classes.push('animate-[flash-red_500ms_ease-in-out]');
-  } else if (value.source === 'calculated' && (value.source !== previous?.source || value.value !== previous?.value)) {
+  } else if (value?.source === 'C' && hasChanged(value, previous)) {
     classes.push('animate-[flash-green_500ms_ease-in-out]');
   }
 

@@ -596,6 +596,24 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
+    void testClearInputDensityKeepsMolarity() {
+        experiment.mutateAddEmptyInput();
+        experiment.mutateSetInputMolarity(1, 1, "0.01");
+        experiment.mutateSetInputDensity(1, 1, null);
+        assertThat(experiment.inputSample(1, 1)).hasMolarity(0.01, M).hasNoDensity();
+    }
+
+    @Test
+    void testSetExperimentWeightUnitPreservesRevision() {
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateSetInputWeight(1, 1, "100");
+        int priority = experiment.inputSample(1, 1).getWeight().getPriority();
+        experiment.mutate(new ExperimentMutation.SetExperimentWeightUnit(WeightUnit.MG));
+        assertThat(experiment.inputSample(1, 1)).hasWeight(100000.0, WeightUnit.MG);
+        assertThat(experiment.inputSample(1, 1).getWeight()).isUserEntered(priority);
+    }
+
+    @Test
     void testTryNotOverwriteMolarity() {
         experiment.mutateAddEmptyInput();
         experiment.mutateSetInputMolarity(1, 1, "10.0");

@@ -26,6 +26,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import static com.epam.indigoeln.reaction.util.CalculationContext.getSignificantFigures;
 import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.formatToSignificantFigures;
@@ -302,7 +303,6 @@ public sealed abstract class EnteredValue<U extends MeasurementUnit> permits Ent
         }
     }
 
-    @EqualsAndHashCode(of = {"stringValue"}, callSuper = false)
     public static final class Calculated<U extends MeasurementUnit> extends EnteredValue<U> {
 
         private final double baseValue;
@@ -326,6 +326,16 @@ public sealed abstract class EnteredValue<U extends MeasurementUnit> permits Ent
 
         public Calculated<U> withUnit(U newUnit) {
             return new Calculated<>(baseValue, newUnit);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof Calculated<?> that && unit == that.unit && Objects.equals(getStringValue(), that.getStringValue());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(unit, getStringValue());
         }
     }
 

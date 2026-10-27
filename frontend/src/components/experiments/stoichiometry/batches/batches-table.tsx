@@ -30,7 +30,7 @@ import { useExportSdf, useImportSdf } from '@/lib/api/experiments';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
 
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
-import type { Reaction } from '@/lib/types/reactions.ts';
+import type { ExperimentModel, Reaction } from '@/lib/types/reactions.ts';
 import { isKnownCompound, shortNbkBatchNumber } from '@/lib/types/reactions.ts';
 
 /**
@@ -144,6 +144,7 @@ export function ProductBatchSummaryTable({
               key={row.sample.anchor}
               row={row}
               previousRow={previousBatchRow(previousReaction, row)}
+              model={experiment.model}
               reaction={reaction}
               expanded={expanded.has(row.sample.anchor)}
               onToggle={() => toggle(row.sample.anchor)}
@@ -285,6 +286,7 @@ function previousBatchRow(previousReaction: Reaction | undefined, row: BatchRow)
 function BatchRowGroup({
   row,
   previousRow,
+  model,
   reaction,
   expanded,
   onToggle,
@@ -293,6 +295,8 @@ function BatchRowGroup({
 }: {
   row: BatchRow;
   previousRow: BatchRow | undefined;
+  /** Only the detail panel needs it, for the experiment-wide units. */
+  model: ExperimentModel;
   /** Only the detail panel needs it, for the precursors it derives from the reaction's inputs. */
   reaction: Reaction;
   expanded: boolean;
@@ -336,7 +340,7 @@ function BatchRowGroup({
         <tr>
           {/* +1 for the chevron column, which is not in `BATCH_COLUMNS`. */}
           <td colSpan={BATCH_COLUMNS.length + 1} className="border-b border-neutral-300 bg-neutral-100 p-4">
-            <BatchDetailPanel row={row} reaction={reaction} canEdit={canEdit} mutations={mutations} />
+            <BatchDetailPanel row={row} model={model} reaction={reaction} canEdit={canEdit} mutations={mutations} />
           </td>
         </tr>
       )}

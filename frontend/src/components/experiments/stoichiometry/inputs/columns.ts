@@ -82,7 +82,7 @@ type Cell<Row> =
    */
   | {
       kind: 'readonlyNumeric';
-      value: (row: Row) => EnteredValue<string> | undefined;
+      value: (row: Row) => EnteredValue | undefined;
     }
   /** Free text, saved on blur. */
   | {
@@ -93,7 +93,7 @@ type Cell<Row> =
   /** A number, in the unit the column's header names. */
   | {
       kind: 'numeric';
-      value: (row: Row) => EnteredValue<string> | undefined;
+      value: (row: Row) => EnteredValue | undefined;
       mutation: (row: Row, next: string | null) => ModelMutation;
       editable?: (row: Row) => boolean;
     }

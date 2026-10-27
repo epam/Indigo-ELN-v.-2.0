@@ -254,9 +254,6 @@
   .patch-diff .comment {
     @apply bg-card font-normal italic;
   }
-  .patch-diff .warning {
-    @apply bg-red-200 font-semibold text-white italic;
-  }
   /*
    * `EnteredValue.source`. These use `determineCellClasses`' colours, so a
    * value's provenance reads the same in the diff as in the cell it came from. (`calculated` and

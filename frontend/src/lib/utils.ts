@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 import type { DateString } from '@/lib/types/common.ts';
+import type { Anchor } from '@/lib/types/reactions.ts';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -54,7 +55,7 @@ export function formatBytes(bytes: number): string {
  * characters, the same form `Anchor.generate()` produces on the backend. An anchor only has to
  * be unique within its experiment, and the backend answers a clash with a 400.
  */
-export function newAnchor(): string {
+export function newAnchor(): Anchor {
   const bytes = crypto.getRandomValues(new Uint8Array(6));
   return btoa(String.fromCharCode(...bytes))
     .replaceAll('+', '-')

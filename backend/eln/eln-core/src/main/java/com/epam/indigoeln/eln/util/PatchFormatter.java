@@ -4,7 +4,6 @@ import com.epam.indigoeln.compound.service.CompoundService;
 import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.eln.indigowrapper.IndigoReaction;
 import com.epam.indigoeln.eln.indigowrapper.IndigoRendererAPI;
-import com.epam.indigoeln.reaction.util.UnitUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -19,6 +18,8 @@ import org.jspecify.annotations.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Dependent
@@ -26,6 +27,14 @@ public class PatchFormatter {
 
     private static final String SOURCE = "source";
     private static final String VALUE = "value";
+    private static final Map<String, String> ENTERED_VALUE_SOURCES = Map.of(
+            "F", "fixed",
+            "D", "default",
+            "C", "calculated",
+            "U", "user-entered",
+            "L", "user-entered"
+    );
+    private static final Set<String> ENTERED_VALUE_FIELDS = Set.of(VALUE, SOURCE, "exact", "revision");
 
     @Inject
     IndigoAPI indigo;
@@ -78,25 +87,17 @@ public class PatchFormatter {
                     doFormat(before, objectPatch.get("$new"), true);
                 }
             }
-            case ObjectNode objectPatch when (objectPatch.get(VALUE) instanceof ValueNode value && objectPatch.get("unit") instanceof ValueNode unit && objectPatch.get(SOURCE) instanceof ValueNode source) -> {
+            case ObjectNode objectPatch when isEnteredValue(objectPatch) -> {
                 // EnteredValue created or deleted
-                String s = formatEnteredValue(before == null, value.asText(), objectPatch.get("exact"), unit.asText(), source.asText());
+                String s = formatEnteredValue(newOrOld != null ? newOrOld : before == null, objectPatch);
                 grid.right(s).left().newRow();
             }
-            case ObjectNode _ when (before instanceof ObjectNode objectBefore && objectBefore.has("value") && objectBefore.has("unit") && objectBefore.has("source")) -> {
+            case ObjectNode _ when isEnteredValue(before) -> {
                 // EnteredValue changed
-                String oldSource = objectBefore.get(SOURCE).asText();
-                String oldValue = objectBefore.get(VALUE).asText();
-                String oldUnit = objectBefore.get("unit").asText();
-                ObjectNode objectAfter = (ObjectNode) jsonPatcher.apply(before, patch);
-                String newSource = objectAfter.has("source") ? objectAfter.get("source").asText() : null;
-                String newValue = objectAfter.has("value") ? objectAfter.get("value").asText() : null;
-                String newUnit = objectAfter.has("unit") ? objectAfter.get("unit").asText() : null;
-                boolean newOverwritten = objectAfter.has("overwritten") && objectAfter.get("overwritten").asBoolean();
-                String s = "%s → %s%s".formatted(
-                        formatEnteredValue(false, oldValue, objectBefore.get("exact"), oldUnit, oldSource),
-                        formatEnteredValue(true, newValue, objectAfter.get("exact"), newUnit, newSource),
-                        newOverwritten ? " <span class='warning'>[overwritten]</span>" : ""
+                JsonNode after = jsonPatcher.apply(before, patch);
+                String s = "%s → %s".formatted(
+                        formatEnteredValue(false, before),
+                        formatEnteredValue(true, after)
                 );
                 grid.right(s).left().newRow();
             }
@@ -172,14 +173,22 @@ public class PatchFormatter {
         }
     }
 
-    private static String formatEnteredValue(boolean newOrOld, @Nullable String value, @Nullable JsonNode exactValue, @Nullable String unit, @Nullable String source) {
-        if (value == null || unit == null || source == null) {
+    private static boolean isEnteredValue(@Nullable JsonNode node) {
+        return node instanceof ObjectNode object
+                && object.get(SOURCE) instanceof ValueNode source
+                && ENTERED_VALUE_SOURCES.containsKey(source.asText())
+                && StreamEx.of(object.fieldNames()).allMatch(ENTERED_VALUE_FIELDS::contains);
+    }
+
+    private static String formatEnteredValue(boolean newOrOld, @Nullable JsonNode enteredValue) {
+        if (enteredValue == null || !enteredValue.hasNonNull(VALUE) || !enteredValue.hasNonNull(SOURCE)) {
             return "<span class='%s'>null</span>".formatted(newOrOld ? "new" : "old");
         }
-        unit = UnitUtils.ALL_UNITS.get(unit).getDisplayName();
-        source = Character.isDigit(source.charAt(0)) ? "user-entered" : source;
+        String value = enteredValue.get(VALUE).asText();
+        String source = ENTERED_VALUE_SOURCES.getOrDefault(enteredValue.get(SOURCE).asText(), enteredValue.get(SOURCE).asText());
+        JsonNode exactValue = enteredValue.get("exact");
         String exactValueStr = exactValue != null ? "&ensp;(exact value %s)".formatted(exactValue.doubleValue()) : "";
-        return "<span class='%s ev-%s'>%s %s%s</span>&ensp;<span class='comment'>[%s]</span>".formatted(newOrOld ? "new" : "old", source, value, unit, exactValueStr, source);
+        return "<span class='%s ev-%s'>%s%s</span>&ensp;<span class='comment'>[%s]</span>".formatted(newOrOld ? "new" : "old", source, value, exactValueStr, source);
     }
 
     private static class GridBuilder {

@@ -9,9 +9,15 @@ import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
  * string because of `@JsonValue`, `SolubidityInSolvent` is a discriminated union, and
  * `EnteredValue.source` is not a named enum — are each noted again at the type they affect.
  *
- * Every `Anchor` subclass (`ReactionAnchor`, `InputAnchor`, …) wraps a single UUID and
- * serialises as a bare string, so they are all `UUID` here.
+ * Every `Anchor` subclass (`ReactionAnchor`, `InputAnchor`, …) serialises as a bare string, so
+ * they are all `Anchor` here.
  */
+
+/**
+ * Mirrors `Anchor` and its subclasses: a row's or sample's id within its experiment — 8 base64url
+ * characters (`newAnchor`), or a UUID in models written before the short form. Not a `UUID`.
+ */
+export type Anchor = string;
 
 /* ── Units ─────────────────────────────────────────────────────────────────────────────── */
 
@@ -54,8 +60,8 @@ const UNIT_LABELS: Record<MeasurementUnit, string> = {
 };
 
 /**
- * Takes a bare `string` rather than `MeasurementUnit` because that is what `EnteredValue.unit`
- * is once it has been off the wire, and falls back to the raw enum name so an unmapped member
+ * Takes a bare `string` rather than `MeasurementUnit` because that is what a unit field
+ * (`SolubidityInSolvent.unit`) is once it has been off the wire, and falls back to the raw enum name so an unmapped member
  * shows as itself rather than as a blank.
  */
 export function unitLabel(unit: string | undefined): string {
@@ -82,13 +88,13 @@ export type ColumnUnit = 'weight' | 'volume' | 'mol' | 'molarity' | 'density' | 
 export function columnUnitLabel(model: ExperimentModel, unit: ColumnUnit): string {
   switch (unit) {
     case 'weight':
-      return unitLabel(model.weightUnit);
+      return unitLabel(model.unitSource.weightUnit);
     case 'volume':
-      return unitLabel(model.volumeUnit);
+      return unitLabel(model.unitSource.volumeUnit);
     case 'mol':
-      return unitLabel(model.molUnit);
+      return unitLabel(model.unitSource.molUnit);
     case 'molarity':
-      return unitLabel(model.molarityUnit);
+      return unitLabel(model.unitSource.molarityUnit);
     case 'density':
       return unitLabel('G_ML');
     case 'molWeight':
@@ -99,24 +105,23 @@ export function columnUnitLabel(model: ExperimentModel, unit: ColumnUnit): strin
 }
 
 /**
- * Who set a value, and how strongly it holds. `fixed` > a user edit > `calculated` >
- * `default`, and a user edit carries the revision it was made in — which is why the
- * user-entered case is a bare positive integer rather than a name.
+ * Who set a value, as `EnteredValue.Serializer` spells it: `F` fixed (from the compound
+ * registry), `D` default, `C` calculated, `U` user-entered and `L` user-cleared — the last two
+ * carry the `revision` the user acted in.
  */
-export type EnteredValueSource = number | 'fixed' | 'default' | 'calculated';
+export type EnteredValueSource = 'F' | 'D' | 'C' | 'U' | 'L';
 
 /**
- * One numeric cell of the stoichiometry model. `EnteredValue.Serializer` writes `value`,
- * `unit` and `source` only when a value is present, `exactValue` only when the value is
- * exact, and `overwritten` only when true — so every field is optional and `{}` is a real
- * value the wire produces (empty, but overwritten).
+ * One numeric cell of the stoichiometry model. Carries no unit: every value of a quantity is in
+ * the experiment's one unit for it (`ExperimentModel.unitSource`). `source` is absent only for
+ * an empty value, `value` is absent for an empty or user-cleared one, `exact` is set only on a
+ * fixed value and `revision` only on a user one — so every field is optional.
  */
-export interface EnteredValue<U> {
+export interface EnteredValue {
   value?: string;
-  exactValue?: number;
-  unit?: U;
+  exact?: number;
   source?: EnteredValueSource;
-  overwritten?: boolean;
+  revision?: number;
 }
 
 /* ── Compounds ─────────────────────────────────────────────────────────────────────────── */
@@ -165,8 +170,8 @@ export interface CompoundRef {
   /** The key in the compound's source system: an STR code for SRS, a CID for PubChem. */
   compoundKey?: string;
   formula?: MolFormula;
-  molWeight?: EnteredValue<MolWeightUnit>;
-  exactMass?: EnteredValue<NoUnit>;
+  molWeight?: EnteredValue;
+  exactMass?: EnteredValue;
   casNumber?: string;
   /** Read-only, derived: HTML, the formula plus the salt. Absent without a `formula`. */
   calculatedBatchMF?: string;
@@ -323,17 +328,17 @@ export type SolubidityInSolvent = { solvent: DictionaryItemRef; comment?: string
 /** `ReactionRow` — what an input row and an output row share. */
 interface ReactionRow {
   compound: CompoundRef;
-  eq: EnteredValue<NoUnit>;
+  eq: EnteredValue;
   /** Position in the rxnfile; present only for roles that appear in the drawn scheme. */
   rxnPosition?: number;
 }
 
 /** `ReactionSample` — what an input sample and an output sample share. */
 interface ReactionSample {
-  density?: EnteredValue<DensityUnit>;
-  molarity?: EnteredValue<MolarityUnit>;
-  volume?: EnteredValue<VolumeUnit>;
-  purity: EnteredValue<NoUnit>;
+  density?: EnteredValue;
+  molarity?: EnteredValue;
+  volume?: EnteredValue;
+  purity: EnteredValue;
   sampleSource: SampleSource;
   /** The key in `sampleSource`'s system — an STR code for SRS, a CID for PubChem. None for `VIRTUAL`. */
   sampleKey?: string;
@@ -342,20 +347,20 @@ interface ReactionSample {
 }
 
 export interface ReactionInputSample extends ReactionSample {
-  anchor: UUID;
+  anchor: Anchor;
   nbkBatchNumber?: NbkBatchNumber;
-  mol?: EnteredValue<MolUnit>;
-  weight?: EnteredValue<WeightUnit>;
+  mol?: EnteredValue;
+  weight?: EnteredValue;
   comment?: string;
 }
 
 export interface ReactionOutputSample extends ReactionSample {
-  anchor: UUID;
+  anchor: Anchor;
   nbkBatchNumber: NbkBatchNumber;
-  actualMol?: EnteredValue<MolUnit>;
-  actualWeight?: EnteredValue<WeightUnit>;
+  actualMol?: EnteredValue;
+  actualWeight?: EnteredValue;
   /** Java field `yieldValue`, remapped to `yield` by `@JsonProperty`. */
-  yield?: EnteredValue<NoUnit>;
+  yield?: EnteredValue;
   registrationStatus?: SampleRegistrationStatus;
   registrationStatusMessage?: string;
   handlingPrecautions: DictionaryItemRef[];
@@ -374,13 +379,13 @@ export interface ReactionOutputSample extends ReactionSample {
 }
 
 export interface ReactionInput extends ReactionRow {
-  anchor: UUID;
+  anchor: Anchor;
   role: ReactionRole;
-  mol?: EnteredValue<MolUnit>;
+  mol?: EnteredValue;
   /** Calculated, read-only: the sum of the samples' weights. */
-  weight?: EnteredValue<WeightUnit>;
+  weight?: EnteredValue;
   /** Calculated, read-only: the sum of the samples' volumes. */
-  volume?: EnteredValue<VolumeUnit>;
+  volume?: EnteredValue;
   chemicalName?: string;
   samples: ReactionInputSample[];
   /**
@@ -391,13 +396,13 @@ export interface ReactionInput extends ReactionRow {
 }
 
 export interface ReactionOutput extends ReactionRow {
-  anchor: UUID;
+  anchor: Anchor;
   outputName: string;
   chemicalName?: string;
   type: ReactionOutputType;
   intended: boolean;
-  theoMol?: EnteredValue<MolUnit>;
-  theoWeight?: EnteredValue<WeightUnit>;
+  theoMol?: EnteredValue;
+  theoWeight?: EnteredValue;
   samples: ReactionOutputSample[];
 }
 
@@ -406,12 +411,12 @@ export interface ReactionOutput extends ReactionRow {
  * on the backend and are not on the wire, so the tree here is strictly downward.
  */
 export interface Reaction {
-  anchor: UUID;
+  anchor: Anchor;
   /** Lowercase `f` — the `SetScheme` mutation spells the same thing `rxnFile`. */
   rxnfile?: string;
   inputs: ReactionInput[];
   /** Which input row is limiting; `ReactionInput.limiting` is derived from it. */
-  limitingAnchor?: UUID;
+  limitingAnchor?: Anchor;
   outputs: ReactionOutput[];
 }
 
@@ -422,7 +427,11 @@ export interface Reaction {
 export interface ExperimentModel {
   reactions: Reaction[];
   significantFigures: number;
-  /** The unit every value of each quantity is in, experiment-wide. */
+  unitSource: UnitSource;
+}
+
+/** Mirrors `UnitSource`: the unit every value of each quantity is in, experiment-wide. */
+export interface UnitSource {
   weightUnit: WeightUnit;
   volumeUnit: VolumeUnit;
   molUnit: MolUnit;

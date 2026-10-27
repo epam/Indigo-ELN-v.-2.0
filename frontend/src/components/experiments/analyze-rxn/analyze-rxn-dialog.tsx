@@ -10,9 +10,8 @@ import { useResolveInput } from '@/lib/hooks/experiments/use-resolve-input';
 import { prewarmKetcher } from '@/lib/ketcher';
 import { getAllInputSampleKeys } from '@/lib/reactions';
 
-import type { UUID } from '@/lib/types/common.ts';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
-import type { Reaction } from '@/lib/types/reactions.ts';
+import type { Anchor, Reaction } from '@/lib/types/reactions.ts';
 import type { SearchCatalog } from '@/lib/types/samples.ts';
 import { SAMPLE_CATALOG_LABELS, SAMPLE_CATALOGS } from '@/lib/types/samples.ts';
 
@@ -51,11 +50,11 @@ export function AnalyzeRxnDialog({
   /** Zero-based; the title counts from one, as the step strip does. */
   step: number;
   /** Input row anchor → the molfile the backend could not resolve. */
-  unresolvedInputs: Record<UUID, string>;
+  unresolvedInputs: Record<Anchor, string>;
 }) {
   const [catalog, setCatalog] = useState<SearchCatalog>('SRS');
   /** Already worded by the panel that searched — `12`, or `12+` when the catalog cannot count. */
-  const [counts, setCounts] = useState<Record<UUID, string | null>>({});
+  const [counts, setCounts] = useState<Record<Anchor, string | null>>({});
 
   const resolve = useResolveInput(experiment, reaction);
   const boundSamples = useMemo(() => getAllInputSampleKeys(reaction), [reaction]);
@@ -110,7 +109,7 @@ export function AnalyzeRxnDialog({
    * none to keep in step. A dialog that has just opened has chosen nothing yet and falls through
    * to the first tab; so does one whose selected row stopped being unresolved.
    */
-  const [selected, setSelected] = useState<UUID | null>(null);
+  const [selected, setSelected] = useState<Anchor | null>(null);
   const active = tabs.some((tab) => tab.anchor === selected) ? selected : (tabs[0]?.anchor ?? null);
 
   return (
@@ -143,7 +142,7 @@ export function AnalyzeRxnDialog({
           ))}
         </RadioGroup>
 
-        <Tabs value={active} onValueChange={(next) => setSelected(next as UUID)} className="min-h-0 flex-1">
+        <Tabs value={active} onValueChange={(next) => setSelected(next as Anchor)} className="min-h-0 flex-1">
           <TabsList>
             {tabs.map((tab) => {
               const count = counts[tab.anchor];

@@ -7,10 +7,12 @@ describe('columnUnitLabel', () => {
   const model: ExperimentModel = {
     reactions: [],
     significantFigures: 5,
-    weightUnit: 'MG',
-    volumeUnit: 'L',
-    molUnit: 'MMOL',
-    molarityUnit: 'MM',
+    unitSource: {
+      weightUnit: 'MG',
+      volumeUnit: 'L',
+      molUnit: 'MMOL',
+      molarityUnit: 'MM',
+    },
   };
 
   it("reads the experiment's chosen units", () => {

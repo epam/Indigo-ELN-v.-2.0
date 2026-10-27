@@ -70,12 +70,12 @@ type Cell =
    */
   | {
       kind: 'readonlyNumeric';
-      value: (row: ProductRow) => EnteredValue<string> | undefined;
+      value: (row: ProductRow) => EnteredValue | undefined;
     }
   /** An editable number, in the unit the column's header names. */
   | {
       kind: 'numeric';
-      value: (row: ProductRow) => EnteredValue<string> | undefined;
+      value: (row: ProductRow) => EnteredValue | undefined;
       mutation: (row: ProductRow, next: string | null) => ModelMutation;
       editable?: (row: ProductRow) => boolean;
     }

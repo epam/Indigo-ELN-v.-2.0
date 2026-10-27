@@ -708,7 +708,8 @@ export const slowMutateHandlers = [
  * The model-mutation endpoint answering with a **recalculation**: whatever was asked for, the
  * reply also rewrites a value the user did not touch. That is the normal case on the real
  * backend — changing one weight moves every mol, EQ and yield derived from it — and it is what
- * the stoichiometry table's green flash exists to point out.
+ * the stoichiometry table's green flash exists to point out. It also replaces a user-entered
+ * volume with a calculated one, which is what the red flash is for.
  *
  * The path spells out how the diff dialect addresses a nested row. `/model/reactions` and the
  * `inputs`/`samples` arrays under it are **list** paths in `JSON_PATCHER`, whose keys are
@@ -729,8 +730,14 @@ export const recalculatingMutateHandlers = [
                   samples: {
                     '0': {
                       mol: {
-                        $old: { value: '0.0049', unit: 'MMOL', source: 'calculated' },
-                        $new: { value: '0.0075', unit: 'MMOL', source: 'calculated' },
+                        $old: { value: '0.0049', source: 'C' },
+                        $new: { value: '0.0075', source: 'C' },
+                      },
+                    },
+                    '2': {
+                      volume: {
+                        $old: { value: '0.75', source: 'U', revision: 3 },
+                        $new: { value: '0.8', source: 'C' },
                       },
                     },
                   },

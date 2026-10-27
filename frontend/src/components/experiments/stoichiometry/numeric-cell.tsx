@@ -70,12 +70,12 @@ export function NumericCell({
   label,
   onCommit,
 }: {
-  value: EnteredValue<string> | undefined;
+  value: EnteredValue | undefined;
   /**
    * The same cell in the model before the last patch, or `value` itself when there has been none
    * — see `StoichiometryMutations.previousModel`. Drives the flash.
    */
-  previous: EnteredValue<string> | undefined;
+  previous: EnteredValue | undefined;
   /** Counts patches — see `ModelPatch.generation`. */
   generation: number;
   editable: boolean;
@@ -112,7 +112,7 @@ export function NumericCell({
    * the same cells twice running, and the class would simply stay — so a cell this patch changed
    * remounts its value box, keyed by the patch, and the animation starts over.
    */
-  const flashKey = value != null && hasChanged(value, previous) ? generation : undefined;
+  const flashKey = hasChanged(value, previous) ? generation : undefined;
   // Only a colour. An em-dash keeps the column's alignment, so an empty cell has the same edge as
   // the numbers above and below it — a column that half-centres itself has no edge to read at all.
   const emptyClass = shownValue == null ? 'text-neutral-700' : undefined;

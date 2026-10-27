@@ -17,7 +17,9 @@ class SetInputDensityHandler extends AbstractReactionInputSampleMutationHandler<
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputDensity mutation, ExperimentMutationContext context) {
         setEnteredValue(sample.getDensity(), sample::setDensity, mutation.density(), DensityUnit.G_ML, experiment.getRevision());
-        setEnteredValue(sample.getMolarity(), sample::setMolarity, null, null, experiment.getRevision());
+        if (mutation.density() != null) {
+            setEnteredValue(sample.getMolarity(), sample::setMolarity, null, null, experiment.getRevision());
+        }
         return formatSetterSummary("input sample density", mutation.density(), DensityUnit.G_ML);
     }
 }
@@ -29,7 +31,9 @@ class SetOutputDensityHandler extends AbstractReactionOutputSampleMutationHandle
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputDensity mutation, ExperimentMutationContext context) {
         setEnteredValue(sample.getDensity(), sample::setDensity, mutation.density(), DensityUnit.G_ML, experiment.getRevision());
-        setEnteredValue(sample.getMolarity(), sample::setMolarity, null, null, experiment.getRevision());
+        if (mutation.density() != null) {
+            setEnteredValue(sample.getMolarity(), sample::setMolarity, null, null, experiment.getRevision());
+        }
         return formatSetterSummary("batch density", mutation.density(), DensityUnit.G_ML);
     }
 }
@@ -41,7 +45,9 @@ class SetInputMolarityHandler extends AbstractReactionInputSampleMutationHandler
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputMolarity mutation, ExperimentMutationContext context) {
         setEnteredValue(sample.getMolarity(), sample::setMolarity, mutation.molarity(), model.getUnitSource().getMolarityUnit(), experiment.getRevision());
-        setEnteredValue(sample.getDensity(), sample::setDensity, null, null, experiment.getRevision());
+        if (mutation.molarity() != null) {
+            setEnteredValue(sample.getDensity(), sample::setDensity, null, null, experiment.getRevision());
+        }
         return formatSetterSummary("input sample molarity", mutation.molarity(), model.getUnitSource().getMolarityUnit());
     }
 }
@@ -53,7 +59,9 @@ class SetOutputMolarityHandler extends AbstractReactionOutputSampleMutationHandl
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputMolarity mutation, ExperimentMutationContext context) {
         setEnteredValue(sample.getMolarity(), sample::setMolarity, mutation.molarity(), model.getUnitSource().getMolarityUnit(), experiment.getRevision());
-        setEnteredValue(sample.getDensity(), sample::setDensity, null, null, experiment.getRevision());
+        if (mutation.molarity() != null) {
+            setEnteredValue(sample.getDensity(), sample::setDensity, null, null, experiment.getRevision());
+        }
         return formatSetterSummary("batch molarity", mutation.molarity(), model.getUnitSource().getMolarityUnit());
     }
 }

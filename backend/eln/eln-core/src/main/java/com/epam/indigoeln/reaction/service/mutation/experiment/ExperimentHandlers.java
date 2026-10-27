@@ -36,6 +36,7 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -423,11 +424,16 @@ abstract class AbstractSetExperimentUnitHandler<T extends ExperimentMutation> ex
         return true;
     }
 
-    protected <U extends MeasurementUnit> void convert(EnteredValue<U> value, U from, U to, Consumer<EnteredValue<U>> setter, int revision) {
-        if (value.isUserEntered()) {
-            String newValue = UnitUtils.convert(value.toBigDecimal(), from, to).stripTrailingZeros().toPlainString();
-            setter.accept(EnteredValue.userEntered(newValue, to, revision));
+    protected <U extends MeasurementUnit> void convert(EnteredValue<U> value, U from, U to, Consumer<EnteredValue<U>> setter) {
+        switch (value) {
+            case EnteredValue.UserEntered<U> v -> setter.accept(EnteredValue.userEntered(convertValue(v, from, to).toPlainString(), to, v.getRevision()));
+            case EnteredValue.Default<U> v -> setter.accept(EnteredValue.defaultValue(convertValue(v, from, to), to));
+            default -> {} // calculated values get recalculated, the rest have no value
         }
+    }
+
+    private static <U extends MeasurementUnit> BigDecimal convertValue(EnteredValue<U> value, U from, U to) {
+        return UnitUtils.convert(value.toBigDecimal(), from, to).stripTrailingZeros();
     }
 }
 
@@ -440,14 +446,14 @@ class SetExperimentWeightUnitHandler extends AbstractSetExperimentUnitHandler<Ex
         WeightUnit from = entity.getModel().getUnitSource().getWeightUnit(), to = mutation.weightUnit();
         for (Reaction reaction : entity.getModel().getReactions()) {
             for (ReactionInput input : reaction.getInputs()) {
-                convert(input.getWeight(), from, to, input::setWeight, entity.getRevision());
+                convert(input.getWeight(), from, to, input::setWeight);
                 for (ReactionInputSample sample : input.getSamples()) {
-                    convert(sample.getWeight(), from, to, sample::setWeight, entity.getRevision());
+                    convert(sample.getWeight(), from, to, sample::setWeight);
                 }
             }
             for (ReactionOutput output : reaction.getOutputs()) {
                 for (ReactionOutputSample sample : output.getSamples()) {
-                    convert(sample.getActualWeight(), from, to, sample::setActualWeight, entity.getRevision());
+                    convert(sample.getActualWeight(), from, to, sample::setActualWeight);
                 }
             }
         }
@@ -466,14 +472,14 @@ class SetExperimentVolumeUnitHandler extends AbstractSetExperimentUnitHandler<Ex
         VolumeUnit from = entity.getModel().getUnitSource().getVolumeUnit(), to = mutation.volumeUnit();
         for (Reaction reaction : entity.getModel().getReactions()) {
             for (ReactionInput input : reaction.getInputs()) {
-                convert(input.getVolume(), from, to, input::setVolume, entity.getRevision());
+                convert(input.getVolume(), from, to, input::setVolume);
                 for (ReactionInputSample sample : input.getSamples()) {
-                    convert(sample.getVolume(), from, to, sample::setVolume, entity.getRevision());
+                    convert(sample.getVolume(), from, to, sample::setVolume);
                 }
             }
             for (ReactionOutput output : reaction.getOutputs()) {
                 for (ReactionOutputSample sample : output.getSamples()) {
-                    convert(sample.getVolume(), from, to, sample::setVolume, entity.getRevision());
+                    convert(sample.getVolume(), from, to, sample::setVolume);
                 }
             }
         }
@@ -492,14 +498,14 @@ class SetExperimentMolUnitHandler extends AbstractSetExperimentUnitHandler<Exper
         MolUnit from = entity.getModel().getUnitSource().getMolUnit(), to = mutation.molUnit();
         for (Reaction reaction : entity.getModel().getReactions()) {
             for (ReactionInput input : reaction.getInputs()) {
-                convert(input.getMol(), from, to, input::setMol, entity.getRevision());
+                convert(input.getMol(), from, to, input::setMol);
                 for (ReactionInputSample sample : input.getSamples()) {
-                    convert(sample.getMol(), from, to, sample::setMol, entity.getRevision());
+                    convert(sample.getMol(), from, to, sample::setMol);
                 }
             }
             for (ReactionOutput output : reaction.getOutputs()) {
                 for (ReactionOutputSample sample : output.getSamples()) {
-                    convert(sample.getActualMol(), from, to, sample::setActualMol, entity.getRevision());
+                    convert(sample.getActualMol(), from, to, sample::setActualMol);
                 }
             }
         }
@@ -519,12 +525,12 @@ class SetExperimentMolarityUnitHandler extends AbstractSetExperimentUnitHandler<
         for (Reaction reaction : entity.getModel().getReactions()) {
             for (ReactionInput input : reaction.getInputs()) {
                 for (ReactionInputSample sample : input.getSamples()) {
-                    convert(sample.getMolarity(), from, to, sample::setMolarity, entity.getRevision());
+                    convert(sample.getMolarity(), from, to, sample::setMolarity);
                 }
             }
             for (ReactionOutput output : reaction.getOutputs()) {
                 for (ReactionOutputSample sample : output.getSamples()) {
-                    convert(sample.getMolarity(), from, to, sample::setMolarity, entity.getRevision());
+                    convert(sample.getMolarity(), from, to, sample::setMolarity);
                 }
             }
         }

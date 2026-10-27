@@ -34,12 +34,13 @@ import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type {
   CompoundRef,
   EnteredValue,
+  ExperimentModel,
   MeltingPoint,
   Reaction,
   ResidualSolvent,
   SolubidityInSolvent,
 } from '@/lib/types/reactions.ts';
-import { isKnownCompound, shortNbkBatchNumber, unitLabel } from '@/lib/types/reactions.ts';
+import { columnUnitLabel, isKnownCompound, shortNbkBatchNumber } from '@/lib/types/reactions.ts';
 
 /**
  * The panel sits inside the batch table, so its controls take the table's metrics — 13px text in
@@ -73,11 +74,14 @@ const SM_INPUT = 'h-7.5 px-2 text-[13px]/5';
  */
 export function BatchDetailPanel({
   row,
+  model,
   reaction,
   canEdit,
   mutations,
 }: {
   row: BatchRow;
+  /** For the units of the derived quantities, which are experiment-wide. */
+  model: ExperimentModel;
   /** For the precursors, which are derived from the reaction's inputs rather than from the batch. */
   reaction: Reaction;
   canEdit: boolean;
@@ -216,8 +220,16 @@ export function BatchDetailPanel({
           */}
           <ReadonlyField id={id('sampleKey')} label="Conversational Batch number" value={sample.sampleKey} />
 
-          <ReadonlyField id={id('theoWeight')} label="Theo. Weight" value={quantity(output.theoWeight)} />
-          <ReadonlyField id={id('theoMol')} label="Theo. Moles" value={quantity(output.theoMol)} />
+          <ReadonlyField
+            id={id('theoWeight')}
+            label="Theo. Weight"
+            value={quantity(output.theoWeight, columnUnitLabel(model, 'weight'))}
+          />
+          <ReadonlyField
+            id={id('theoMol')}
+            label="Theo. Moles"
+            value={quantity(output.theoMol, columnUnitLabel(model, 'mol'))}
+          />
 
           <div className="md:col-span-2">
             <TextField
@@ -336,9 +348,8 @@ export function BatchDetailPanel({
 }
 
 /** `0.0137 mg` — a derived quantity and its unit, as one read-only string. */
-function quantity(value: EnteredValue<string> | undefined): string | undefined {
+function quantity(value: EnteredValue | undefined, unit: string): string | undefined {
   if (value?.value == null) return undefined;
-  const unit = unitLabel(value.unit);
   return unit ? `${value.value} ${unit}` : value.value;
 }
 

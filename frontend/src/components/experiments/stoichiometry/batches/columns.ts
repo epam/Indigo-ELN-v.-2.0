@@ -57,12 +57,12 @@ type Cell =
    */
   | {
       kind: 'readonlyNumeric';
-      value: (row: BatchRow) => EnteredValue<string> | undefined;
+      value: (row: BatchRow) => EnteredValue | undefined;
     }
   /** An editable number, in the unit the column's header names. */
   | {
       kind: 'numeric';
-      value: (row: BatchRow) => EnteredValue<string> | undefined;
+      value: (row: BatchRow) => EnteredValue | undefined;
       mutation: (row: BatchRow, next: string | null) => ModelMutation;
     }
   /** The row's icon buttons, as one column — see `BatchAction`. */

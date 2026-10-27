@@ -845,7 +845,8 @@ export const WheelDoesNotChangeANumber: Story = {
 
 /**
  * The flash. The server answers a one-cell edit by recalculating a value the user did not
- * touch, and that cell is marked so the change is not silent.
+ * touch, and that cell is marked so the change is not silent — green, or red where the value it
+ * replaced was one the user had entered.
  */
 export const Recalculated: Story = {
   parameters: { msw: { handlers: recalculatingMutateHandlers } },
@@ -860,6 +861,8 @@ export const Recalculated: Story = {
     // The provenance classes and the flash live on the display span, not on the input.
     await waitFor(() => expect(canvas.getByText('0.0075')).toBeInTheDocument());
     await expect(canvas.getByText('0.0075')).toHaveClass('animate-[flash-green_500ms_ease-in-out]');
+    // And it replaces a hand-entered volume with a calculated one: overwritten, so red.
+    await expect(canvas.getByText('0.8')).toHaveClass('animate-[flash-red_500ms_ease-in-out]');
   },
 };
 

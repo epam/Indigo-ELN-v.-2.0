@@ -124,7 +124,7 @@ public class ReactionCalculator {
                 seeds.add(new Seed(property, value));
             } else if (value.isUserCleared()) {
                 clearedProperty = property;
-                property.setValue(EnteredValue.empty(), null); // will it reset UserCleared value with Empty??? why need this overwrite at all???
+                property.setValue(EnteredValue.empty(), null);
             } else if (value.isCalculated()) {
                 property.setValue(EnteredValue.empty(), null);
             }

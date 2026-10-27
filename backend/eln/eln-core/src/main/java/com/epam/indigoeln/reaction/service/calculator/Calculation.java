@@ -78,7 +78,7 @@ public interface Calculation<U extends MeasurementUnit> {
                 return empty();
             }
             EnteredValue<U> totalResult = total.get();
-            if (!totalResult.hasValue()) {
+            if (!totalResult.hasValue() || totalResult.getBaseValue() == 0.0) {
                 return empty();
             }
             return calculated(thisResult.getBaseValue() / totalResult.getBaseValue() * 100.0, NoUnit.NO_UNIT);
