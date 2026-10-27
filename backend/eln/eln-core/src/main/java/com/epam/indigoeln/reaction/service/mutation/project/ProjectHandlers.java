@@ -37,7 +37,6 @@ class CreateProjectHandler extends AbstractProjectMutationHandler<ProjectMutatio
         project.getKeywords().addAll(mutation.keywords());
         project.setRevision(0);
         project.setCreatedBy(userService.getCurrentUserEntity());
-        aclService.initProjectACL(project);
         return "Create project";
     }
 }
@@ -130,14 +129,3 @@ class DeleteProjectAttachmentHandler extends AbstractProjectMutationHandler<Proj
     }
 }
 
-@Dependent
-@MutationHandlerFor(ProjectMutation.ProjectAccessUpdated.class)
-class ProjectAccessUpdatedHandler extends AbstractProjectMutationHandler<ProjectMutation.ProjectAccessUpdated> {
-
-    @Override
-    public String doHandle(ProjectEntity project, ProjectMutation.ProjectAccessUpdated mutation, ProjectMutationContext context, ProjectSnapshot snapshotBefore) {
-        aclService.recalculateACL(project);
-        String reason = mutation.notebookName() != null ? "notebook " + mutation.notebookName() : "experiment " + mutation.experimentName();
-        return "Access updated because of the changes in " + reason;
-    }
-}

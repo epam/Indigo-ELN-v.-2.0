@@ -313,28 +313,6 @@ class DeleteExperimentAttachmentHandler extends ExperimentEditMutationHandlerBas
 }
 
 @Dependent
-@MutationHandlerFor(ExperimentMutation.ExperimentAccessUpdated.class)
-class ExperimentAccessUpdatedHandler extends AbstractExperimentMutationHandler<ExperimentMutation.ExperimentAccessUpdated> {
-
-    @Override
-    protected void doValidateAccess(ExperimentEntity experiment) {
-        // nothing
-    }
-
-    @Override
-    protected void doValidateStatus(ExperimentEntity experiment) {
-        // nothing
-    }
-
-    @Override
-    public String doHandle(ExperimentEntity experiment, ExperimentMutation.ExperimentAccessUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        aclService.recalculateACL(experiment);
-        String reason = mutation.projectName() != null ? "project " + mutation.projectName() : "notebook " + mutation.notebookName();
-        return "Access updated because of the changes in " + reason;
-    }
-}
-
-@Dependent
 @MutationHandlerFor(ExperimentMutation.ExperimentNameUpdated.class)
 class ExperimentNameUpdatedHandler extends AbstractExperimentMutationHandler<ExperimentMutation.ExperimentNameUpdated> {
 

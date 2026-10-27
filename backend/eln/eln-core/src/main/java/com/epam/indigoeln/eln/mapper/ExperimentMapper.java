@@ -26,7 +26,7 @@ public abstract class ExperimentMapper extends AbstractMapper {
     @Mapping(target = "acl", source = "shortACL")
     public abstract ExperimentDTO entityToDTO(ExperimentEntity entity);
 
-    @Mapping(target = "acl", source = "entity.fullACL")
+    @Mapping(target = "acl", source = "entity.effectiveACL")
     @Mapping(target = "templateId", source = "entity.template.id")
     @Mapping(target = "projectId", source = "entity.project.id")
     @Mapping(target = "projectName", source = "entity.project.name")

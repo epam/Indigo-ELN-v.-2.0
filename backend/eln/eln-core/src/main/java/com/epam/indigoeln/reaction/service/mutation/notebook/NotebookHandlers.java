@@ -137,14 +137,3 @@ class DeleteNotebookAttachmentHandler extends AbstractNotebookMutationHandler<No
     }
 }
 
-@Dependent
-@MutationHandlerFor(NotebookMutation.NotebookAccessUpdated.class)
-class NotebookAccessUpdatedHandler extends AbstractNotebookMutationHandler<NotebookMutation.NotebookAccessUpdated> {
-
-    @Override
-    public String doHandle(NotebookEntity notebook, NotebookMutation.NotebookAccessUpdated mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
-        aclService.recalculateACL(notebook);
-        String reason = mutation.projectName() != null ? "project " + mutation.projectName() : "experiment " + mutation.experimentName();
-        return "Access updated because of the changes in " + reason;
-    }
-}

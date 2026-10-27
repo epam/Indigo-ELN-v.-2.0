@@ -29,7 +29,7 @@ public abstract class ProjectMapper extends AbstractMapper {
     @Mapping(target = "experimentCountByStatus", source = "entity.experimentCount")
     public abstract ProjectDTO entityToDTO(ProjectEntity entity);
 
-    @Mapping(target = "acl", source = "entity.fullACL")
+    @Mapping(target = "acl", source = "entity.effectiveACL")
     @Mapping(target = "experimentCountByStatus", source = "entity.experimentCount")
     public abstract ProjectDetailsDTO entityToDetailsDTO(ProjectEntity entity, Set<ApplicationPermission> currentPermissions);
 

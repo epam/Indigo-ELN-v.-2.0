@@ -91,7 +91,7 @@ public class ProjectService {
     public List<ACLEntryDTO> updateProjectAccess(UUID projectId, List<AccessForm> form) {
         ProjectEntity project = projectRepository.loadAndLock(projectId); // protect project and its tree from changes
         applyMutation(project, new ProjectMutation.EditProjectAccess(form));
-        return projectMapper.convertACLList(project.getFullACL());
+        return projectMapper.convertACLList(project.getEffectiveACL());
     }
 
     public MutationResult<ProjectSnapshot, ProjectMutationContext> applyMutation(ProjectEntity project, ProjectMutation mutation) {

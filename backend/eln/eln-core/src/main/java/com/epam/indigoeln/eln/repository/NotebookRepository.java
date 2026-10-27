@@ -110,15 +110,6 @@ public class NotebookRepository extends BaseRepository<NotebookEntity> {
         return doFindByIDs(ids, em.getEntityGraph("Notebook.withACL"));
     }
 
-    public boolean hasAccessibleNotebooks(ProjectEntity project) {
-        CriteriaDefinition<Integer> criteria = new CriteriaDefinition<>(em, Integer.class) {{
-            JpaRoot<NotebookEntity> root = from(NotebookEntity.class);
-            select(literal(1));
-            where(root.get(NotebookEntity_.project).equalTo(project));
-        }};
-        return doExists(criteria);
-    }
-
     public boolean existsByName(String name) {
         CriteriaDefinition<Integer> criteria = new CriteriaDefinition<>(em, Integer.class) {{
             JpaRoot<NotebookEntity> root = from(NotebookEntity.class);

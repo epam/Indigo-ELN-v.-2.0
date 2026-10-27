@@ -101,7 +101,7 @@ public class NotebookService {
         NotebookEntity notebook = notebookRepository.loadAndLock(notebookId); // project notebook itself from changes
         projectRepository.loadWithACL(notebook.getProject().getId());
         applyMutation(notebook, new NotebookMutation.EditNotebookAccess(form));
-        return notebookMapper.convertACLList(notebook.getFullACL());
+        return notebookMapper.convertACLList(notebook.getEffectiveACL());
     }
 
     public MutationResult<NotebookSnapshot, NotebookMutationContext> applyMutation(NotebookEntity notebook, NotebookMutation mutation) {

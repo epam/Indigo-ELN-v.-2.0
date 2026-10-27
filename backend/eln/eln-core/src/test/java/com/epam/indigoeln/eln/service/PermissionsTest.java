@@ -698,6 +698,26 @@ class PermissionsTest extends ELNBaseTest {
         }
 
         @Test
+        @Order(350)
+        void testRevokingParentAccessKeepsImplicitViewForNestedAccess() {
+            experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(WILLOW_USERNAME, VIEW));
+            assertThatACL(projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, NONE)))
+                    .containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, IMPLICIT_VIEW, false);
+            assertThatACL(notebookClient.updateNotebookAccess(notebook.getId(), AccessForm.of(WILLOW_USERNAME, NONE)))
+                    .containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, IMPLICIT_VIEW, false);
+            withUser(WILLOW_USERNAME, () -> {
+                assertThatClientCall(() -> projectClient.getProject(project.getId())).isSuccessful();
+                assertThatClientCall(() -> notebookClient.getNotebook(notebook.getId())).isSuccessful();
+                assertThatACL(experimentClient.getExperiment(experiment.getId()).getAcl())
+                        .containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, VIEW, false);
+            });
+
+            experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
+            assertThatACL(notebookClient.getNotebook(notebook.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
+            assertThatACL(projectClient.getProject(project.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
+        }
+
+        @Test
         @Order(400)
         void testCreateSecondExperiment() {
             projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, NONE));

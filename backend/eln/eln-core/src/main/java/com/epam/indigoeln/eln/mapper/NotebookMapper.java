@@ -27,7 +27,7 @@ public abstract class NotebookMapper extends AbstractMapper {
     @Mapping(target = "experimentCountByStatus", source = "entity.experimentCount")
     public abstract NotebookDTO entityToDTO(NotebookEntity entity);
 
-    @Mapping(target = "acl", source = "entity.fullACL")
+    @Mapping(target = "acl", source = "entity.effectiveACL")
     @Mapping(target = "experimentCountByStatus", source = "entity.experimentCount")
     @Mapping(target = "projectId", source = "entity.project.id")
     @Mapping(target = "projectName", source = "entity.project.name")

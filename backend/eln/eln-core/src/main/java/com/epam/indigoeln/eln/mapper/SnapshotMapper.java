@@ -9,7 +9,9 @@ import jakarta.inject.Inject;
 import org.mapstruct.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR, nullValueCheckStrategy =  NullValueCheckStrategy.ALWAYS)
 public abstract class SnapshotMapper extends AbstractMapper {
@@ -18,24 +20,28 @@ public abstract class SnapshotMapper extends AbstractMapper {
     ExperimentRepository experimentRepository;
 
     @Mapping(target = "model", ignore = true)
-    @Mapping(target = "acl", source = "fullACL")
+    @Mapping(target = "acl", source = "aclEntities")
     @Mapping(target = "templateId", source = "template.id")
     @Mapping(target = "linkedExperiments", ignore = true)
     @Mapping(target = "continuedFrom", ignore = true)
     @Mapping(target = "continuedTo", ignore = true)
     public abstract ExperimentSnapshot copyBasicFields(ExperimentEntity entity);
 
-    @Mapping(target = "acl", source = "fullACL")
+    @Mapping(target = "acl", source = "aclEntities")
     public abstract ProjectSnapshot createSnapshot(ProjectEntity entity);
 
-    @Mapping(target = "acl", source = "fullACL")
+    @Mapping(target = "acl", source = "aclEntities")
     public abstract NotebookSnapshot createSnapshot(NotebookEntity entity);
 
     protected abstract AttachmentDTO convertAttachment(AbstractAttachment<?> entity);
 
     protected abstract Set<AttachmentDTO> convertAttachments(List<? extends AbstractAttachment<?>> attachments);
 
-    protected abstract Set<ACLEntryDTO> convertACLs(List<ACLEntry> aclEntries);
+    protected Set<ACLEntryDTO> convertACLs(Map<UserEntity, ? extends BaseACLEntity> aclEntities) {
+        return aclEntities.values().stream()
+                .map(e -> new ACLEntryDTO(e.getUser().getUsername(), e.getUser().getDisplayName(), e.getLevel(), false))
+                .collect(Collectors.toSet());
+    }
 
     public ExperimentSnapshot createSnapshot(ExperimentEntity experiment, boolean snapshotModel) {
         ExperimentSnapshot snapshot = copyBasicFields(experiment);
