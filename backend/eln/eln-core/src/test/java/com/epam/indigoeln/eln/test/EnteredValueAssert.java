@@ -30,13 +30,13 @@ public class EnteredValueAssert<U extends MeasurementUnit> extends AbstractAsser
 
     public EnteredValueAssert<U> hasValue(double value) {
         Assertions.assertThat(actual != null && actual.hasValue()).describedAs("was empty").isTrue();
-        Assertions.assertThat(actual.getValue()).describedAs(actual::toString).isCloseTo(value, EPSILON);
+        Assertions.assertThat(actual.getValueOrNull()).describedAs(actual::toString).isCloseTo(value, EPSILON);
         return this;
     }
 
     public EnteredValueAssert<U> hasValue(double value, U unit) {
-        Assertions.assertThat(actual != null && actual.getValue() != null).describedAs("was empty").isTrue();
-        if (!Precision.equalsWithRelativeTolerance(actual.getValue(), value, 1e-6) || actual.getUnit() != unit) {
+        Assertions.assertThat(actual != null && actual.getValueOrNull() != null).describedAs("was empty").isTrue();
+        if (!Precision.equalsWithRelativeTolerance(actual.getValueOrNull(), value, 1e-6) || actual.getUnit() != unit) {
             String description = Strings.isNullOrEmpty(descriptionText()) ? actual.toString() : descriptionText();
             failWithMessage("[%s]\nexpected: %s %s\n but was: %s %s", description, value, unit, actual.getStringValue(), actual.getUnit());
         }

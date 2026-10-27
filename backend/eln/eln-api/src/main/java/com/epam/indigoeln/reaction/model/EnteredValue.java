@@ -21,7 +21,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import org.apache.commons.math3.util.Precision;
 import org.jspecify.annotations.Nullable;
 
@@ -110,8 +109,7 @@ public sealed abstract class EnteredValue<U extends MeasurementUnit> permits Ent
     @JsonIgnore
     public boolean hasValue() {
         return switch (this) {
-            case Absent<?> _ -> false;
-            case UserCleared<?> _ -> false;
+            case Absent<?> _, UserCleared<?> _ -> false;
             default -> true;
         };
     }
@@ -152,7 +150,7 @@ public sealed abstract class EnteredValue<U extends MeasurementUnit> permits Ent
     }
 
     @Nullable
-    public Double getValue() {
+    public Double getValueOrNull() {
         return switch (this) {
             case EnteredValue.Absent<U> _ -> null;
             case EnteredValue.Calculated<U> v -> v.value;
@@ -202,7 +200,7 @@ public sealed abstract class EnteredValue<U extends MeasurementUnit> permits Ent
     }
 
     public BigDecimal toBigDecimal() {
-        return new BigDecimal(getStringValue());
+        return new BigDecimal(checkNotNull(getStringValue()));
     }
 
     @Nullable
@@ -216,37 +214,33 @@ public sealed abstract class EnteredValue<U extends MeasurementUnit> permits Ent
 
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder();
-        switch (this) {
-            case EnteredValue.Absent<U> _ -> str.append("empty");
-            case EnteredValue.Calculated<U> v -> str.append("calculated: ").append(v.getStringValue());
-            case EnteredValue.Default<U> v -> str.append("default: ").append(v.getStringValue());
-            case EnteredValue.Fixed<U> v -> str.append("fixed: ").append(v.getValue());
-            case EnteredValue.UserEntered<U> v -> str.append("user-entered: ").append(v.getStringValue());
-            case EnteredValue.UserCleared<U> _ -> str.append("user-cleared");
-        }
-        return str.toString();
+        return switch (this) {
+            case EnteredValue.Absent<U> _ -> "empty";
+            case EnteredValue.Calculated<U> v -> "calculated: %s %s (base %s)".formatted(v.getStringValue(), v.getUnit(), v.getBaseValue());
+            case EnteredValue.Default<U> v -> "default: %s %s".formatted(v.getStringValue(), v.getUnit());
+            case EnteredValue.Fixed<U> v -> "fixed: %s %s".formatted(v.getStringValue(), v.getUnit());
+            case EnteredValue.UserEntered<U> v -> "user-entered: %s %s".formatted(v.getStringValue(), v.getUnit());
+            case EnteredValue.UserCleared<U> _ -> "user-cleared";
+        };
     }
 
     public String toUserFriendlyString(boolean useFriendlyUnitNames, String emptyString) {
         if (!hasValue()) {
             return emptyString;
         }
-        StringBuilder str = new StringBuilder(getStringValue());
+        StringBuilder str = new StringBuilder(checkNotNull(getStringValue()));
         if (getUnit() != NoUnit.NO_UNIT) {
             str.append(' ').append(useFriendlyUnitNames ? getUnit().getDisplayName() : getUnit().name());
         }
         return str.toString();
     }
 
-    @ToString
     @EqualsAndHashCode(callSuper = false)
     public static final class Absent<U extends MeasurementUnit> extends EnteredValue<U> {
 
         private static final EnteredValue<?> INSTANCE = new EnteredValue.Absent<>();
     }
 
-    @ToString
     @RequiredArgsConstructor
     @EqualsAndHashCode(callSuper = false)
     public static final class Fixed<U extends MeasurementUnit> extends EnteredValue<U> {
@@ -282,7 +276,6 @@ public sealed abstract class EnteredValue<U extends MeasurementUnit> permits Ent
         }
     }
 
-    @ToString
     @EqualsAndHashCode(of = "stringValue", callSuper = true)
     public static final class UserEntered<U extends MeasurementUnit> extends User<U> {
 
@@ -306,16 +299,6 @@ public sealed abstract class EnteredValue<U extends MeasurementUnit> permits Ent
 
         public UserCleared(int revision) {
             super(revision);
-        }
-
-        @Override
-        public U getUnit() {
-            throw new IllegalStateException("Cannot call getUnit on EnteredValue.UserCleared");
-        }
-
-        @Override
-        public String getStringValue() {
-            throw new IllegalStateException("Cannot call getStringValue on EnteredValue.UserCleared");
         }
     }
 
@@ -343,11 +326,6 @@ public sealed abstract class EnteredValue<U extends MeasurementUnit> permits Ent
 
         public Calculated<U> withUnit(U newUnit) {
             return new Calculated<>(baseValue, newUnit);
-        }
-
-        @Override
-        public String toString() {
-            return "Calculated(stringValue=%s, value=%s, unit=%s, baseValue=%s)".formatted(getStringValue(), getValue(), unit, baseValue);
         }
     }
 

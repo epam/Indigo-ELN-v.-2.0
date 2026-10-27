@@ -122,7 +122,7 @@ public class GlobalSearchService {
             for (ReactionOutput output : reaction.getOutputs()) {
                 for (ReactionOutputSample sample : output.getSamples()) {
                     if (sample.getPurity().hasValue() || sample.getYieldValue().hasValue()) {
-                        set.add(new ExperimentSearchBatch(sample.getPurity().getValue(), sample.getYieldValue().getValue()));
+                        set.add(new ExperimentSearchBatch(sample.getPurity().getValueOrNull(), sample.getYieldValue().getValueOrNull()));
                     }
                 }
             }
