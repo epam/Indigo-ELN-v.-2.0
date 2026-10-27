@@ -596,6 +596,28 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
+    void testTryNotOverwriteMolarity() {
+        experiment.mutateAddEmptyInput();
+        experiment.mutateSetInputMolarity(1, 1, "10.0");
+        experiment.mutateSetInputMol(1, 1, "4");
+        experiment.mutateSetInputVolume(1, 1, "100");
+        assertThat(experiment.inputSample(1, 1)).hasMolarity(10.0, M); // should have overwritten mol instead of molarity
+        assertThat(experiment.inputSample(1, 1)).hasVolume(100.0, ML);
+        assertThat(experiment.inputSample(1, 1).getMol()).isCalculated();
+    }
+
+    @Test
+    void testTryNotOverwriteDensity() {
+        experiment.mutateSetSchemeFromResource("/reaction.rxn");
+        experiment.mutateSetInputDensity(1, 1, "10.0");
+        experiment.mutateSetInputMol(1, 1, "4");
+        experiment.mutateSetInputWeight(1, 1, "100");
+        assertThat(experiment.inputSample(1, 1)).hasDensity(10.0); // should have overwritten mol instead of density
+        assertThat(experiment.inputSample(1, 1)).hasWeight(100.0, G);
+        assertThat(experiment.inputSample(1, 1).getMol()).isCalculated();
+    }
+
+    @Test
     void testSetInputVolume() {
         experiment.mutateAddEmptyInput();
         experiment.mutateSetInputVolume(1, 1, "10.0");

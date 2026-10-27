@@ -612,11 +612,11 @@ public class ReactionCalculator {
 
         int result;
 
-        // purity is more priority than other (default purity is more important than other defaults and even other user-entered)
+        // purity, density and molarity are more priority than other (default purity is more important than other defaults and even other user-entered)
         // (since in case of conflict we can likely recalculate user-entered, but we are not allowed to calculate purity)
-        boolean purityA = a.getModelProperty().name().equals("purity");
-        boolean purityB = b.getModelProperty().name().equals("purity");
-        result = Boolean.compare(purityA, purityB);
+        boolean priorityA = a.getModelProperty().name().equals("purity") || a.getModelProperty().name().equals("density") || a.getModelProperty().name().equals("molarity");
+        boolean priorityB = b.getModelProperty().name().equals("purity") || b.getModelProperty().name().equals("density") || b.getModelProperty().name().equals("molarity");
+        result = Boolean.compare(priorityA, priorityB);
         if (result != 0) {
             return result;
         }
