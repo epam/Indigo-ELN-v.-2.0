@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
+import com.epam.indigo.IndigoException;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.common.model.units.DensityUnit;
 import com.epam.indigoeln.common.model.units.MeasurementUnit;
@@ -207,7 +208,11 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
     }
 
     protected CompoundRef doUpdateMolfile(ReactionRow row, @Nullable String molfile) {
-        return doUpdateCompound(row, CompoundField.MOLFILE, null, null, null, molfile);
+        try {
+            return doUpdateCompound(row, CompoundField.MOLFILE, null, null, null, molfile);
+        } catch (IndigoException e) {
+            throw new InvalidRequestException("Invalid molfile: " + e.getMessage());
+        }
     }
 
     private CompoundRef doUpdateCompound(ReactionRow row, CompoundField field, @Nullable SaltCodeRef saltCode, @Nullable BigDecimal saltEQ, @Nullable StereoisomerCodeRef stereoisomerCode, @Nullable String molfile) {

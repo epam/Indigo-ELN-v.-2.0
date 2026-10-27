@@ -1,0 +1,1 @@
+ALTER TABLE SRS_Compound DROP COLUMN picture;

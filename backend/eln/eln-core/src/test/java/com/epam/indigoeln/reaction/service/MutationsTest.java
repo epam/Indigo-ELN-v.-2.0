@@ -1095,6 +1095,15 @@ public class MutationsTest extends MutationsTestBase {
     }
 
     @Test
+    void testSetOutputMolfileInvalidMolfile() {
+        experiment.mutateSetSchemeFromResource(REACTION_RXN);
+        experiment.mutateAddProductSample(1);
+        OutputSampleAnchor anchor = experiment.outputSample(1, 1).getAnchor();
+        assertThatClientCall(() -> experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolfile(anchor, "not a molfile")))
+                .isBadRequest("Invalid molfile: ");
+    }
+
+    @Test
     void testConflicts() {
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         experiment.mutateSetInputWeight(1, 1, "100");
