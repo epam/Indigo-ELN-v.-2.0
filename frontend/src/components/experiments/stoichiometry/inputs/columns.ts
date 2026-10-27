@@ -1,31 +1,16 @@
 import { asEnteredValue } from '@/components/experiments/stoichiometry/columns';
 
-import type { NumericCellValue } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import { sortByName } from '@/lib/types/dictionaries.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type {
-  DensityUnit,
+  ColumnUnit,
   EnteredValue,
-  MolarityUnit,
-  MolUnit,
   ReactionInput,
   ReactionInputSample,
   ReactionRole,
-  VolumeUnit,
-  WeightUnit,
 } from '@/lib/types/reactions.ts';
-import {
-  DENSITY_UNITS,
-  isKnownCompound,
-  MOL_UNITS,
-  MOL_WEIGHT_UNITS,
-  MOLARITY_UNITS,
-  NO_UNITS,
-  shortNbkBatchNumber,
-  VOLUME_UNITS,
-  WEIGHT_UNITS,
-} from '@/lib/types/reactions.ts';
+import { isKnownCompound, shortNbkBatchNumber } from '@/lib/types/reactions.ts';
 
 /**
  * Mirrors `ReactionInput.updateCompound`: a compound can be re-salted while every sample on the
@@ -52,13 +37,18 @@ interface ColumnBase {
   id: string;
   header: string;
   /**
-   * A **floor** in pixels, and only the number-with-unit columns state one. Every other column
+   * What the column's values are measured in, written after the header — `Weight, g`. Read off
+   * the experiment, since every value of a quantity is in its one unit; no cell shows a unit.
+   */
+  unit?: ColumnUnit;
+  /**
+   * A **floor** in pixels, and only the number columns state one. Every other column
    * is as wide as its widest value or its header, whichever is more — headers are
    * `whitespace-nowrap` and no cell truncates, so both are real minimums.
    *
    * These need more than that because what they show is not what they edit: an empty one is an
    * em-dash under a short header, and the number input that replaces it has to fit in the same
-   * box, with the unit beside it.
+   * box.
    */
   minWidth?: number;
   /**
@@ -92,8 +82,7 @@ type Cell<Row> =
    */
   | {
       kind: 'readonlyNumeric';
-      value: (row: Row) => EnteredValue<string> | undefined;
-      units: readonly string[];
+      value: (row: Row) => EnteredValue | undefined;
     }
   /** Free text, saved on blur. */
   | {
@@ -101,22 +90,11 @@ type Cell<Row> =
       value: (row: Row) => string | undefined;
       mutation: (row: Row, next: string | null) => ModelMutation;
     }
-  /**
-   * A number with a unit, or a unitless one when `units` has a single member.
-   *
-   * `units` is `readonly string[]` and the committed unit comes back as a `string`, so each
-   * `mutation` casts it to the enum its own field takes. The cast is safe by construction —
-   * the value can only be one of the members of the `units` list two lines above it — and the
-   * alternative, threading a unit type parameter through `Cell`, `InputColumn`, `SampleColumn`
-   * and the renderer, buys nothing a reader of one column definition can see.
-   */
+  /** A number, in the unit the column's header names. */
   | {
       kind: 'numeric';
-      value: (row: Row) => EnteredValue<string> | undefined;
-      units: readonly string[];
-      /** The fixed unit's text on a single-unit column, when `unitLabel` is not what to show. */
-      suffix?: string;
-      mutation: (row: Row, next: NumericCellValue) => ModelMutation;
+      value: (row: Row) => EnteredValue | undefined;
+      mutation: (row: Row, next: string | null) => ModelMutation;
       editable?: (row: Row) => boolean;
     }
   /** One item from a built-in dictionary. */
@@ -206,34 +184,32 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'weight',
     header: 'Weight',
-    minWidth: 115,
+    minWidth: 90,
     kind: 'readonlyNumeric',
     // Calculated: `weight = ∑ sample.weight`. Empty until every batch has a weight.
     value: (input) => input.weight,
-    units: WEIGHT_UNITS,
+    unit: 'weight',
   },
   {
     id: 'volume',
     header: 'Volume',
-    minWidth: 115,
+    minWidth: 90,
     kind: 'readonlyNumeric',
     // Calculated: `volume = ∑ sample.volume`. Empty until every batch has a volume.
     value: (input) => input.volume,
-    units: VOLUME_UNITS,
+    unit: 'volume',
   },
   {
     id: 'mol',
     header: 'Mol',
-    minWidth: 115,
+    minWidth: 90,
     kind: 'numeric',
     value: (input) => input.mol,
-    units: MOL_UNITS,
-    // Note `molUnit`, not `unit` — the sample-level SetInputMol spells it the other way.
+    unit: 'mol',
     mutation: (input, next) => ({
       type: 'SetInputRowMol',
       anchor: input.anchor,
-      mol: next.value,
-      molUnit: next.unit as MolUnit | null,
+      mol: next,
     }),
   },
   {
@@ -245,8 +221,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     fitContent: true,
     kind: 'numeric',
     value: (input) => input.eq,
-    units: NO_UNITS,
-    mutation: (input, next) => ({ type: 'SetInputRowEQ', anchor: input.anchor, eq: next.value }),
+    mutation: (input, next) => ({ type: 'SetInputRowEQ', anchor: input.anchor, eq: next }),
   },
   {
     id: 'role',
@@ -272,16 +247,14 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     fitContent: true,
     kind: 'numeric',
     value: (input) => input.compound.molWeight,
-    units: MOL_WEIGHT_UNITS,
-    // Implied by the column — every molecular weight is g/mol.
-    suffix: '',
+    unit: 'molWeight',
     // A known compound's molecular weight comes from the registry; only an unidentified one
     // is the user's to state.
     editable: (input) => !isKnownCompound(input.compound),
     mutation: (input, next) => ({
       type: 'SetInputCompoundMolWeight',
       anchor: input.anchor,
-      molWeight: next.value,
+      molWeight: next,
     }),
   },
   {
@@ -330,12 +303,11 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
     fitContent: true,
     kind: 'numeric',
     value: (input) => asEnteredValue(input.compound.saltEQ),
-    units: NO_UNITS,
     // Both gates, not just the salt code: a real sample's salt EQ is fixed by the registry even
     // when it has a code. The salt EQ is absent exactly when the code is the default
     // "00 - Parent Structure", i.e. no salt.
     editable: (input) => saltEditable(input) && input.compound.saltEQ != null,
-    mutation: (input, next) => ({ type: 'SetInputRowSaltEQ', anchor: input.anchor, saltEQ: next.value }),
+    mutation: (input, next) => ({ type: 'SetInputRowSaltEQ', anchor: input.anchor, saltEQ: next }),
   },
   {
     id: 'stereoisomerCode',
@@ -396,45 +368,42 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
     id: 'weight',
     span: 1,
     header: 'Weight',
-    minWidth: 115,
+    minWidth: 90,
     kind: 'numeric',
     value: (sample) => sample.weight,
-    units: WEIGHT_UNITS,
+    unit: 'weight',
     mutation: (sample, next) => ({
       type: 'SetInputWeight',
       anchor: sample.anchor,
-      weight: next.value,
-      unit: next.unit as WeightUnit | null,
+      weight: next,
     }),
   },
   {
     id: 'volume',
     span: 1,
     header: 'Volume',
-    minWidth: 115,
+    minWidth: 90,
     kind: 'numeric',
     value: (sample) => sample.volume,
-    units: VOLUME_UNITS,
+    unit: 'volume',
     mutation: (sample, next) => ({
       type: 'SetInputVolume',
       anchor: sample.anchor,
-      volume: next.value,
-      unit: next.unit as VolumeUnit | null,
+      volume: next,
     }),
   },
   {
     id: 'mol',
     span: 1,
     header: 'Mol',
-    minWidth: 115,
+    minWidth: 90,
     kind: 'numeric',
     value: (sample) => sample.mol,
-    units: MOL_UNITS,
+    unit: 'mol',
     mutation: (sample, next) => ({
       type: 'SetInputMol',
       anchor: sample.anchor,
-      mol: next.value,
-      unit: next.unit as MolUnit | null,
+      mol: next,
     }),
   },
   {
@@ -447,46 +416,40 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
       {
         id: 'density',
         header: 'Density',
-        minWidth: 115,
+        minWidth: 90,
         equalWidth: true,
         kind: 'numeric',
         value: (sample) => sample.density,
-        units: DENSITY_UNITS,
+        unit: 'density',
         mutation: (sample, next) => ({
           type: 'SetInputDensity',
           anchor: sample.anchor,
-          density: next.value,
-          unit: next.unit as DensityUnit | null,
+          density: next,
         }),
       },
       {
         id: 'molarity',
         header: 'Molarity',
-        minWidth: 115,
+        minWidth: 90,
         equalWidth: true,
         kind: 'numeric',
         value: (sample) => sample.molarity,
-        units: MOLARITY_UNITS,
+        unit: 'molarity',
         mutation: (sample, next) => ({
           type: 'SetInputMolarity',
           anchor: sample.anchor,
-          molarity: next.value,
-          unit: next.unit as MolarityUnit | null,
+          molarity: next,
         }),
       },
       {
         id: 'purity',
         header: 'Purity',
-        // Narrower than its neighbours' 115 by what `%` saves over their units, so the number
-        // input is as wide here as it is there.
-        minWidth: 95,
+        minWidth: 90,
         equalWidth: true,
         kind: 'numeric',
         value: (sample) => sample.purity,
-        units: NO_UNITS,
-        // A percentage, though the wire still carries `NO_UNIT`.
-        suffix: '%',
-        mutation: (sample, next) => ({ type: 'SetInputPurity', anchor: sample.anchor, purity: next.value }),
+        unit: 'percent',
+        mutation: (sample, next) => ({ type: 'SetInputPurity', anchor: sample.anchor, purity: next }),
       },
       {
         id: 'hazards',

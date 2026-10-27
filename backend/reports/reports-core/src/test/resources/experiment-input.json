@@ -181,7 +181,7 @@
                   "volume": {
                     "value": "6.6670",
                     "unit": "ML",
-                    "source": "calculated"
+                    "source": "C"
                   },
                   "purity": {
                     "value": "50",
@@ -212,7 +212,7 @@
                   "weight": {
                     "value": "80.004",
                     "unit": "G",
-                    "source": "calculated"
+                    "source": "C"
                   }
                 },
                 {
@@ -264,7 +264,7 @@
                   "volume": {
                     "value": "2.2833",
                     "unit": "ML",
-                    "source": "calculated"
+                    "source": "C"
                   },
                   "purity": {
                     "value": "100",
@@ -288,7 +288,7 @@
                   "weight": {
                     "value": "61.648",
                     "unit": "G",
-                    "source": "calculated"
+                    "source": "C"
                   },
                   "comment": "loing long long loing long long loing long comment"
                 }
@@ -495,7 +495,7 @@
                   "actualMol": {
                     "value": "0.00084094",
                     "unit": "MOL",
-                    "source": "calculated"
+                    "source": "C"
                   },
                   "actualWeight": {
                     "value": "10.10",

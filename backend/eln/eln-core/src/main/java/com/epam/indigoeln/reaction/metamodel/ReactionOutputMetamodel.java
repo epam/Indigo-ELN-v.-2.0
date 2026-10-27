@@ -1,17 +1,25 @@
 package com.epam.indigoeln.reaction.metamodel;
 
-import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
-import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
-import com.epam.indigoeln.reaction.model.*;
-import com.epam.indigoeln.reaction.model.EnteredValue;
 import com.epam.indigoeln.common.model.units.MolUnit;
 import com.epam.indigoeln.common.model.units.NoUnit;
 import com.epam.indigoeln.common.model.units.WeightUnit;
+import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
+import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
+import com.epam.indigoeln.reaction.model.CompoundRef;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.reaction.model.OutputAnchor;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionOutput;
+import com.epam.indigoeln.reaction.model.ReactionOutputSample;
+import com.epam.indigoeln.reaction.model.ReactionOutputType;
+import com.epam.indigoeln.reaction.model.ReactionRow;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import static com.epam.indigoeln.reaction.metamodel.property.ModelProperty.*;
+import static com.epam.indigoeln.reaction.metamodel.property.ModelProperty.enteredValueProperty;
+import static com.epam.indigoeln.reaction.metamodel.property.ModelProperty.listProperty;
+import static com.epam.indigoeln.reaction.metamodel.property.ModelProperty.property;
 
 public class ReactionOutputMetamodel {
 

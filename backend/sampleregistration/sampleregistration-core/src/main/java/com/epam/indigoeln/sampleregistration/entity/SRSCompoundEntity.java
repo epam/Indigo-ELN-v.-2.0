@@ -68,10 +68,6 @@ public class SRSCompoundEntity extends IdentifiableEntity {
     @Basic(fetch = FetchType.LAZY)
     private String molFile;
 
-    @NotNull
-    @Basic(fetch = FetchType.LAZY)
-    private byte[] picture;
-
     public void setSaltEQ(@Nullable BigDecimal saltEQ) {
         this.saltEQ = ModelUtil.stripTrailingZeros(saltEQ);
     }

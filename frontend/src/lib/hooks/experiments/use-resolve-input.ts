@@ -4,18 +4,17 @@ import { useAddSample } from '@/lib/hooks/experiments/use-add-sample';
 import { notifyInfo } from '@/lib/toast';
 import { newAnchor } from '@/lib/utils';
 
-import type { UUID } from '@/lib/types/common.ts';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
-import type { Reaction } from '@/lib/types/reactions.ts';
+import type { Anchor, Reaction } from '@/lib/types/reactions.ts';
 import type { SampleDTO } from '@/lib/types/samples.ts';
 
 export interface ResolveInputMutations {
   /** Binds one catalog hit to one unresolved input row. */
-  add: (inputAnchor: UUID, sample: SampleDTO) => void;
+  add: (inputAnchor: Anchor, sample: SampleDTO) => void;
   /** Keyed by `sampleRowKey` — which rows are mid-add. */
   addingRows: ReadonlySet<string>;
   /** Which input anchors this dialog has bound something to, for the tab's resolved mark. */
-  addedInputs: ReadonlySet<UUID>;
+  addedInputs: ReadonlySet<Anchor>;
 }
 
 /**
@@ -28,13 +27,13 @@ export interface ResolveInputMutations {
  * off the model.
  */
 export function useResolveInput(experiment: ExperimentDetails, reaction: Reaction): ResolveInputMutations {
-  const [addedInputs, setAddedInputs] = useState<ReadonlySet<UUID>>(() => new Set());
+  const [addedInputs, setAddedInputs] = useState<ReadonlySet<Anchor>>(() => new Set());
 
   const { run, addingRows } = useAddSample(experiment);
   const reactionAnchor = reaction.anchor;
 
   const add = useCallback(
-    (inputAnchor: UUID, sample: SampleDTO) => {
+    (inputAnchor: Anchor, sample: SampleDTO) => {
       void run(sample, {
         type: 'ResolveInputs',
         anchor: reactionAnchor,

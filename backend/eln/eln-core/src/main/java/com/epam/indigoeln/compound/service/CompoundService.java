@@ -106,8 +106,8 @@ public class CompoundService {
                 compound.getSaltEQ(),
                 compound.getCompoundKey(),
                 compound.getFormula(),
-                EnteredValue.fixedExact(compound.getMolWeight(), MOL_WEIGHT_DECIMAL_PLACES, MolWeightUnit.G_PER_MOL),
-                EnteredValue.fixedExact(compound.getExactMass(), MOL_WEIGHT_DECIMAL_PLACES, NoUnit.NO_UNIT),
+                EnteredValue.fixed(compound.getMolWeight(), MolWeightUnit.G_PER_MOL, MOL_WEIGHT_DECIMAL_PLACES),
+                EnteredValue.fixed(compound.getExactMass(), NoUnit.NO_UNIT, MOL_WEIGHT_DECIMAL_PLACES),
                 compound.getCasNumber()
         );
     }

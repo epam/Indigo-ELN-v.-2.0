@@ -8,51 +8,70 @@ import type { EnteredValue } from '@/lib/types/reactions.ts';
 export const USER_ENTERED_CLASSES = ['text-blue-400', 'font-semibold'];
 
 /**
+ * How an invalid value is written: every quantity in the table must be positive, so zero or less
+ * is an error whoever produced it. Last in the list, so `cn` lets it win over a provenance colour.
+ */
+const NON_POSITIVE_CLASSES = ['text-red-200'];
+
+/**
+ * Whether the last patch moved this value: `previous` is the same cell in the model before it,
+ * undefined when the cell did not exist there. With no patch the caller passes the value itself,
+ * so nothing has changed.
+ */
+export function hasChanged(value: EnteredValue | undefined, previous: EnteredValue | undefined): boolean {
+  return value?.value !== previous?.value || value?.source !== previous?.source;
+}
+
+/**
+ * Whether the last patch threw away a value the user had entered: it was theirs before, and the
+ * backend has now calculated it, or left it empty, to resolve a conflict.
+ */
+export function isOverwritten(value: EnteredValue | undefined, previous: EnteredValue | undefined): boolean {
+  return previous?.source === 'U' && (value?.source === 'C' || value?.value == null);
+}
+
+/**
  * What a numeric cell looks like, given where its value came from and what the last patch did
  * to it.
  *
- * Two independent things are encoded, which is why the result is a list rather than one class:
+ * Three independent things are encoded, which is why the result is a list rather than one class:
  *
- * - **Provenance**, a steady state. `EnteredValue.source` is `'fixed' | 'default' |
- *   'calculated'`, or a **number** — the revision a user entered the value in. So "was this
- *   typed by a person" is `typeof source === 'number'`, not a named enum member.
+ * - **Provenance**, a steady state, read off `EnteredValue.source`: `U` is a value a person
+ *   typed, `D` a default.
  * - **What just happened to it**, a one-shot flash. Green when the backend recalculated the
- *   value, red when it overwrote one the user had entered.
+ *   value, red when it overwrote one the user had entered (`isOverwritten`).
+ * - **Validity**: a value of zero or less is written in red.
  *
- * Both flashes are limited to nodes the last patch rebuilt — the keys of `updatedNodes`. That
- * keeps the table still on first load, when nothing has been patched yet, and leaves alone every
- * cell a patch did not touch: `JSON_PATCHER.apply` clones the whole detail, so an untouched node
- * is a fresh object too, merely absent from the map.
+ * Both flashes compare the value with `previous`, the same cell before the last patch — see
+ * `hasChanged`. That keeps the table still on first load, when there is no patch and the caller
+ * passes the value itself, and leaves alone every cell a patch did not move.
  */
-export function determineCellClasses(
-  value: EnteredValue<unknown> | undefined,
-  updatedNodes: ReadonlyMap<unknown, unknown>,
-): string[] {
-  if (value == null) return [];
+export function determineCellClasses(value: EnteredValue | undefined, previous: EnteredValue | undefined): string[] {
+  // An empty cell has nothing to style, unless emptying it is what overwrote the user's value.
+  if (value?.value == null && !isOverwritten(value, previous)) return [];
+
+  const nonPositive = value?.value != null && Number(value.value) <= 0;
 
   // A user-entered value never animates: the user knows what they just typed, and the whole
   // point of the flash is to point out a change they did *not* make.
-  if (typeof value.source === 'number') return USER_ENTERED_CLASSES;
-
-  const rebuilt = updatedNodes.has(value);
-  // Null for a node the patch created — a value appearing where there was none.
-  const previous = updatedNodes.get(value) as EnteredValue<unknown> | null | undefined;
-  const classes: string[] = [];
-
-  if (value.source === 'default') {
-    classes.push('text-neutral-700', 'italic');
-  } else if (value.source === 'fixed') {
-    classes.push('text-violet-400');
+  if (value?.source === 'U') {
+    return nonPositive ? [...USER_ENTERED_CLASSES, ...NON_POSITIVE_CLASSES] : USER_ENTERED_CLASSES;
   }
 
-  if (rebuilt && value.overwritten) {
+  const classes: string[] = [];
+
+  if (value?.source === 'D') {
+    classes.push('text-neutral-700', 'italic');
+  }
+
+  if (isOverwritten(value, previous)) {
     classes.push('animate-[flash-red_500ms_ease-in-out]');
-  } else if (
-    rebuilt &&
-    value.source === 'calculated' &&
-    (value.source !== previous?.source || value.value !== previous?.value)
-  ) {
+  } else if (value?.source === 'C' && hasChanged(value, previous)) {
     classes.push('animate-[flash-green_500ms_ease-in-out]');
+  }
+
+  if (nonPositive) {
+    classes.push(...NON_POSITIVE_CLASSES);
   }
 
   return classes;

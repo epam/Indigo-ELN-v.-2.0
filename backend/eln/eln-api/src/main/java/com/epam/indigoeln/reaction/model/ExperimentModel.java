@@ -1,14 +1,24 @@
 package com.epam.indigoeln.reaction.model;
 
-import com.epam.indigoeln.reaction.model.mutation.*;
+import com.epam.indigoeln.reaction.model.mutation.ReactionInputMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionInputSampleMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
+import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.deser.std.DelegatingDeserializer;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.io.IOException;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -25,6 +35,9 @@ public final class ExperimentModel implements ExperimentNode {
 
     @NotNull
     private int significantFigures = DEFAULT_SIGNIFICANT_FIGURES;
+
+    @NotNull
+    private UnitSource unitSource;
 
     public int generateNextNbkBatchNumber() {
         int[] last = {0};
@@ -120,5 +133,28 @@ public final class ExperimentModel implements ExperimentNode {
             }
         }
         throw new IllegalArgumentException("Reaction doesn't contain output sample with id: " + anchor);
+    }
+
+    public static class Deserializer extends DelegatingDeserializer {
+
+        public Deserializer(JsonDeserializer<?> delegate) {
+            super(delegate);
+        }
+
+        @Override
+        protected JsonDeserializer<?> newDelegatingInstance(JsonDeserializer<?> newDelegatee) {
+            return new Deserializer(newDelegatee);
+        }
+
+        @Override
+        public ExperimentModel deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            JsonNode tree = ctxt.readTree(p);
+            UnitSource unitSource = ctxt.readTreeAsValue(tree.get("unitSource"), UnitSource.class);
+            ctxt.setAttribute(UnitSource.CONTEXT_KEY, unitSource);
+            try (JsonParser treeParser = tree.traverse(p.getCodec())) {
+                treeParser.nextToken();
+                return (ExperimentModel) _delegatee.deserialize(treeParser, ctxt);
+            }
+        }
     }
 }

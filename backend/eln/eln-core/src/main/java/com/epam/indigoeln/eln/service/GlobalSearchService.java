@@ -121,7 +121,7 @@ public class GlobalSearchService {
         for (Reaction reaction : snapshot.getModel().getReactions()) {
             for (ReactionOutput output : reaction.getOutputs()) {
                 for (ReactionOutputSample sample : output.getSamples()) {
-                    if (!sample.getPurity().isEmpty() || !sample.getYieldValue().isEmpty()) {
+                    if (sample.getPurity().hasValue() || sample.getYieldValue().hasValue()) {
                         set.add(new ExperimentSearchBatch(sample.getPurity().getValueOrNull(), sample.getYieldValue().getValueOrNull()));
                     }
                 }

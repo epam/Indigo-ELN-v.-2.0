@@ -37,7 +37,8 @@ const REGISTERED = rowAt(1, 0);
 const IDLE: StoichiometryMutations = {
   save: async () => true,
   savingCells: new Set(),
-  patch: { nodes: new Map(), generation: 0 },
+  previousModel: EXPERIMENT.model,
+  generation: 0,
 };
 
 /** Records the mutations that actually reached the wire, so a story can assert the payload. */
@@ -70,6 +71,7 @@ function PanelFromCache({ outputIndex = 0, sampleIndex = 0 }: { outputIndex?: nu
   return (
     <BatchDetailPanel
       row={{ output, sample: output.samples[sampleIndex], step: 0 }}
+      model={data.model}
       reaction={reaction}
       canEdit={canEditExperiment(data)}
       mutations={mutations}
@@ -80,7 +82,7 @@ function PanelFromCache({ outputIndex = 0, sampleIndex = 0 }: { outputIndex?: nu
 const meta = {
   title: 'Experiments/Stoichiometry/Batches/BatchDetailPanel',
   component: BatchDetailPanel,
-  args: { row: POPULATED, reaction: REACTION, canEdit: true, mutations: IDLE },
+  args: { row: POPULATED, model: EXPERIMENT.model, reaction: REACTION, canEdit: true, mutations: IDLE },
   parameters: { layout: 'padded' },
 } satisfies Meta<typeof BatchDetailPanel>;
 

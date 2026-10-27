@@ -3,14 +3,22 @@ package com.epam.indigoeln.common.model.units;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Getter
 @RequiredArgsConstructor
 public enum WeightUnit implements MeasurementUnit {
 
-    MG(0.001, "mg"),
-    G(1.0, "g"),
-    KG(1000.0, "kg");
+    MG(new BigDecimal("1e-3"), "mg"),
+    G(BigDecimal.ONE, "g"),
+    KG(new BigDecimal("1e+3"), "kg");
 
-    private final double multiplier;
+    private final BigDecimal multiplier;
     private final String displayName;
+
+
+    @Override
+    public MeasurementUnit getBaseUnit() {
+        return G;
+    }
 }

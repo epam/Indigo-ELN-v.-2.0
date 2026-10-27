@@ -16,7 +16,7 @@ const asSet = new JSONPatcher({ '': 'anchor' }, {});
 const asList = new JSONPatcher({}, { '': 'anchor' });
 
 function apply(patcher: JSONPatcher, base: unknown, patch: unknown): unknown {
-  return patcher.apply(base, patch)[0];
+  return patcher.apply(base, patch);
 }
 
 describe('values', () => {
@@ -123,7 +123,7 @@ describe('JSON_PATCHER — the configured experiment paths', () => {
   };
 
   it('walks into the nested reaction lists a scheme edit touches', () => {
-    const [updated] = JSON_PATCHER.apply(base, {
+    const updated = JSON_PATCHER.apply(base, {
       model: {
         reactions: {
           '0': {
@@ -153,7 +153,7 @@ describe('JSON_PATCHER — the configured experiment paths', () => {
   });
 
   it('keys /acl by username and /attachments by id', () => {
-    const [updated] = JSON_PATCHER.apply(base, {
+    const updated = JSON_PATCHER.apply(base, {
       acl: { alice: { level: { $old: 'ADMIN', $new: 'VIEW' } } },
       attachments: { 'att-1': { $old: { id: 'att-1', name: 'spectrum.pdf' } } },
     });
@@ -161,17 +161,8 @@ describe('JSON_PATCHER — the configured experiment paths', () => {
     expect(updated).toMatchObject({ acl: [{ username: 'alice', level: 'VIEW' }], attachments: [] });
   });
 
-  it('reports every rebuilt object against the node it replaced', () => {
-    const [updated, updatedNodes] = JSON_PATCHER.apply(base, {
-      model: { reactions: { '0': { rxnfile: { $old: 'old', $new: 'new' } } } },
-    });
-
-    const reaction = (updated as typeof base).model.reactions[0];
-    expect(updatedNodes.get(reaction)).toEqual(base.model.reactions[0]);
-  });
-
   it('leaves revision alone — the backend never diffs it', () => {
-    const [updated] = JSON_PATCHER.apply(base, { model: { significantFigures: { $old: 5, $new: 4 } } });
+    const updated = JSON_PATCHER.apply(base, { model: { significantFigures: { $old: 5, $new: 4 } } });
     expect((updated as typeof base).revision).toBe(3);
   });
 });
