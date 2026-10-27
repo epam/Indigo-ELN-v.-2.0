@@ -4,7 +4,6 @@ import com.epam.indigoeln.common.model.NbkBatchNumber;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.search.StructuralSearch;
-import com.epam.indigoeln.common.model.units.MolarityUnit;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
@@ -37,6 +36,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.epam.indigoeln.common.model.units.MolarityUnit.M;
+import static com.epam.indigoeln.common.model.units.MolarityUnit.MM;
 import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
 import static com.epam.indigoeln.test.ClientUtil.uploadForm;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -90,7 +91,7 @@ public class SampleSearchServiceTest extends MutationsTestBase {
             sample.setChemicalName("chemicalName");
             sample.setDensity(new BigDecimal(10));
             sample.setMolarity(new BigDecimal(20));
-            sample.setMolarityUnit(MolarityUnit.MM);
+            sample.setMolarityUnit(MM);
             sample.setPurity(new BigDecimal(60));
             sample.setHealthHazards(Set.of(healthHazardRef.getId()));
             sample.setCompoundState(componentStateRef.getId());
@@ -132,7 +133,7 @@ public class SampleSearchServiceTest extends MutationsTestBase {
         assertThat(sample.getNbkBatchNumber()).isEqualTo(new NbkBatchNumber("00000001-0005", 4));
         assertThat(sample.getDensity()).isEqualByComparingTo("10");
         assertThat(sample.getMolarity()).isEqualByComparingTo("20");
-        assertThat(sample.getMolarityUnit()).isEqualTo(MolarityUnit.MM);
+        assertThat(sample.getMolarityUnit()).isEqualTo(MM);
 //                    assertThat(sample).hasPurity(60.0); // TODO purity gets overwritten
         assertThat(sample.getHealthHazards()).containsExactly(healthHazardRef);
         assertThat(sample.getBatchComment()).isEqualTo("batchComment");
@@ -145,7 +146,7 @@ public class SampleSearchServiceTest extends MutationsTestBase {
             assertThat(sample2.getNbkBatchNumber()).isEqualTo(new NbkBatchNumber("00000001-0005", 4));
             assertThat(sample2.getDensity()).isEqualByComparingTo("10");
             assertThat(sample2.getMolarity()).isEqualByComparingTo("20");
-            assertThat(sample2.getMolarityUnit()).isEqualTo(MolarityUnit.MM);
+            assertThat(sample2.getMolarityUnit()).isEqualTo(MM);
 //                    assertThat(sample2).hasPurity(60.0); // TODO purity gets overwritten
             assertThat(sample2.getHealthHazards()).containsExactly(healthHazardRef);
             assertThat(sample2.getCompoundState()).isEqualTo(componentStateRef);
@@ -227,7 +228,7 @@ public class SampleSearchServiceTest extends MutationsTestBase {
                 assertThat(sample.getSampleKey()).isEqualTo(new STRCodeSample(1, 1, 1).toString());
                 assertThat(sample.getNbkBatchNumber()).isEqualTo(new NbkBatchNumber("00000001-0005", 4));
                 assertThat(sample).hasDensity(10.0);
-                assertThat(sample).hasMolarity(20.0, MolarityUnit.MM);
+                assertThat(sample).hasMolarity(0.02, M); // converted to experiment units
 //                    assertThat(sample).hasPurity(60.0); // TODO purity gets overwritten
                 assertThat(sample.getHealthHazards()).containsExactly(healthHazardRef);
                 assertThat(sample.getComment()).isEqualTo("batchComment");

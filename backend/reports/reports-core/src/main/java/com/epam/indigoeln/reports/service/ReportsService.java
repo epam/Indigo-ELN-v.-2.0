@@ -1,7 +1,7 @@
 package com.epam.indigoeln.reports.service;
 
 import com.epam.indigoeln.common.util.ModelUtil;
-import com.epam.indigoeln.reaction.util.UnitUtils;
+import com.epam.indigoeln.reaction.util.CalculationContext;
 import com.epam.indigoeln.reports.api.ReportsAPI;
 import io.quarkiverse.jasperreports.repository.ReadOnlyStreamingService;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -64,7 +64,7 @@ public class ReportsService {
     @SneakyThrows
     @Transactional(Transactional.TxType.NOT_SUPPORTED)
     byte[] doGenerateExperimentReport(ReportsAPI.ExperimentReportDataDTO experiment) {
-        return UnitUtils.callWithUnitsAndSignificantFigures(experiment.getExperiment().getModel(), () -> {
+        return CalculationContext.call(experiment.getExperiment().getModel(), () -> {
             JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(List.of(experiment));
             Map<String, Object> params = new HashMap<>();
             params.put("dateFormat", dateTimeFormatter);

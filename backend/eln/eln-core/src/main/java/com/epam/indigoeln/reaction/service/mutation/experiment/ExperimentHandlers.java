@@ -5,7 +5,12 @@ import com.epam.indigoeln.common.model.units.MolUnit;
 import com.epam.indigoeln.common.model.units.MolarityUnit;
 import com.epam.indigoeln.common.model.units.VolumeUnit;
 import com.epam.indigoeln.common.model.units.WeightUnit;
-import com.epam.indigoeln.eln.entity.*;
+import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
+import com.epam.indigoeln.eln.entity.ExperimentAttachment;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
+import com.epam.indigoeln.eln.entity.NotebookEntity;
+import com.epam.indigoeln.eln.entity.UserInfo;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.ExperimentRef;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
@@ -16,7 +21,6 @@ import com.epam.indigoeln.eln.repository.UserRepository;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.DictionaryService;
 import com.epam.indigoeln.reaction.model.EnteredValue;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionInput;
@@ -26,14 +30,17 @@ import com.epam.indigoeln.reaction.model.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.mutation.EntityMutationHelper;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
+import com.epam.indigoeln.reaction.util.UnitUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
-import org.jspecify.annotations.Nullable;
 
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
@@ -131,12 +138,12 @@ class EditExperimentAttributesHandler extends ExperimentEditMutationHandlerBase<
         updated |= editProperty(mutation.description()
                 , experiment::setDescription
                 , summaryList
-                , x -> "description"
+                , _ -> "description"
         );
         updated |= editProperty(mutation.literature()
                 , experiment::setLiterature
                 , summaryList
-                , x -> "literature"
+                , _ -> "literature"
         );
         updated |= editProperty(mutation.linkedExperiments()
                 , v -> experiment.setLinkedExperiments(idsFromRefs(v))
@@ -416,36 +423,10 @@ abstract class AbstractSetExperimentUnitHandler<T extends ExperimentMutation> ex
         return true;
     }
 
-    protected void convertUserEnteredValues(ExperimentModel model, MeasurementUnit newUnit, int revision) {
-        for (Reaction reaction : model.getReactions()) {
-            for (ReactionInput input : reaction.getInputs()) {
-                convert(input.getWeight(), WeightUnit.class, newUnit, input::setWeight, revision);
-                convert(input.getVolume(), VolumeUnit.class, newUnit, input::setVolume, revision);
-                convert(input.getMol(), MolUnit.class, newUnit, input::setMol, revision);
-                for (ReactionInputSample sample : input.getSamples()) {
-                    convert(sample.getWeight(), WeightUnit.class, newUnit, sample::setWeight, revision);
-                    convert(sample.getVolume(), VolumeUnit.class, newUnit, sample::setVolume, revision);
-                    convert(sample.getMol(), MolUnit.class, newUnit, sample::setMol, revision);
-                    convert(sample.getMolarity(), MolarityUnit.class, newUnit, sample::setMolarity, revision);
-                }
-            }
-            for (ReactionOutput output : reaction.getOutputs()) {
-                for (ReactionOutputSample sample : output.getSamples()) {
-                    convert(sample.getActualWeight(), WeightUnit.class, newUnit, sample::setActualWeight, revision);
-                    convert(sample.getVolume(), VolumeUnit.class, newUnit, sample::setVolume, revision);
-                    convert(sample.getActualMol(), MolUnit.class, newUnit, sample::setActualMol, revision);
-                    convert(sample.getMolarity(), MolarityUnit.class, newUnit, sample::setMolarity, revision);
-                }
-            }
-        }
-    }
-
-    private <U extends MeasurementUnit> void convert(@Nullable EnteredValue<U> value, Class<U> unitClass, MeasurementUnit newUnit, Consumer<EnteredValue<U>> setter, int revision) {
-        if (value != null && value.getSource().isUserEntered() && unitClass.isInstance(newUnit) && unitClass.isInstance(value.getUnit())) {
-            BigDecimal factor = BigDecimal.valueOf(value.getUnit().getMultiplier()).divide(BigDecimal.valueOf(newUnit.getMultiplier()));
-            String newValue = value.toBigDecimal().multiply(factor).stripTrailingZeros().toPlainString();
-            //noinspection unchecked
-            setter.accept(EnteredValue.userEntered(newValue, (U) newUnit, revision));
+    protected <U extends MeasurementUnit> void convert(EnteredValue<U> value, U from, U to, Consumer<EnteredValue<U>> setter, int revision) {
+        if (value.isUserEntered()) {
+            String newValue = UnitUtils.convert(value.toBigDecimal(), from, to).stripTrailingZeros().toPlainString();
+            setter.accept(EnteredValue.userEntered(newValue, to, revision));
         }
     }
 }
@@ -456,9 +437,23 @@ class SetExperimentWeightUnitHandler extends AbstractSetExperimentUnitHandler<Ex
 
     @Override
     public String doHandle(ExperimentEntity entity, ExperimentMutation.SetExperimentWeightUnit mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        entity.getModel().setWeightUnit(mutation.weightUnit());
-        convertUserEnteredValues(entity.getModel(), mutation.weightUnit(), entity.getRevision());
-        return formatSetterSummary("weight unit", mutation.weightUnit().getDisplayName());
+        WeightUnit from = entity.getModel().getUnitSource().getWeightUnit(), to = mutation.weightUnit();
+        for (Reaction reaction : entity.getModel().getReactions()) {
+            for (ReactionInput input : reaction.getInputs()) {
+                convert(input.getWeight(), from, to, input::setWeight, entity.getRevision());
+                for (ReactionInputSample sample : input.getSamples()) {
+                    convert(sample.getWeight(), from, to, sample::setWeight, entity.getRevision());
+                }
+            }
+            for (ReactionOutput output : reaction.getOutputs()) {
+                for (ReactionOutputSample sample : output.getSamples()) {
+                    convert(sample.getActualWeight(), from, to, sample::setActualWeight, entity.getRevision());
+                }
+            }
+        }
+
+        entity.getModel().setUnitSource(entity.getModel().getUnitSource().withWeightUnit(to));
+        return formatSetterSummary("weight unit", to.getDisplayName());
     }
 }
 
@@ -468,8 +463,22 @@ class SetExperimentVolumeUnitHandler extends AbstractSetExperimentUnitHandler<Ex
 
     @Override
     public String doHandle(ExperimentEntity entity, ExperimentMutation.SetExperimentVolumeUnit mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        entity.getModel().setVolumeUnit(mutation.volumeUnit());
-        convertUserEnteredValues(entity.getModel(), mutation.volumeUnit(), entity.getRevision());
+        VolumeUnit from = entity.getModel().getUnitSource().getVolumeUnit(), to = mutation.volumeUnit();
+        for (Reaction reaction : entity.getModel().getReactions()) {
+            for (ReactionInput input : reaction.getInputs()) {
+                convert(input.getVolume(), from, to, input::setVolume, entity.getRevision());
+                for (ReactionInputSample sample : input.getSamples()) {
+                    convert(sample.getVolume(), from, to, sample::setVolume, entity.getRevision());
+                }
+            }
+            for (ReactionOutput output : reaction.getOutputs()) {
+                for (ReactionOutputSample sample : output.getSamples()) {
+                    convert(sample.getVolume(), from, to, sample::setVolume, entity.getRevision());
+                }
+            }
+        }
+
+        entity.getModel().setUnitSource(entity.getModel().getUnitSource().withVolumeUnit(mutation.volumeUnit()));
         return formatSetterSummary("volume unit", mutation.volumeUnit().getDisplayName());
     }
 }
@@ -480,8 +489,22 @@ class SetExperimentMolUnitHandler extends AbstractSetExperimentUnitHandler<Exper
 
     @Override
     public String doHandle(ExperimentEntity entity, ExperimentMutation.SetExperimentMolUnit mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        entity.getModel().setMolUnit(mutation.molUnit());
-        convertUserEnteredValues(entity.getModel(), mutation.molUnit(), entity.getRevision());
+        MolUnit from = entity.getModel().getUnitSource().getMolUnit(), to = mutation.molUnit();
+        for (Reaction reaction : entity.getModel().getReactions()) {
+            for (ReactionInput input : reaction.getInputs()) {
+                convert(input.getMol(), from, to, input::setMol, entity.getRevision());
+                for (ReactionInputSample sample : input.getSamples()) {
+                    convert(sample.getMol(), from, to, sample::setMol, entity.getRevision());
+                }
+            }
+            for (ReactionOutput output : reaction.getOutputs()) {
+                for (ReactionOutputSample sample : output.getSamples()) {
+                    convert(sample.getActualMol(), from, to, sample::setActualMol, entity.getRevision());
+                }
+            }
+        }
+
+        entity.getModel().setUnitSource(entity.getModel().getUnitSource().withMolUnit(mutation.molUnit()));
         return formatSetterSummary("mol unit", mutation.molUnit().getDisplayName());
     }
 }
@@ -492,8 +515,20 @@ class SetExperimentMolarityUnitHandler extends AbstractSetExperimentUnitHandler<
 
     @Override
     public String doHandle(ExperimentEntity entity, ExperimentMutation.SetExperimentMolarityUnit mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        entity.getModel().setMolarityUnit(mutation.molarityUnit());
-        convertUserEnteredValues(entity.getModel(), mutation.molarityUnit(), entity.getRevision());
+        MolarityUnit from = entity.getModel().getUnitSource().getMolarityUnit(), to = mutation.molarityUnit();
+        for (Reaction reaction : entity.getModel().getReactions()) {
+            for (ReactionInput input : reaction.getInputs()) {
+                for (ReactionInputSample sample : input.getSamples()) {
+                    convert(sample.getMolarity(), from, to, sample::setMolarity, entity.getRevision());
+                }
+            }
+            for (ReactionOutput output : reaction.getOutputs()) {
+                for (ReactionOutputSample sample : output.getSamples()) {
+                    convert(sample.getMolarity(), from, to, sample::setMolarity, entity.getRevision());
+                }
+            }
+        }
+        entity.getModel().setUnitSource(entity.getModel().getUnitSource().withMolarityUnit(mutation.molarityUnit()));
         return formatSetterSummary("molarity unit", mutation.molarityUnit().getDisplayName());
     }
 }

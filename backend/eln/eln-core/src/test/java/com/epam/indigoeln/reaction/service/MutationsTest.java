@@ -949,23 +949,20 @@ public class MutationsTest extends MutationsTestBase {
         assertThat(experiment.inputSample(1, 1).getMol()).hasStringValue("8.9341");
 
         experiment.mutate(new ExperimentMutation.SetExperimentWeightUnit(WeightUnit.KG));
-        assertThat(experiment.model().getWeightUnit()).isEqualTo(WeightUnit.KG);
-        assertThat(experiment.inputSample(1, 1).getWeight().getUnit()).isEqualTo(WeightUnit.KG);
+        assertThat(experiment.model().getUnitSource().getWeightUnit()).isEqualTo(WeightUnit.KG);
         assertThat(experiment.inputSample(1, 1).getWeight()).hasStringValue("1.234");
         assertThat(experiment.inputSample(1, 1).getMol()).hasStringValue("8.9341");
 
         experiment.mutate(new ExperimentMutation.SetExperimentMolUnit(MolUnit.MMOL));
-        assertThat(experiment.model().getMolUnit()).isEqualTo(MolUnit.MMOL);
-        assertThat(experiment.inputSample(1, 1).getMol().getUnit()).isEqualTo(MolUnit.MMOL);
+        assertThat(experiment.model().getUnitSource().getMolUnit()).isEqualTo(MolUnit.MMOL);
         assertThat(experiment.inputSample(1, 1).getMol()).hasStringValue("8934.1");
 
         experiment.mutateSetInputWeight(1, 1, "2.468");
-        assertThat(experiment.inputSample(1, 1).getWeight().getUnit()).isEqualTo(WeightUnit.KG);
         assertThat(experiment.inputSample(1, 1).getMol()).hasStringValue("17868");
 
         experiment.mutate(new ExperimentMutation.Undo());
         experiment.mutate(new ExperimentMutation.Undo());
-        assertThat(experiment.model().getMolUnit()).isEqualTo(MolUnit.MOL);
+        assertThat(experiment.model().getUnitSource().getMolUnit()).isEqualTo(MOL);
         assertThat(experiment.inputSample(1, 1).getMol()).hasStringValue("8.9341");
     }
 
@@ -1064,10 +1061,11 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutateSetInputWeight(2, 1, "200");
         experiment.mutateSetInputRowEQ(1, "1");
         experiment.mutateSetInputRowEQ(2, "2");
-        assertThat(experiment.inputSample(2, 1).getWeight()).isOverwritten();
+        assertThat(experiment.inputSample(2, 1).getWeight()).isCalculated();
 
         experiment.mutateSetInputVolume(2, 1, "2");
-        assertThat(experiment.inputSample(2, 1).getWeight()).isNotOverwritten();
+        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.inputSample(2, 1).getWeight()).isCalculated();
     }
 
     @Test
@@ -1112,7 +1110,7 @@ public class MutationsTest extends MutationsTestBase {
     void testParallelMutations() {
         ReactionAnchor reactionAnchor = experiment.reaction().getAnchor();
         int outputCount = experiment.reaction().getOutputs().size();
-        assertThatNoException().isThrownBy(() -> IntStreamEx.range(4).parallel().map(i -> {
+        assertThatNoException().isThrownBy(() -> IntStreamEx.range(4).parallel().map(_ -> {
             withUser(JOHN_USERNAME, () -> {
                 experimentClient.mutateExperimentModel(experiment.id(), 1, false, new ReactionMutation.AddNoProductSample(reactionAnchor));
                 experiment.mutate(new ReactionMutation.AddNoProductSample(reactionAnchor));

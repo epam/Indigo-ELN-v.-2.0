@@ -3,13 +3,15 @@ package com.epam.indigoeln.common.model.units;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Getter
 @RequiredArgsConstructor
 public enum MolWeightUnit implements MeasurementUnit {
 
-    G_PER_MOL(1.0, "g/mol");
+    G_PER_MOL(BigDecimal.ONE, "g/mol");
 
-    private final double multiplier;
+    private final BigDecimal multiplier;
     private final String displayName;
 
 

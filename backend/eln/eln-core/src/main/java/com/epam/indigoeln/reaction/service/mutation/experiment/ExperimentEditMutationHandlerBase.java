@@ -3,6 +3,7 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.common.model.units.DensityUnit;
 import com.epam.indigoeln.common.model.units.MeasurementUnit;
+import com.epam.indigoeln.common.model.units.MolarityUnit;
 import com.epam.indigoeln.common.model.units.NoUnit;
 import com.epam.indigoeln.compound.entity.CompoundEntity;
 import com.epam.indigoeln.compound.model.SampleDTO;
@@ -31,6 +32,7 @@ import com.epam.indigoeln.reaction.model.ReactionOutputType;
 import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.ReactionRow;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
+import com.epam.indigoeln.reaction.util.UnitUtils;
 import com.google.common.base.Preconditions;
 import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
@@ -39,7 +41,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Consumer;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
@@ -82,8 +83,8 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
     private <U extends MeasurementUnit> void doSetEnteredValue(EnteredValue<U> current, Consumer<EnteredValue<U>> setter, @Nullable String stringValue, @Nullable U unit, int revisionNo, EnteredValue<U> defaultValue) {
         EnteredValue<U> ev;
         if (stringValue == null) {
-            if (!current.isEmpty() && (current.getSource().isDefault() || (current.getSource().isCalculated() && defaultValue.isEmpty()))) {
-                ev = EnteredValue.cleared(revisionNo);
+            if (current.hasValue() && (current.isDefault() || (current.isCalculated() && !defaultValue.hasValue()))) {
+                ev = EnteredValue.userEntered(null, null, revisionNo);
             } else {
                 ev = defaultValue;
             }
@@ -139,7 +140,11 @@ public abstract class ExperimentEditMutationHandlerBase<T extends ExperimentMuta
         EnteredValue<NoUnit> purity = sample.getPurity() != null ? EnteredValue.defaultValue(sample.getPurity(), NoUnit.NO_UNIT) : DEFAULT_ONE_HUNDRED;
         ReactionInputSample reactionInputSample = ReactionInputSample.create(row, anchor, sample.getSource(), sample.getSampleKey(), purity);
         reactionInputSample.setDensity(EnteredValue.defaultValue(sample.getDensity(), DensityUnit.G_ML));
-        reactionInputSample.setMolarity(EnteredValue.defaultValue(sample.getMolarity(), sample.getMolarityUnit()));
+        if (sample.getMolarity() != null && sample.getMolarityUnit() != null) {
+            MolarityUnit molarityUnit = row.getReaction().getModel().getUnitSource().getMolarityUnit();
+            BigDecimal inExperimentUnits = UnitUtils.convert(sample.getMolarity(), sample.getMolarityUnit(), molarityUnit);
+            reactionInputSample.setMolarity(EnteredValue.defaultValue(inExperimentUnits, molarityUnit));
+        }
         reactionInputSample.setHealthHazards(sample.getHealthHazards());
         reactionInputSample.setComment(sample.getBatchComment());
         reactionInputSample.setNbkBatchNumber(sample.getNbkBatchNumber());

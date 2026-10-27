@@ -1,12 +1,11 @@
 package com.epam.indigoeln.reaction.service.calculator;
 
-import com.epam.indigoeln.reaction.model.EnteredValue;
 import com.epam.indigoeln.common.model.units.MeasurementUnit;
+import com.epam.indigoeln.reaction.model.EnteredValue;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -14,27 +13,26 @@ public class Formula<U extends MeasurementUnit> {
 
     final String name;
 
-    final EnteredValueOpt.Property<?, U> target;
+    final CalculableProperty<?, U> target;
 
-    final Supplier<EnteredValueOpt<U>> supplier;
+    final Calculation<U> supplier;
 
     EnteredValue<U> value = EnteredValue.empty();
 
     @Nullable
     EnteredValue<U> snapshot;
 
-    Formula(String name, EnteredValueOpt.Property<?, U> target, Supplier<EnteredValueOpt<U>> supplier, EnteredValueOpt.Property<?, ?>... sources) {
+    Formula(String name, CalculableProperty<?, U> target, Calculation<U> supplier, CalculableProperty<?, ?>... sources) {
         this.name = name;
         this.target = target;
         this.supplier = supplier;
         addSources(Arrays.asList(sources));
     }
 
-    public Formula<U> addSources(Collection<? extends EnteredValueOpt.Property<?, ?>> sources) {
-        for (EnteredValueOpt.Property<?, ?> source : sources) {
+    public void addSources(Collection<? extends CalculableProperty<?, ?>> sources) {
+        for (CalculableProperty<?, ?> source : sources) {
             source.getDownstream().add(this);
         }
-        return this;
     }
 
     public void snapshot() {

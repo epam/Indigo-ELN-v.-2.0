@@ -154,7 +154,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputPurity(os, "50"));
         experiment.mutate(new ReactionOutputMutation.SetOutputCompoundMolWeight(experiment.output(1).getAnchor(), "25"));
 
-        assertThat(experiment.outputSample(1, 1).getActualMol()).hasValue(2, MOL);
+        assertThat(experiment.outputSample(1, 1).getActualMol()).hasValue(2);
     }
 
     @Test
@@ -166,7 +166,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
         experiment.mutate(new ReactionOutputMutation.SetOutputCompoundMolWeight(experiment.output(1).getAnchor(), "25"));
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputPurity(os, "50"));
 
-        assertThat(experiment.outputSample(1, 1).getActualWeight()).hasValue(100, G);
+        assertThat(experiment.outputSample(1, 1).getActualWeight()).hasValue(100);
     }
 
     @Test
@@ -176,7 +176,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
         experiment.mutateSetInputMolarity(1, 1, "10");
         experiment.mutateSetInputVolume(1, 1, "20000");
 
-        assertThat(experiment.inputSample(1, 1).getMol()).hasValue(200, MOL);
+        assertThat(experiment.inputSample(1, 1).getMol()).hasValue(200);
     }
 
     @Test
@@ -196,7 +196,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
         experiment.mutateSetInputMol(1, 1, "10");
         experiment.mutateSetInputMolarity(1, 1, "20");
 
-        assertThat(experiment.inputSample(1, 1).getVolume()).hasValue(500, ML);
+        assertThat(experiment.inputSample(1, 1).getVolume()).hasValue(500);
     }
 
     @Test
@@ -207,7 +207,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolarity(os, "10"));
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputVolume(os, "20000"));
 
-        assertThat(experiment.outputSample(1, 1).getActualMol()).hasValue(200, MOL);
+        assertThat(experiment.outputSample(1, 1).getActualMol()).hasValue(200);
     }
 
     @Test
@@ -229,7 +229,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualMol(os, "10"));
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolarity(os, "20"));
 
-        assertThat(experiment.outputSample(1, 1).getVolume()).hasValue(500, ML);
+        assertThat(experiment.outputSample(1, 1).getVolume()).hasValue(500);
     }
 
     @Test
@@ -239,7 +239,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
         experiment.mutateSetInputVolume(1, 1, "10");
         experiment.mutateSetInputDensity(1, 1, "20");
 
-        assertThat(experiment.inputSample(1, 1).getWeight()).hasValue(200, G);
+        assertThat(experiment.inputSample(1, 1).getWeight()).hasValue(200);
     }
 
     @Test
@@ -249,7 +249,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
         experiment.mutateSetInputWeight(1, 1, "10");
         experiment.mutateSetInputDensity(1, 1, "20");
 
-        assertThat(experiment.inputSample(1, 1).getVolume()).hasValue(0.5, ML);
+        assertThat(experiment.inputSample(1, 1).getVolume()).hasValue(0.5);
     }
 
     @Test
@@ -270,7 +270,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputVolume(os, "10"));
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputDensity(os, "20"));
 
-        assertThat(experiment.outputSample(1, 1).getActualWeight()).hasValue(200, G);
+        assertThat(experiment.outputSample(1, 1).getActualWeight()).hasValue(200);
     }
 
     @Test
@@ -281,7 +281,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(os, "10"));
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputDensity(os, "20"));
 
-        assertThat(experiment.outputSample(1, 1).getVolume()).hasValue(0.5, ML);
+        assertThat(experiment.outputSample(1, 1).getVolume()).hasValue(0.5);
     }
 
     @Test
@@ -304,7 +304,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
         experiment.mutateAddNoProductSample();
         experiment.mutate(new ReactionOutputMutation.SetOutputRowEQ(experiment.output(1).getAnchor(), "4"));
 
-        assertThat(experiment.output(1).getTheoMol()).hasValue(20, MOL);
+        assertThat(experiment.output(1).getTheoMol()).hasValue(20);
     }
 
     @Test
@@ -314,11 +314,11 @@ public class CalculationFormulasTest extends MutationsTestBase {
         experiment.mutateAddNoProductSample();
         experiment.mutateSetInputRowMol(1, "10");
 
-        assertThat(experiment.output(1).getTheoMol()).hasValue(10, MOL);
+        assertThat(experiment.output(1).getTheoMol()).hasValue(10);
 
         experiment.mutate(new ReactionOutputMutation.SetOutputCompoundMolWeight(experiment.output(1).getAnchor(), "100"));
 
-        assertThat(experiment.output(1).getTheoWeight()).hasValue(1000, G);
+        assertThat(experiment.output(1).getTheoWeight()).hasValue(1000);
     }
 
     @Test
@@ -329,7 +329,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
         OutputSampleAnchor os = experiment.outputSample(1, 1).getAnchor();
         experiment.mutateSetInputRowMol(1, "10");
 
-        assertThat(experiment.output(1).getTheoMol()).hasValue(10, MOL);
+        assertThat(experiment.output(1).getTheoMol()).hasValue(10);
 
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualMol(os, "6"));
 
@@ -346,15 +346,15 @@ public class CalculationFormulasTest extends MutationsTestBase {
         // theoMol = limiting.mol / limiting.eq * eq
         experiment.mutateSetInputRowMol(1, "20");
         experiment.mutate(new ReactionOutputMutation.SetOutputCompoundMolWeight(experiment.output(1).getAnchor(), "50"));
-        assertThat(experiment.output(1).getTheoMol()).hasValue(20, MOL);
-        assertThat(experiment.output(1).getTheoWeight()).hasValue(1000, G);
+        assertThat(experiment.output(1).getTheoMol()).hasValue(20);
+        assertThat(experiment.output(1).getTheoWeight()).hasValue(1000);
 
         // yield = actualWeight * purity / theoWeight
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(os, "10"));
         assertThat(experiment.outputSample(1, 1).getYieldValue()).hasValue(1);
 
         // actualMol = yield * theoMol
-        assertThat(experiment.outputSample(1, 1).getActualMol()).hasValue(0.2, MOL);
+        assertThat(experiment.outputSample(1, 1).getActualMol()).hasValue(0.2);
     }
 
     @Test
@@ -365,7 +365,7 @@ public class CalculationFormulasTest extends MutationsTestBase {
         OutputSampleAnchor os = experiment.outputSample(1, 1).getAnchor();
         experiment.mutateSetInputRowMol(1, "10");
 
-        assertThat(experiment.output(1).getTheoMol()).hasValue(10, MOL);
+        assertThat(experiment.output(1).getTheoMol()).hasValue(10);
 
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(os, "20"));
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputPurity(os, "50"));
@@ -383,18 +383,18 @@ public class CalculationFormulasTest extends MutationsTestBase {
 
         // theoMol = limiting.mol
         experiment.mutateSetInputRowMol(1, "10");
-        assertThat(experiment.output(1).getTheoMol()).hasValue(10, MOL);
+        assertThat(experiment.output(1).getTheoMol()).hasValue(10);
 
         // theoWeight = theoMol * molWeight
         experiment.mutate(new ReactionOutputMutation.SetOutputCompoundMolWeight(experiment.output(1).getAnchor(), "50"));
-        assertThat(experiment.output(1).getTheoWeight()).hasValue(500, G);
+        assertThat(experiment.output(1).getTheoWeight()).hasValue(500);
 
         // yield = actualMol / theoMol
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualMol(os, "2"));
         assertThat(experiment.outputSample(1, 1).getYieldValue()).hasValue(20);
 
         // actualWeight = yield / purity * theoWeight
-        assertThat(experiment.outputSample(1, 1).getActualWeight()).hasValue(100, G);
+        assertThat(experiment.outputSample(1, 1).getActualWeight()).hasValue(100);
     }
 
     @Test

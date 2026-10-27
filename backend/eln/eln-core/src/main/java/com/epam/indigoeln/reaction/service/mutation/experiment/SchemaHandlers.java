@@ -305,7 +305,7 @@ class ResolveInputsHandler extends AbstractReactionMutationHandler<ReactionMutat
     }
 
     private static <U extends MeasurementUnit> void transferUserEnteredValue(EnteredValue<U> value, Consumer<EnteredValue<U>> setter) {
-        if (value.getSource().isUserEntered()) {
+        if (value.isUserEntered()) {
             setter.accept(value);
         }
     }

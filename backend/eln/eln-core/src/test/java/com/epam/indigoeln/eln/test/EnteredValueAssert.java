@@ -1,10 +1,7 @@
 package com.epam.indigoeln.eln.test;
 
-import com.epam.indigoeln.common.model.units.DensityUnit;
-import com.epam.indigoeln.reaction.model.EnteredValue;
 import com.epam.indigoeln.common.model.units.MeasurementUnit;
-import com.epam.indigoeln.common.model.units.MolWeightUnit;
-import com.epam.indigoeln.common.model.units.NoUnit;
+import com.epam.indigoeln.reaction.model.EnteredValue;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.apache.commons.math3.util.Precision;
@@ -27,21 +24,18 @@ public class EnteredValueAssert<U extends MeasurementUnit> extends AbstractAsser
 
     public EnteredValueAssert<U> isEmpty() {
         Assertions.assertThat(actual).isNotNull();
-        Assertions.assertThat(actual.isEmpty()).describedAs(actual::toString).isTrue();
+        Assertions.assertThat(!actual.hasValue()).describedAs(actual::toString).isTrue();
         return this;
     }
 
     public EnteredValueAssert<U> hasValue(double value) {
-        Assertions.assertThat(actual != null && !actual.isEmpty()).describedAs("was empty").isTrue();
-        if (!(actual.getUnit() instanceof MolWeightUnit) && !(actual.getUnit() instanceof NoUnit) && !(actual.getUnit() instanceof DensityUnit)) {
-            throw new IllegalStateException("Must use hasValue(value, unit) for " + actual.getUnit().getClass().getSimpleName());
-        }
+        Assertions.assertThat(actual != null && actual.hasValue()).describedAs("was empty").isTrue();
         Assertions.assertThat(actual.getValue()).describedAs(actual::toString).isCloseTo(value, EPSILON);
         return this;
     }
 
     public EnteredValueAssert<U> hasValue(double value, U unit) {
-        Assertions.assertThat(actual != null && !actual.isEmpty()).describedAs("was empty").isTrue();
+        Assertions.assertThat(actual != null && actual.getValue() != null).describedAs("was empty").isTrue();
         if (!Precision.equalsWithRelativeTolerance(actual.getValue(), value, 1e-6) || actual.getUnit() != unit) {
             String description = Strings.isNullOrEmpty(descriptionText()) ? actual.toString() : descriptionText();
             failWithMessage("[%s]\nexpected: %s %s\n but was: %s %s", description, value, unit, actual.getStringValue(), actual.getUnit());
@@ -50,30 +44,26 @@ public class EnteredValueAssert<U extends MeasurementUnit> extends AbstractAsser
     }
 
     public EnteredValueAssert<U> hasStringValue(String stringValue) {
-        Assertions.assertThat(actual != null && !actual.isEmpty()).describedAs("was empty").isTrue();
+        Assertions.assertThat(actual != null && actual.hasValue()).describedAs("was empty").isTrue();
         Assertions.assertThat(actual.getStringValue()).describedAs(actual::toString).isEqualTo(stringValue);
         return this;
     }
 
     public EnteredValueAssert<U> isUserEntered() {
-        Assertions.assertThat(actual != null && !actual.isEmpty()).describedAs("was empty").isTrue();
-        Assertions.assertThat(actual.getSource().isUserEntered()).describedAs(actual::toString).isTrue();
+        Assertions.assertThat(actual != null && actual.hasValue()).describedAs("was empty").isTrue();
+        Assertions.assertThat(actual.isUserEntered()).describedAs(actual::toString).isTrue();
+        return this;
+    }
+
+    public EnteredValueAssert<U> isCalculated() {
+        Assertions.assertThat(actual != null && actual.hasValue()).describedAs("was empty").isTrue();
+        Assertions.assertThat(actual.isCalculated()).describedAs(actual::toString).isTrue();
         return this;
     }
 
     public EnteredValueAssert<U> isUserEntered(int priority) {
         isUserEntered();
-        Assertions.assertThat(Preconditions.checkNotNull(actual).getSource().getPriority()).describedAs(actual::toString).isEqualTo(priority);
-        return this;
-    }
-
-    public EnteredValueAssert<U> isOverwritten() {
-        Assertions.assertThat(actual.isOverwritten()).describedAs(actual::toString).isTrue();
-        return this;
-    }
-
-    public EnteredValueAssert<U> isNotOverwritten() {
-        Assertions.assertThat(actual.isOverwritten()).describedAs(actual::toString).isFalse();
+        Assertions.assertThat(Preconditions.checkNotNull(actual).getPriority()).describedAs(actual::toString).isEqualTo(priority);
         return this;
     }
 }

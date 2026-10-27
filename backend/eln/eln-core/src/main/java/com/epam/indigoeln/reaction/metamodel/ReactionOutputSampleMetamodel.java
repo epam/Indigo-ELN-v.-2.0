@@ -1,5 +1,6 @@
 package com.epam.indigoeln.reaction.metamodel;
 
+import com.epam.indigoeln.common.model.NbkBatchNumber;
 import com.epam.indigoeln.common.model.units.DensityUnit;
 import com.epam.indigoeln.common.model.units.MolUnit;
 import com.epam.indigoeln.common.model.units.MolarityUnit;
@@ -10,7 +11,6 @@ import com.epam.indigoeln.eln.model.ComponentStateRef;
 import com.epam.indigoeln.eln.model.CompoundProtectionRef;
 import com.epam.indigoeln.eln.model.HandlingPrecautionsRef;
 import com.epam.indigoeln.eln.model.HealthHazardRef;
-import com.epam.indigoeln.common.model.NbkBatchNumber;
 import com.epam.indigoeln.eln.model.SampleSourceDetailsRef;
 import com.epam.indigoeln.eln.model.SampleSourceRef;
 import com.epam.indigoeln.eln.model.StorageInstructionsRef;

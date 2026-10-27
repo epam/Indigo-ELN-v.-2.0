@@ -395,7 +395,7 @@ public class ExperimentService {
     private String getPropertySDFRepresentation(@Nullable Object property) {
         return switch (property) {
             case null -> null;
-            case EnteredValue<?> ev when ev.isEmpty() -> null;
+            case EnteredValue<?> ev when !ev.hasValue() -> null;
             case EnteredValue<?> ev -> ev.toUserFriendlyString(false, "");
             case Set<?> set -> {
                 // unordered, so sort for a stable export

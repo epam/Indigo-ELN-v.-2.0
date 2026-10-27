@@ -1,17 +1,16 @@
 package com.epam.indigoeln.reaction.model.units;
 
-import com.epam.indigoeln.common.model.units.DensityUnit;
 import com.epam.indigoeln.common.model.units.MeasurementUnit;
 import com.epam.indigoeln.common.model.units.MolUnit;
-import com.epam.indigoeln.common.model.units.MolWeightUnit;
 import com.epam.indigoeln.common.model.units.MolarityUnit;
 import com.epam.indigoeln.common.model.units.NoUnit;
 import com.epam.indigoeln.common.model.units.VolumeUnit;
 import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.reaction.model.UnitSource;
+import com.epam.indigoeln.reaction.service.calculator.Calculation;
+import com.epam.indigoeln.reaction.util.CalculationContext;
 import com.epam.indigoeln.reaction.util.UnitUtils;
-import one.util.streamex.StreamEx;
-import org.assertj.core.api.AbstractThrowableAssert;
 import org.assertj.core.api.Assertions;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
@@ -27,37 +26,25 @@ import org.junit.jupiter.params.converter.ConvertWith;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
+import static com.epam.indigoeln.common.model.units.MolUnit.MOL;
+import static com.epam.indigoeln.common.model.units.MolWeightUnit.G_PER_MOL;
+import static com.epam.indigoeln.common.model.units.NoUnit.NO_UNIT;
+import static com.epam.indigoeln.common.model.units.VolumeUnit.ML;
 import static com.epam.indigoeln.common.model.units.WeightUnit.G;
+import static com.epam.indigoeln.common.model.units.WeightUnit.MG;
 import static com.epam.indigoeln.eln.test.EnteredValueAssert.assertThat;
 import static com.epam.indigoeln.reaction.model.EnteredValue.userEntered;
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class EnteredValueTest {
-
-    private static final List<MeasurementUnit> UNITS = StreamEx.<MeasurementUnit[]>of(
-            MolUnit.values(),
-            MolWeightUnit.values(),
-            VolumeUnit.values(),
-            WeightUnit.values(),
-            MolarityUnit.values(),
-            DensityUnit.values(),
-            NoUnit.values()
-    ).flatMap(Arrays::stream).toList();
-
-    private static final Map<String, MeasurementUnit> UNIT_NAMES = StreamEx.of(UNITS)
-            .toMap(MeasurementUnit::name, Function.identity());
 
     @RegisterExtension
     static final InvocationInterceptor SIG_FIGS_5 = new InvocationInterceptor() {
         @Override
         public void interceptTestMethod(Invocation<@Nullable Void> invocation, ReflectiveInvocationContext<Method> ctx, ExtensionContext ext) throws Throwable {
-            UnitUtils.callWithUnitsAndSignificantFigures(WeightUnit.G, VolumeUnit.ML, MolUnit.MOL, MolarityUnit.M, 5, invocation::proceed);
+            CalculationContext.call(5, UnitSource.DEFAULT_UNITS, invocation::proceed);
         }
         @Override
         public void interceptTestTemplateMethod(Invocation<@Nullable Void> invocation, ReflectiveInvocationContext<Method> ctx, ExtensionContext ext) throws Throwable {
@@ -65,286 +52,174 @@ class EnteredValueTest {
         }
     };
 
-    @Test
-    void testAddUnitsCombinations() {
-        assertSoftly(softly -> {
-            for (MeasurementUnit unitA : UNITS) {
-                for (MeasurementUnit unitB : UNITS) {
-                    AbstractThrowableAssert<?, ? extends Throwable> assertion = softly.assertThatCode(() -> {
-                        EnteredValue<MeasurementUnit> valueA = userEntered("1.0", unitA, 1);
-                        EnteredValue<MeasurementUnit> valueB = userEntered("1.0", unitB, 1);
-                        EnteredValue.add(valueA, valueB);
-                    }).describedAs("units: %s + %s", unitA, unitB);
-                    boolean shouldSucceed = unitA.getClass() == unitB.getClass();
-                    if (shouldSucceed) {
-                        assertion.doesNotThrowAnyException();
-                    } else {
-                        assertion.isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Inconvertible units");
-                    }
-                }
-            }
-        });
-    }
-
     @ParameterizedTest
     @CsvSource({
             "1,G,2,G,3,G",
-            "1,G,500,MG,1.5,G", // take bigger units (regardless of operand order)
+            "1,G,500,MG,1.5,G", // result is in base units (regardless of operand order)
             "500,MG,1,G,1.5,G",
-            "0,G,1,MG,0.001,G", // except for zero: zero doesn't affect target units (regardless of operand order)
-            "1,MG,0,G,0.001,G",
-            "0,G,0,MG,0,G", // if both operands are zero, take bigger units
+            "0,G,1,MG,0.001,G",
     })
-    void testAddUnitsSuccess(String aValue, @ConvertWith(UnitConverter.class) WeightUnit aUnit, String bValue, @ConvertWith(UnitConverter.class) WeightUnit bUnit, double expectedValue, @ConvertWith(UnitConverter.class) WeightUnit expectedUnit) {
-        EnteredValue<WeightUnit> valueA = userEntered(aValue, aUnit, 1);
-        EnteredValue<WeightUnit> valueB = userEntered(bValue, bUnit, 1);
-        EnteredValue<WeightUnit> result = EnteredValue.add(valueA, valueB);
-        assertThat(result).hasValue(expectedValue, expectedUnit);
-    }
-
-    @Test
-    void testAddInconvertibleUnitsThrows() {
-        EnteredValue<MeasurementUnit> weight = userEntered("1.0", G, 1);
-        EnteredValue<MeasurementUnit> volume = userEntered("1.0", VolumeUnit.ML, 1);
-        Assertions.assertThatThrownBy(() -> EnteredValue.add(weight, volume))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Inconvertible units: G and ML");
+    void testAdd(String aValue, @ConvertWith(UnitConverter.class) WeightUnit aUnit, String bValue, @ConvertWith(UnitConverter.class) WeightUnit bUnit, double expectedValue, @ConvertWith(UnitConverter.class) WeightUnit expectedUnit) {
+        EnteredValue<WeightUnit> result = value(aValue, aUnit).add(value(bValue, bUnit)).get();
+        assertThat(result).isCalculated().hasValue(expectedValue, expectedUnit);
     }
 
     @ParameterizedTest
     @CsvSource({
             "3,G,1,G,2,G",
-            "1,G,500,MG,0.5,G", // take bigger units (regardless of operand order)
+            "1,G,500,MG,0.5,G", // result is in base units (regardless of operand order)
             "1500,MG,1,G,0.5,G",
-            "0,G,1,MG,-0.001,G", // except for zero: zero doesn't affect target units (regardless of operand order)
-            "1,MG,0,G,0.001,G",
-            "0,G,0,MG,0,G", // if both operands are zero, take bigger units
+            "0,G,1,MG,-0.001,G",
     })
-    void testSubtractUnitsSuccess(String aValue, @ConvertWith(UnitConverter.class) WeightUnit aUnit, String bValue, @ConvertWith(UnitConverter.class) WeightUnit bUnit, double expectedValue, @ConvertWith(UnitConverter.class) WeightUnit expectedUnit) {
-        EnteredValue<WeightUnit> valueA = userEntered(aValue, aUnit, 1);
-        EnteredValue<WeightUnit> valueB = userEntered(bValue, bUnit, 1);
-        EnteredValue<WeightUnit> result = EnteredValue.subtract(valueA, valueB);
-        assertThat(result).hasValue(expectedValue, expectedUnit);
+    void testSubtract(String aValue, @ConvertWith(UnitConverter.class) WeightUnit aUnit, String bValue, @ConvertWith(UnitConverter.class) WeightUnit bUnit, double expectedValue, @ConvertWith(UnitConverter.class) WeightUnit expectedUnit) {
+        EnteredValue<WeightUnit> result = value(aValue, aUnit).subtract(value(bValue, bUnit)).get();
+        assertThat(result).isCalculated().hasValue(expectedValue, expectedUnit);
     }
 
     @Test
-    void testSubtractInconvertibleUnitsThrows() {
-        EnteredValue<MeasurementUnit> weight = userEntered("1.0", G, 1);
-        EnteredValue<MeasurementUnit> volume = userEntered("1.0", VolumeUnit.ML, 1);
-        Assertions.assertThatThrownBy(() -> EnteredValue.subtract(weight, volume))
+    void testAddInconvertibleUnitsThrows() {
+        Calculation<MeasurementUnit> weight = value("1.0", G);
+        Calculation<MeasurementUnit> volume = value("1.0", ML);
+        Assertions.assertThatThrownBy(() -> weight.add(volume).get())
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Inconvertible units: G and ML");
     }
 
     @Test
-    void testMultiplyScalarSuccess() {
-        EnteredValue<WeightUnit> self = userEntered("2.0", G, 1);
-        EnteredValue<WeightUnit> result = EnteredValue.multiply(self, 3.0);
-        assertThat(result).hasValue(6, G);
+    void testSubtractInconvertibleUnitsThrows() {
+        Calculation<MeasurementUnit> weight = value("1.0", G);
+        Calculation<MeasurementUnit> volume = value("1.0", ML);
+        Assertions.assertThatThrownBy(() -> weight.subtract(volume).get())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Inconvertible units: G and ML");
+    }
+
+    @Test
+    void testUserValueEqualityIncludesRevision() {
+        Assertions.assertThat(userEntered("1", G, 1)).isEqualTo(userEntered("1", G, 1));
+        Assertions.assertThat(userEntered("1", G, 1)).isNotEqualTo(userEntered("1", G, 2));
+        Assertions.assertThat(userEntered("1", G, 1)).isNotEqualTo(userEntered("2", G, 1));
+        Assertions.assertThat(EnteredValue.<WeightUnit>userEntered(null, null, 1)).isEqualTo(userEntered(null, null, 1));
+        Assertions.assertThat(EnteredValue.<WeightUnit>userEntered(null, null, 1)).isNotEqualTo(userEntered(null, null, 2));
+        Assertions.assertThat(EnteredValue.<WeightUnit>userEntered(null, null, 1)).isNotEqualTo(userEntered("1", G, 1));
+    }
+
+    @Test
+    void testEmptyOperandGivesEmpty() {
+        Calculation<WeightUnit> value = value("1", G);
+        Calculation<WeightUnit> empty = Calculation.readOnly(EnteredValue.empty());
+        assertThat(value.add(empty).get()).isEmpty();
+        assertThat(empty.add(value).get()).isEmpty();
+        assertThat(value.subtract(empty).get()).isEmpty();
+        assertThat(empty.subtract(value).get()).isEmpty();
+        assertThat(value.<WeightUnit>multiply(empty).get()).isEmpty();
+        assertThat(empty.<WeightUnit>multiply(value).get()).isEmpty();
+        assertThat(empty.multiply(2.0).get()).isEmpty();
+        assertThat(value.<NoUnit>divide(empty).get()).isEmpty();
+        assertThat(empty.<NoUnit>divide(value).get()).isEmpty();
+        assertThat(value.percentageOf(empty).get()).isEmpty();
+        assertThat(empty.percentageOf(value).get()).isEmpty();
     }
 
     @ParameterizedTest
     @CsvSource({
-            // NO_UNIT left identity
-            "NO_UNIT,NO_UNIT,NO_UNIT,1",
-            "NO_UNIT,UMOL,MOL,0.000001",
-            "NO_UNIT,MMOL,MOL,0.001",
-            "NO_UNIT,MOL,MOL,1",
-            "NO_UNIT,G_PER_MOL,G_PER_MOL,1",
-            "NO_UNIT,ML,ML,1",
-            "NO_UNIT,L,ML,1000",
-            "NO_UNIT,MG,G,0.001",
-            "NO_UNIT,G,G,1",
-            "NO_UNIT,KG,G,1000",
-            "NO_UNIT,MM,M,0.001",
-            "NO_UNIT,M,M,1",
-            "NO_UNIT,G_ML,G_ML,1",
-            // NO_UNIT right identity
-            "UMOL,NO_UNIT,MOL,0.000001",
-            "MMOL,NO_UNIT,MOL,0.001",
-            "MOL,NO_UNIT,MOL,1",
-            "G_PER_MOL,NO_UNIT,G_PER_MOL,1",
-            "ML,NO_UNIT,ML,1",
-            "L,NO_UNIT,ML,1000",
-            "MG,NO_UNIT,G,0.001",
-            "G,NO_UNIT,G,1",
-            "KG,NO_UNIT,G,1000",
-            "MM,NO_UNIT,M,0.001",
-            "M,NO_UNIT,M,1",
-            "G_ML,NO_UNIT,G_ML,1",
-            // Molarity × Volume
-            "MM,ML,MOL,0.000001",
-            "MM,L,MOL,0.001",
-            "M,ML,MOL,0.001",
-            "M,L,MOL,1",
-            "ML,MM,MOL,0.000001",
-            "L,MM,MOL,0.001",
-            "ML,M,MOL,0.001",
-            "L,M,MOL,1",
-            // MolWeight × Mol (both orderings)
-            "G_PER_MOL,MOL,G,1",
-            "G_PER_MOL,MMOL,G,0.001",
-            "G_PER_MOL,UMOL,G,0.000001",
-            "MOL,G_PER_MOL,G,1",
-            "MMOL,G_PER_MOL,G,0.001",
-            "UMOL,G_PER_MOL,G,0.000001",
-            // Density × Volume (both orderings)
-            "G_ML,ML,G,1",
-            "G_ML,L,G,1000",
-            "ML,G_ML,G,1",
-            "L,G_ML,G,1000",
-            // Molarity × MolWeight (both orderings) → Density
-            "MM,G_PER_MOL,G_ML,0.000001",
-            "M,G_PER_MOL,G_ML,0.001",
-            "G_PER_MOL,MM,G_ML,0.000001",
-            "G_PER_MOL,M,G_ML,0.001",
+            "2,MOL,3,G_PER_MOL,6,G",
+            "2,MMOL,3,G_PER_MOL,0.006,G", // result is in base units
+            "3,G_PER_MOL,2,MOL,6,G", // regardless of operand order
+            "2,ML,3,M,0.006,MOL",
+            "2,L,3,M,6,MOL",
+            "2,ML,3,G_ML,6,G",
+            "2,MG,3,NO_UNIT,0.006,G",
+            "3,NO_UNIT,2,MG,0.006,G",
     })
-    void testMultiplySuccess(@ConvertWith(UnitConverter.class) MeasurementUnit unitA, @ConvertWith(UnitConverter.class) MeasurementUnit unitB, @ConvertWith(UnitConverter.class) MeasurementUnit expectedUnit, double expectedValue) {
-        EnteredValue<MeasurementUnit> valueA = userEntered("1.0", unitA, 1);
-        EnteredValue<MeasurementUnit> valueB = userEntered("1.0", unitB, 1);
-        EnteredValue<MeasurementUnit> result = EnteredValue.multiply(valueA, valueB);
-        assertThat(result).hasValue(expectedValue, expectedUnit);
+    void testMultiply(String aValue, @ConvertWith(UnitConverter.class) MeasurementUnit aUnit, String bValue, @ConvertWith(UnitConverter.class) MeasurementUnit bUnit, double expectedValue, @ConvertWith(UnitConverter.class) MeasurementUnit expectedUnit) {
+        EnteredValue<MeasurementUnit> result = value(aValue, aUnit).<MeasurementUnit>multiply(value(bValue, bUnit)).get();
+        assertThat(result).isCalculated().hasValue(expectedValue, expectedUnit);
     }
 
     @Test
     void testMultiplyInconvertibleUnitsThrows() {
-        EnteredValue<WeightUnit> weight = userEntered("1.0", G, 1);
-        EnteredValue<VolumeUnit> volume = userEntered("1.0", VolumeUnit.ML, 1);
-        Assertions.assertThatThrownBy(() -> EnteredValue.multiply(weight, volume))
+        Calculation<WeightUnit> weight = value("1.0", G);
+        Calculation<VolumeUnit> volume = value("1.0", ML);
+        Assertions.assertThatThrownBy(() -> weight.multiply(volume).get())
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Cannot multiply units: G and ML");
     }
 
     @Test
-    void testDivideScalarSuccess() {
-        EnteredValue<WeightUnit> self = userEntered("6.0", G, 1);
-        EnteredValue<WeightUnit> result = EnteredValue.divide(self, 3.0);
-        assertThat(result).hasValue(2, G);
-    }
-
-    @Test
-    void testScalarResultInScopedUnits() {
-        UnitUtils.callWithUnitsAndSignificantFigures(WeightUnit.MG, VolumeUnit.L, MolUnit.MMOL, MolarityUnit.MM, 5, () -> {
-            assertThat(EnteredValue.multiply(userEntered("2.0", G, 1), 3.0)).hasValue(6000, WeightUnit.MG);
-            assertThat(EnteredValue.divide(userEntered("6.0", MolUnit.MOL, 1), 3.0)).hasValue(2000, MolUnit.MMOL);
-            assertThat(EnteredValue.multiply(userEntered("500", VolumeUnit.ML, 1), 2.0)).hasValue(1, VolumeUnit.L);
-            assertThat(EnteredValue.divide(userEntered("1", MolarityUnit.M, 1), 2.0)).hasValue(500, MolarityUnit.MM);
-            return null;
-        });
+    void testMultiplyScalar() {
+        assertThat(value("2.0", G).multiply(3.0).get()).isCalculated().hasValue(6, G);
+        assertThat(value("2.0", MG).multiply(3.0).get()).isCalculated().hasValue(6, MG); // keeps operand units
     }
 
     @ParameterizedTest
     @CsvSource({
-            // Same unit → NO_UNIT, 1
-            "NO_UNIT,NO_UNIT,NO_UNIT,1",
-            "UMOL,UMOL,NO_UNIT,1",
-            "MMOL,MMOL,NO_UNIT,1",
-            "MOL,MOL,NO_UNIT,1",
-            "G_PER_MOL,G_PER_MOL,NO_UNIT,1",
-            "ML,ML,NO_UNIT,1",
-            "L,L,NO_UNIT,1",
-            "MG,MG,NO_UNIT,1",
-            "G,G,NO_UNIT,1",
-            "KG,KG,NO_UNIT,1",
-            "MM,MM,NO_UNIT,1",
-            "M,M,NO_UNIT,1",
-            "G_ML,G_ML,NO_UNIT,1",
-            // Same class, different unit → NO_UNIT, ratio (left.multiplier / right.multiplier)
-            "UMOL,MMOL,NO_UNIT,0.001",
-            "UMOL,MOL,NO_UNIT,0.000001",
-            "MMOL,UMOL,NO_UNIT,1000",
-            "MMOL,MOL,NO_UNIT,0.001",
-            "MOL,UMOL,NO_UNIT,1000000",
-            "MOL,MMOL,NO_UNIT,1000",
-            "ML,L,NO_UNIT,0.001",
-            "L,ML,NO_UNIT,1000",
-            "MG,G,NO_UNIT,0.001",
-            "MG,KG,NO_UNIT,0.000001",
-            "G,MG,NO_UNIT,1000",
-            "G,KG,NO_UNIT,0.001",
-            "KG,MG,NO_UNIT,1000000",
-            "KG,G,NO_UNIT,1000",
-            "MM,M,NO_UNIT,0.001",
-            "M,MM,NO_UNIT,1000",
-            // Divide by NO_UNIT → same unit, 1
-            "UMOL,NO_UNIT,MOL,0.000001",
-            "MMOL,NO_UNIT,MOL,0.001",
-            "MOL,NO_UNIT,MOL,1",
-            "G_PER_MOL,NO_UNIT,G_PER_MOL,1",
-            "ML,NO_UNIT,ML,1",
-            "L,NO_UNIT,ML,1000",
-            "MG,NO_UNIT,G,0.001",
-            "G,NO_UNIT,G,1",
-            "KG,NO_UNIT,G,1000",
-            "MM,NO_UNIT,M,0.001",
-            "M,NO_UNIT,M,1",
-            "G_ML,NO_UNIT,G_ML,1",
-            // Weight / MolWeight → Mol
-            "MG,G_PER_MOL,MOL,0.001",
-            "G,G_PER_MOL,MOL,1",
-            "KG,G_PER_MOL,MOL,1000",
-            // Weight / Density → Volume
-            "MG,G_ML,ML,0.001",
-            "G,G_ML,ML,1",
-            "KG,G_ML,ML,1000",
-            // Weight / Volume → Density
-            "MG,ML,G_ML,0.001",
-            "MG,L,G_ML,0.000001",
-            "G,ML,G_ML,1",
-            "G,L,G_ML,0.001",
-            "KG,ML,G_ML,1000",
-            "KG,L,G_ML,1",
-            // Weight / Mol → MolWeight
-            "MG,UMOL,G_PER_MOL,1000",
-            "MG,MMOL,G_PER_MOL,1",
-            "MG,MOL,G_PER_MOL,0.001",
-            "G,UMOL,G_PER_MOL,1000000",
-            "G,MMOL,G_PER_MOL,1000",
-            "G,MOL,G_PER_MOL,1",
-            "KG,UMOL,G_PER_MOL,1000000000",
-            "KG,MMOL,G_PER_MOL,1000000",
-            "KG,MOL,G_PER_MOL,1000",
-            // Mol / Molarity → Volume
-            "UMOL,MM,ML,1",
-            "UMOL,M,ML,0.001",
-            "MMOL,MM,ML,1000",
-            "MMOL,M,ML,1",
-            "MOL,MM,ML,1000000",
-            "MOL,M,ML,1000",
-            // Mol / Volume → Molarity
-            "UMOL,ML,M,0.001",
-            "UMOL,L,M,0.000001",
-            "MMOL,ML,M,1",
-            "MMOL,L,M,0.001",
-            "MOL,ML,M,1000",
-            "MOL,L,M,1",
-            // Density / Molarity → MolWeight
-            "G_ML,MM,G_PER_MOL,1000000",
-            "G_ML,M,G_PER_MOL,1000",
-            // Density / MolWeight → Molarity
-            "G_ML,G_PER_MOL,M,1000",
+            "6,G,3,G_PER_MOL,2,MOL",
+            "6,G,2,MOL,3,G_PER_MOL",
+            "6,MOL,2,ML,3000,M", // result is in units of the multiplication rule
+            "6,G,3,G,2,NO_UNIT", // same base units
+            "6,G,3,MG,2000,NO_UNIT",
+            "6,G,3,NO_UNIT,2,G",
+            "6,MG,3,NO_UNIT,0.002,G",
     })
-    void testDivideSuccess(@ConvertWith(UnitConverter.class) MeasurementUnit unitA, @ConvertWith(UnitConverter.class) MeasurementUnit unitB, @ConvertWith(UnitConverter.class) MeasurementUnit expectedUnit, double expectedValue) {
-        EnteredValue<MeasurementUnit> valueA = userEntered("1.0", unitA, 1);
-        EnteredValue<MeasurementUnit> valueB = userEntered("1.0", unitB, 1);
-        EnteredValue<MeasurementUnit> result = EnteredValue.divide(valueA, valueB);
-        assertThat(result).hasValue(expectedValue, expectedUnit);
+    void testDivide(String aValue, @ConvertWith(UnitConverter.class) MeasurementUnit aUnit, String bValue, @ConvertWith(UnitConverter.class) MeasurementUnit bUnit, double expectedValue, @ConvertWith(UnitConverter.class) MeasurementUnit expectedUnit) {
+        EnteredValue<MeasurementUnit> result = value(aValue, aUnit).<MeasurementUnit>divide(value(bValue, bUnit)).get();
+        assertThat(result).isCalculated().hasValue(expectedValue, expectedUnit);
+    }
+
+    @Test
+    void testDivideByZeroGivesEmpty() {
+        assertThat(value("6", G).<MolUnit>divide(value("0", G_PER_MOL)).get()).isEmpty();
     }
 
     @Test
     void testDivideInconvertibleUnitsThrows() {
-        EnteredValue<WeightUnit> weight = userEntered("1.0", G, 1);
-        EnteredValue<MolarityUnit> volume = userEntered("1.0", MolarityUnit.MM, 1);
-        Assertions.assertThatThrownBy(() -> EnteredValue.divide(weight, volume))
+        Calculation<WeightUnit> weight = value("1.0", G);
+        Calculation<MolarityUnit> molarity = value("1.0", MolarityUnit.MM);
+        Assertions.assertThatThrownBy(() -> weight.divide(molarity).get())
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Cannot divide units: G and MM");
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1,G,4,G,25",
+            "500,MG,2,G,25",
+            "2,G,500,MG,400",
+    })
+    void testPercentageOf(String aValue, @ConvertWith(UnitConverter.class) WeightUnit aUnit, String totalValue, @ConvertWith(UnitConverter.class) WeightUnit totalUnit, double expectedValue) {
+        EnteredValue<NoUnit> result = value(aValue, aUnit).percentageOf(value(totalValue, totalUnit)).get();
+        assertThat(result).isCalculated().hasValue(expectedValue, NO_UNIT);
+    }
+
+    @Test
+    void testSum() {
+        assertThat(Calculation.sum(List.of(value("1", G), value("500", MG)), G).get()).isCalculated().hasValue(1.5, G);
+        assertThat(Calculation.sum(List.<Calculation<WeightUnit>>of(), G).get()).isCalculated().hasValue(0, G);
+    }
+
+    @Test
+    void testSumWithEmptyGivesEmpty() {
+        List<Calculation<WeightUnit>> list = List.of(value("1", G), Calculation.readOnly(EnteredValue.empty()));
+        assertThat(Calculation.sum(list, G).get()).isEmpty();
+    }
+
+    @Test
+    void testSumInconvertibleUnitsThrows() {
+        List<Calculation<MeasurementUnit>> list = List.of(value("1", G), value("1", ML));
+        Assertions.assertThatThrownBy(() -> Calculation.sum(list, G).get())
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    private static <U extends MeasurementUnit> Calculation<U> value(String value, U unit) {
+        return Calculation.readOnly(userEntered(value, unit, 1));
     }
 
     static class UnitConverter implements ArgumentConverter {
 
         @Override
         public Object convert(@Nullable Object source, ParameterContext context) throws ArgumentConversionException {
-            MeasurementUnit unit = UNIT_NAMES.get((String) source);
+            MeasurementUnit unit = UnitUtils.ALL_UNITS.get((String) source);
             checkArgument(unit != null, "Unknown unit: %s", source);
             return unit;
         }

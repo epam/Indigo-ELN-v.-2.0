@@ -365,6 +365,6 @@ public class ExperimentEditingTest extends MutationsTestBase {
         experiment.mutateSetInputRowMol(2, "2");
         experiment.mutateSetInputWeight(2, 1, "200");
         experiment.mutateSetInputRowEQ(2, "2");
-        assertThat(experiment.input(1).getEq().isOverwritten()).isFalse();
+        assertThat(experiment.input(1).getEq().isDefault()).isTrue();
     }
 }

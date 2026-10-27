@@ -3,6 +3,7 @@ package com.epam.indigoeln.eln.config;
 import com.epam.indigoeln.eln.model.BuiltInDictionary;
 import com.epam.indigoeln.eln.model.DictionaryItemRef;
 import com.epam.indigoeln.eln.service.DictionaryService;
+import com.epam.indigoeln.reaction.config.ReactionModelModule;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -26,5 +27,6 @@ public class ELNJacksonCustomizer implements ObjectMapperCustomizer {
             module.addDeserializer(builtInDictionary.getRefClass(), (JsonDeserializer) deserializer);
         }
         objectMapper.registerModule(module);
+        objectMapper.registerModule(new ReactionModelModule());
     }
 }

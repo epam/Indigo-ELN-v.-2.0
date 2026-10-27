@@ -80,7 +80,7 @@ public class PatchFormatter {
             }
             case ObjectNode objectPatch when (objectPatch.get(VALUE) instanceof ValueNode value && objectPatch.get("unit") instanceof ValueNode unit && objectPatch.get(SOURCE) instanceof ValueNode source) -> {
                 // EnteredValue created or deleted
-                String s = formatEnteredValue(before == null, value.asText(), objectPatch.get("exactValue"), unit.asText(), source.asText());
+                String s = formatEnteredValue(before == null, value.asText(), objectPatch.get("exact"), unit.asText(), source.asText());
                 grid.right(s).left().newRow();
             }
             case ObjectNode _ when (before instanceof ObjectNode objectBefore && objectBefore.has("value") && objectBefore.has("unit") && objectBefore.has("source")) -> {
@@ -94,8 +94,8 @@ public class PatchFormatter {
                 String newUnit = objectAfter.has("unit") ? objectAfter.get("unit").asText() : null;
                 boolean newOverwritten = objectAfter.has("overwritten") && objectAfter.get("overwritten").asBoolean();
                 String s = "%s → %s%s".formatted(
-                        formatEnteredValue(false, oldValue, objectBefore.get("exactValue"), oldUnit, oldSource),
-                        formatEnteredValue(true, newValue, objectAfter.get("exactValue"), newUnit, newSource),
+                        formatEnteredValue(false, oldValue, objectBefore.get("exact"), oldUnit, oldSource),
+                        formatEnteredValue(true, newValue, objectAfter.get("exact"), newUnit, newSource),
                         newOverwritten ? " <span class='warning'>[overwritten]</span>" : ""
                 );
                 grid.right(s).left().newRow();

@@ -19,6 +19,7 @@ import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
+import com.epam.indigoeln.reaction.util.CalculationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.arc.All;
 import jakarta.enterprise.inject.Instance;
@@ -36,7 +37,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
-import static com.epam.indigoeln.reaction.util.UnitUtils.callWithUnitsAndSignificantFigures;
 
 @Slf4j
 public abstract class AbstractExperimentMutationHandler<T extends ExperimentMutation> extends MutationHandler<T, ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext, ExperimentMutationListener> {
@@ -80,7 +80,7 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
 
     @Override
     protected final JsonNode doUpdateEntity(ExperimentEntity experiment, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter, ExperimentMutationContext context) {
-        return callWithUnitsAndSignificantFigures(experiment.getModel(), () -> {
+        return CalculationContext.call(experiment.getModel(), () -> {
             JsonNode patch;
             doNotifyBeforeRecalculate(experiment, context);
             ReactionCalculator calculator = reactionCalculatorFactory.get();
