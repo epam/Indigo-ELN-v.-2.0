@@ -5,8 +5,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { makeAclEntry, makeExperimentDetails, makeSignatureDocument } from '@/mocks/fixtures';
 
-const fetchAuthSession = vi.fn().mockResolvedValue({ tokens: { accessToken: { toString: () => 'token' } } });
-vi.mock('aws-amplify/auth', () => ({ fetchAuthSession, signOut: vi.fn() }));
+vi.mock('@/lib/auth', () => ({
+  auth: { getAccessToken: async () => 'token', requireLogin: async () => false, signOut: vi.fn() },
+}));
 
 const apiFetch = vi.fn();
 vi.mock('@/lib/api', async () => {

@@ -44,6 +44,7 @@
     "ketcher-core": "^3.17.2",
     "ketcher-react": "^3.17.2",
     "ketcher-standalone": "^3.17.2",
+    "keycloak-js": "^26.2.4",
     "lucide-react": "^1.33.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

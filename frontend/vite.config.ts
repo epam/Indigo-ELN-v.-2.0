@@ -49,6 +49,18 @@ const MAX_WORKERS = Math.min(4, availableParallelism());
 // drift apart.
 const CSP_HASHES_FILE = 'dist/csp-hashes.json';
 
+// The Keycloak origin, when this build targets Keycloak (the docker-compose stack — see
+// deployment-compose/docker-compose.yml). Keycloak is not proxied through nginx there, so the
+// code-for-token exchange and every refresh are cross-origin fetches that `connect-src 'self'`
+// would block, silently, since the request never reaches apiFetch.
+//
+// Read from the environment so the policy CloudFront serves never carries a localhost origin:
+// the AWS pipeline sets no VITE_AUTH_PROVIDER and gets the Cognito-only string.
+const KEYCLOAK_ORIGIN =
+  process.env.VITE_AUTH_PROVIDER === 'keycloak' && process.env.VITE_KEYCLOAK_URL
+    ? new URL(process.env.VITE_KEYCLOAK_URL).origin
+    : undefined;
+
 type CspHashes = { script: string[]; style: string[] };
 
 function sha256(source: string): string {
@@ -73,8 +85,10 @@ function buildPolicy(hashes: CspHashes): string {
     // unstyled). This replaces what would otherwise have to be `style-src 'unsafe-inline'`.
     ['style-src', "'self'", "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='", ...hashes.style].join(' '),
     // ['style-src-attr', "'self'", "'unsafe-inline'"].join(' '),
-    // /api is same-origin through the proxy below; Cognito is the only cross-origin call.
-    "connect-src 'self' https://cognito-idp.us-east-1.amazonaws.com",
+    // /api and /config.json are same-origin; the identity provider is the only cross-origin call.
+    ['connect-src', "'self'", 'https://cognito-idp.us-east-1.amazonaws.com', ...(KEYCLOAK_ORIGIN ? [KEYCLOAK_ORIGIN] : [])].join(
+      ' ',
+    ),
     // Open Sans ships in the bundle via @fontsource, so no font CDN is needed.
     "font-src 'self'",
     "worker-src 'self' blob:",

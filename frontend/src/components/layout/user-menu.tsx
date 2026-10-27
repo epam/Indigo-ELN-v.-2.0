@@ -1,11 +1,10 @@
 import { useRouter } from '@tanstack/react-router';
-import { signOut } from 'aws-amplify/auth';
 import { ChevronDown, LogOut } from 'lucide-react';
 
 import { Avatar } from '@/components/ui/avatar';
 import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/ui/menu';
 import { useCurrentUser } from '@/lib/api/user';
-import { clearStoredTokens } from '@/lib/auth-storage';
+import { auth } from '@/lib/auth';
 import { notifyError } from '@/lib/toast';
 
 export function UserMenu() {
@@ -15,17 +14,15 @@ export function UserMenu() {
 
   async function logout() {
     try {
-      await signOut();
+      await auth.signOut();
     } catch (error) {
       // The session is still live, so stay put rather than stranding the user on /login.
       notifyError(error);
       return;
     }
-    // signOut() empties only the store Remember me currently points at, so a session written
-    // to the other one would outlive the sign-out. See auth-storage.ts.
-    clearStoredTokens();
-    // The cached user data is dropped by QueryPersistenceProvider, which reacts to the
-    // same Amplify sign-out event.
+    // Only reached under Cognito: the Keycloak provider deliberately never resolves signOut,
+    // so this navigation cannot race the logout redirect. The cached user data is dropped by
+    // QueryPersistenceProvider, reacting to the provider's event.
     await router.navigate({ to: '/login' });
   }
 

@@ -1,11 +1,10 @@
 import { IsRestoringProvider, QueryClientProvider } from '@tanstack/react-query';
 import type { Persister } from '@tanstack/react-query-persist-client';
 import { persistQueryClientRestore, persistQueryClientSubscribe } from '@tanstack/react-query-persist-client';
-import { fetchAuthSession } from 'aws-amplify/auth';
-import { Hub } from 'aws-amplify/utils';
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
+import { auth } from '@/lib/auth';
 import { createPersister, PERSIST_OPTIONS, queryClient } from '@/lib/query-client';
 
 /**
@@ -31,8 +30,8 @@ function QueryPersistenceProvider({ initialUserSub, children }: { initialUserSub
   const isRestoring = userSub !== undefined && restoredSub !== userSub;
 
   useEffect(() => {
-    return Hub.listen('auth', ({ payload }) => {
-      if (payload.event === 'signedOut') {
+    return auth.onAuthChange((event) => {
+      if (event === 'signedOut') {
         // Cleared here, while the save subscription is still live, so that a write already
         // scheduled inside the persister's throttle window replaces its snapshot with this
         // empty one. Clearing only after the unsubscribe below would leave that pending
@@ -42,11 +41,12 @@ function QueryPersistenceProvider({ initialUserSub, children }: { initialUserSub
         setUserSub(undefined);
         return;
       }
-      if (payload.event !== 'signedIn') return;
+
       // Read the sub the way the bootstrap in main.tsx does, so the storage key has a
       // single definition rather than one per event shape.
-      void fetchAuthSession()
-        .then((session) => setUserSub(session.userSub))
+      void auth
+        .getUserId()
+        .then((sub) => setUserSub(sub))
         .catch(() => setUserSub(undefined));
     });
   }, []);
