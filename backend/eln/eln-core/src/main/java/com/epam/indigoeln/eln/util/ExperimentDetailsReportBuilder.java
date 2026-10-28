@@ -23,6 +23,7 @@ import java.io.Writer;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class ExperimentDetailsReportBuilder {
@@ -107,7 +108,7 @@ public class ExperimentDetailsReportBuilder {
             JsonNode jsonDiff,
             String diff,
             List<String> messages,
-            List<String> conflicts,
+            Map<String, String> conflicts,
             JsonNode entityState
     ) {}
 

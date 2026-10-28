@@ -33,6 +33,7 @@ import one.util.streamex.StreamEx;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -86,7 +87,7 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
             ReactionCalculator calculator = reactionCalculatorFactory.get();
             try {
                 calculator.recalculate(experiment.getModel());
-                context.getResponse().getConflicts().addAll(calculator.getConflicts());
+                context.getResponse().getConflicts().putAll(calculator.getConflicts());
                 updateDates(experiment, userService.getCurrentUserEntity());
                 doNotifyAfterRecalculate(experiment, context);
                 doValidateModel(experiment.getModel());
@@ -115,7 +116,7 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, T mutation, String summary, Integer revisionNo, JsonNode patch, ExperimentMutationContext context, ExperimentSnapshot snapshotAfter) {
         ExperimentRevisionEntity revision = revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), summary, mutation, patch);
         revision.setMessages(new ArrayList<>(context.getResponse().getMessages()));
-        revision.setConflicts(new ArrayList<>(context.getResponse().getConflicts()));
+        revision.setConflicts(new LinkedHashMap<>(context.getResponse().getConflicts()));
         return revision;
     }
 

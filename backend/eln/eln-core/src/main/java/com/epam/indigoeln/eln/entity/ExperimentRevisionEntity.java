@@ -14,7 +14,9 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -58,11 +60,11 @@ public class ExperimentRevisionEntity extends BaseRevisionEntity {
     @JdbcTypeCode(SqlTypes.ARRAY)
     private List<String> messages = new ArrayList<>();
 
-    /** {@code MutationResponse.conflicts}: user-entered values the recalculation replaced. */
+    /** {@code MutationResponse.conflicts}: user-entered values the recalculation replaced, to why. */
     @NotNull
     @Basic(fetch = FetchType.LAZY)
-    @JdbcTypeCode(SqlTypes.ARRAY)
-    private List<String> conflicts = new ArrayList<>();
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Map<String, String> conflicts = new LinkedHashMap<>();
 
     public record CompositeID(
             ExperimentEntity experiment,

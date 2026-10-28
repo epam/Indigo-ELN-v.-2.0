@@ -89,8 +89,8 @@ public class ExperimentObject {
         return response;
     }
 
-    /** {@code lastMutationResponse().getConflicts()}: field ids of user-entered values the last mutation overwrote. */
-    public List<String> lastConflicts() {
+    /** {@code lastMutationResponse().getConflicts()}: field ids of user-entered values the last mutation overwrote, to why. */
+    public Map<String, String> lastConflicts() {
         return lastMutationResponse().getConflicts();
     }
 

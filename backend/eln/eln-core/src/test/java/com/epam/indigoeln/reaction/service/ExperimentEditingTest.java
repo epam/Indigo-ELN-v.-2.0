@@ -173,7 +173,7 @@ public class ExperimentEditingTest extends MutationsTestBase {
         experiment.mutateSetInputWeight(2, 1, "2");
         experiment.mutateSetInputVolume(2, 1, "1.05");
         experiment.mutateSetInputMolarity(2, 1, "100");
-        assertThat(experiment.lastConflicts()).containsExactly(experiment.inputSample(2, 1).getAnchor() + ":weight");
+        assertThat(experiment.lastConflicts()).containsOnlyKeys(experiment.inputSample(2, 1).getAnchor() + ":weight");
         experiment.mutateSetInputPurity(2, 1, "1");
 
         assertThat(experiment.inputSample(1, 1)).hasMol(0.010853, MOL).hasVolume(0.63371, ML);
@@ -365,9 +365,9 @@ public class ExperimentEditingTest extends MutationsTestBase {
         experiment.mutateSetInputWeight(1, 1, "100");
         experiment.mutateSetInputRowMol(2, "2");
         experiment.mutateSetInputWeight(2, 1, "200");
-        assertThat(experiment.lastConflicts()).containsExactly(experiment.input(2).getAnchor() + ":mol");
+        assertThat(experiment.lastConflicts()).containsOnlyKeys(experiment.input(2).getAnchor() + ":mol");
         experiment.mutateSetInputRowEQ(2, "2");
-        assertThat(experiment.lastConflicts()).containsExactly(experiment.inputSample(2, 1).getAnchor() + ":weight");
+        assertThat(experiment.lastConflicts()).containsOnlyKeys(experiment.inputSample(2, 1).getAnchor() + ":weight");
         assertThat(experiment.input(1).getEq().isDefault()).isTrue();
     }
 }

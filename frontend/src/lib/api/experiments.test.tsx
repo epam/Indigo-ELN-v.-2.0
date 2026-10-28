@@ -375,7 +375,7 @@ describe('model patch', () => {
       patch: { model: { $old: null, $new: { reactions: [] } } },
       unresolvedInputs: {},
       messages: [],
-      conflicts: ['ins00001:weight'],
+      conflicts: { 'ins00001:weight': 'reactions.0.inputs.0.samples.0.weight: seed value conflict' },
     });
 
     const view = renderHook(

@@ -287,7 +287,7 @@ function applyMutationResponse(queryClient: QueryClient, id: string, response: M
     const model = previous;
     queryClient.setQueryData<ModelPatch>(experimentKeys.modelPatch(id), (last) => ({
       previous: model,
-      conflicts: new Set(response.conflicts),
+      conflicts: new Set(Object.keys(response.conflicts)),
       generation: (last?.generation ?? 0) + 1,
     }));
   }

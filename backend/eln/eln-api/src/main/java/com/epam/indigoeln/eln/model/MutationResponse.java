@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,8 +24,9 @@ public class MutationResponse {
     List<String> messages = new ArrayList<>();
 
     /**
-     * User-entered values the recalculation replaced to resolve a conflict, as {@code <row or sample anchor>:<property name>}.
+     * User-entered values the recalculation replaced to resolve a conflict: {@code <row or sample anchor>:<property name>}
+     * to why it was replaced.
      */
     @NotNull
-    List<String> conflicts = new ArrayList<>();
+    Map<String, String> conflicts = new LinkedHashMap<>();
 }
