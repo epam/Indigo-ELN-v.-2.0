@@ -50,9 +50,11 @@ CREATE TABLE Document
     last_modified_date TIMESTAMPTZ NOT NULL,
     filename VARCHAR(1024) NOT NULL,
     content BYTEA NOT NULL,
+    source_id UUID NOT NULL,
     CONSTRAINT document_fk1 FOREIGN KEY (template_id) REFERENCES Signature_Template (id),
     CONSTRAINT document_fk2 FOREIGN KEY (author_id) REFERENCES User_Account (id)
 );
+CREATE INDEX ix_document_source_id ON Document (source_id);
 
 CREATE TABLE Document_Signature
 (

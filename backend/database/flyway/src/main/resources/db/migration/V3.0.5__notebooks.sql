@@ -9,8 +9,6 @@ CREATE TABLE Notebook (
     name VARCHAR(256) NOT NULL,
     description TEXT,
     search_vector TSVECTOR NOT NULL,
-    full_acl ACL_Entry[] NOT NULL,
-    short_acl ACL_Entry[] NOT NULL,
     experiment_count Experiment_Count[] NOT NULL DEFAULT '{}',
     CONSTRAINT notebook_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
     CONSTRAINT notebook_modified_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
@@ -19,7 +17,6 @@ CREATE TABLE Notebook (
 );
 CREATE INDEX ix_notebook_search_vector ON Notebook USING GIN(search_vector);
 CREATE INDEX ix_notebook_name ON Notebook USING GIN (name gin_trgm_ops);
-CREATE INDEX ix_notebook_acl_gin ON Notebook USING GIN (acl_user_ids(full_acl));
 CREATE INDEX ix_notebook_project_id ON Notebook (project_id);
 CREATE INDEX ix_notebook_created_by_id ON Notebook (created_by_id);
 
