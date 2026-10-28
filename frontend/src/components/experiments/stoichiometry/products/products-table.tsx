@@ -15,13 +15,19 @@ import {
   HEADER_CELL_CLASS,
   alignOf,
 } from '@/components/experiments/stoichiometry/columns';
+import { ColumnSelector } from '@/components/experiments/stoichiometry/column-selector';
 import { ColumnHeader } from '@/components/experiments/stoichiometry/column-header';
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import { AddBatchCell, OutputTypeCell } from '@/components/experiments/stoichiometry/products/cells';
 import type { ProductColumn, ProductRow } from '@/components/experiments/stoichiometry/products/columns';
-import { PRODUCT_COLUMNS, productHaystack } from '@/components/experiments/stoichiometry/products/columns';
+import {
+  HIDEABLE_PRODUCT_COLUMNS,
+  PRODUCT_COLUMNS,
+  productHaystack,
+} from '@/components/experiments/stoichiometry/products/columns';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { cellId, useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
+import { useHiddenColumns } from '@/lib/hooks/experiments/use-hidden-columns';
 import { findByAnchor } from '@/lib/reactions';
 import { cn } from '@/lib/utils';
 import { SearchInput } from '@/components/ui/search-input';
@@ -61,6 +67,12 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
   const canEdit = canEditExperiment(experiment);
   const reactions = experiment.model.reactions;
 
+  const columnChoice = useHiddenColumns('stoichiometryProducts', HIDEABLE_PRODUCT_COLUMNS);
+  const columns = useMemo(
+    () => PRODUCT_COLUMNS.filter((column) => !columnChoice.hidden.has(column.id)),
+    [columnChoice.hidden],
+  );
+
   const products = useMemo(() => {
     const steps = showAllSteps
       ? reactions.map((reaction, index) => ({ reaction, index }))
@@ -98,6 +110,12 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
             <Switch checked={showAllSteps} onCheckedChange={setShowAllSteps} />
             Show All Steps
           </label>
+          <ColumnSelector
+            columns={HIDEABLE_PRODUCT_COLUMNS}
+            hidden={columnChoice.hidden}
+            onToggle={columnChoice.toggle}
+            onReset={columnChoice.reset}
+          />
         </div>
       </div>
 
@@ -110,7 +128,7 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
           <caption className="sr-only">Reaction products</caption>
           <thead>
             <tr>
-              {PRODUCT_COLUMNS.map((column) => (
+              {columns.map((column) => (
                 <th
                   key={column.id}
                   scope="col"
@@ -131,7 +149,7 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
                 inherit the row's hover and follows it explicitly. */}
             {rows.map((row, index) => (
               <tr key={row.output.anchor} className="group/row hover:bg-neutral-100">
-                {PRODUCT_COLUMNS.map((column) => (
+                {columns.map((column) => (
                   <td
                     key={column.id}
                     className={cn(

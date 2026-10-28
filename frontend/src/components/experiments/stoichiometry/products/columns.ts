@@ -1,5 +1,6 @@
 import { asEnteredValue } from '@/components/experiments/stoichiometry/columns';
 
+import type { HideableColumn } from '@/lib/hooks/experiments/use-hidden-columns';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import { newAnchor } from '@/lib/utils';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
@@ -48,6 +49,8 @@ interface ColumnBase {
    * the inputs table's own `minWidth`. Every other column is as wide as its content or header.
    */
   minWidth?: number;
+  /** Offered by the Column Selector — every column but #, Output Name and Add Batch. */
+  hideable?: true;
 }
 
 type Cell =
@@ -113,6 +116,7 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'reactionStep',
     header: 'Reaction Step',
+    hideable: true,
     kind: 'readonly',
     // Derived from the position in `model.reactions`, not hardcoded. There is only ever one step today; this
     // keeps being right once `AddReaction` exists.
@@ -121,6 +125,7 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'type',
     header: 'Product Type',
+    hideable: true,
     kind: 'outputType',
     value: (row) => row.output.type,
     // Note `outputType`, not `type` — that name is the mutation union's own discriminator.
@@ -129,12 +134,14 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'formula',
     header: 'Formula',
+    hideable: true,
     kind: 'html',
     value: (row) => row.output.compound.formula,
   },
   {
     id: 'molWeight',
     header: 'Mol. Weight',
+    hideable: true,
     // Read-only, unlike the inputs table's column of the same name. `SetOutputCompoundMolWeight`
     // only accepts an unknown compound, and every row here came from the drawn scheme, so it is
     // known by construction.
@@ -145,12 +152,14 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'exactMass',
     header: 'Exact Mass',
+    hideable: true,
     kind: 'readonlyNumeric',
     value: (row) => row.output.compound.exactMass,
   },
   {
     id: 'theoWeight',
     header: 'Theo. Weight',
+    hideable: true,
     minWidth: 100,
     kind: 'readonlyNumeric',
     // Calculated: `theoWeight = theoMol * molWeight`. No limiting reagent means no `theoMol`,
@@ -161,6 +170,7 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'theoMol',
     header: 'Theo. Moles',
+    hideable: true,
     minWidth: 100,
     kind: 'readonlyNumeric',
     value: (row) => row.output.theoMol,
@@ -169,6 +179,7 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'saltCode',
     header: 'Salt Code',
+    hideable: true,
     kind: 'dictionary',
     dictionary: 'SALT_CODE',
     value: (row) => row.output.compound.saltCode,
@@ -179,6 +190,7 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'saltEQ',
     header: 'Salt EQ',
+    hideable: true,
     kind: 'numeric',
     value: (row) => asEnteredValue(row.output.compound.saltEQ),
     // Both gates, matching the inputs table: a registered compound's salt EQ is fixed even when
@@ -189,6 +201,7 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'stereoisomerCode',
     header: 'Stereoisomer Code',
+    hideable: true,
     kind: 'dictionary',
     dictionary: 'STEREOISOMER_CODE',
     value: (row) => row.output.compound.stereoisomerCode,
@@ -203,6 +216,7 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'eq',
     header: 'EQ',
+    hideable: true,
     kind: 'numeric',
     // The one editable number on the row, and what the two theoretical columns are computed
     // from: `theoMol = limiting.mol / limiting.eq * eq`.
@@ -235,3 +249,8 @@ export function productHaystack(row: ProductRow): string {
     .join(' ')
     .toLowerCase();
 }
+
+/** What the Column Selector offers, in table order — the columns marked `hideable`. */
+export const HIDEABLE_PRODUCT_COLUMNS: readonly HideableColumn[] = PRODUCT_COLUMNS.filter(
+  (column) => column.hideable,
+).map(({ id, header }) => ({ id, header }));

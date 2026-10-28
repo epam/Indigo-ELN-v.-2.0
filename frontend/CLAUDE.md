@@ -175,6 +175,15 @@ Two orderings matter, both pinned by `query-persistence.test.tsx`:
 signed-in user still looks restored, and signed out it is trivially false — a stored
 boolean left true would hold every query in the app pending forever.
 
+**View preferences are a second, separate use of localStorage.** `useStoredState`
+(`src/lib/hooks/use-stored-state.ts`) keeps one value under one key — today only the stoichiometry
+Column Selector's hidden columns, via `useHiddenColumns`, keyed `indigo.<userId>.<table>.hiddenColumns`
+with the backend user id. Unlike the persisted query cache it is **not** cleared on sign-out: it is
+a layout choice, scoped per user so two users on one browser keep their own, and it carries no data
+anyone could not see anyway. Whatever is read back is validated, since an older build or a hand
+edit may have written it. Store what was turned *off*, not what is on, so that something added
+later shows up by default.
+
 **Every custom hook lives under `src/lib/`, none under `src/components/`.** Three tiers, and
 which one a hook belongs in is decided by what it knows, not by who calls it:
 
