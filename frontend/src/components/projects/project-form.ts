@@ -1,3 +1,4 @@
+import { checkProjectNameExists } from '@/lib/api/projects';
 import { isBlankHtml, richTextEdit } from '@/lib/rich-text';
 import { z } from '@/lib/zod';
 
@@ -9,6 +10,29 @@ export const projectNameSchema = z
   .trim()
   .min(1, 'Project Name is required')
   .max(PROJECT_NAME_MAX_LENGTH, `Use ${PROJECT_NAME_MAX_LENGTH} characters at most`);
+
+/** How long the name has to stop changing before its uniqueness is asked about. */
+const NAME_CHECK_DEBOUNCE_MS = 300;
+
+/**
+ * The Project Name field's validators, for every dialog that edits one: the sync rules on each
+ * change, then — debounced, and skipped while those already fail — the uniqueness check. The
+ * unique constraint has no friendly server-side message, so the duplicate has to be caught here.
+ *
+ * `currentName` is the project's own name when renaming or editing: not a duplicate of itself.
+ */
+export function projectNameValidators(currentName?: string) {
+  return {
+    onChange: ({ value }: { value: string }) => projectNameSchema.safeParse(value).error?.issues[0]?.message,
+    onChangeAsyncDebounceMs: NAME_CHECK_DEBOUNCE_MS,
+    onChangeAsync: async ({ value }: { value: string }) => {
+      const name = value.trim();
+      if (!projectNameSchema.safeParse(value).success) return undefined;
+      if (name === currentName) return undefined;
+      return (await checkProjectNameExists(name)) ? `Project with name '${name}' already exists` : undefined;
+    },
+  };
+}
 
 export interface ProjectFormValues {
   name: string;
