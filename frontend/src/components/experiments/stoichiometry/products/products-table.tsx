@@ -240,6 +240,7 @@ function ProductCell({
         <NumericCell
           value={column.value(row)}
           previous={previousRow && column.value(previousRow)}
+          conflicted={mutations.conflicts.has(cell)}
           generation={mutations.generation}
           editable={false}
           pending={false}
@@ -253,6 +254,7 @@ function ProductCell({
         <NumericCell
           value={column.value(row)}
           previous={previousRow && column.value(previousRow)}
+          conflicted={mutations.conflicts.has(cell)}
           generation={mutations.generation}
           editable={canEdit && (column.editable?.(row) ?? true)}
           pending={pending}

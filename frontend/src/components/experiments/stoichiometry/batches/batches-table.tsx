@@ -378,6 +378,7 @@ function BatchCell({
         <NumericCell
           value={column.value(row)}
           previous={previousRow && column.value(previousRow)}
+          conflicted={mutations.conflicts.has(cell)}
           generation={mutations.generation}
           editable={false}
           pending={false}
@@ -391,6 +392,7 @@ function BatchCell({
         <NumericCell
           value={column.value(row)}
           previous={previousRow && column.value(previousRow)}
+          conflicted={mutations.conflicts.has(cell)}
           generation={mutations.generation}
           // Registration does not freeze these: the backend rejects a registered sample's
           // *compound* mutations only — see `isSampleProtected`.

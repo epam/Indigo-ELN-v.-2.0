@@ -237,7 +237,7 @@ export function useMutateExperimentModel(experiment: ExperimentDetails) {
   });
 }
 
-const NO_PATCH: ModelPatch = { previous: undefined, generation: 0 };
+const NO_PATCH: ModelPatch = { previous: undefined, conflicts: new Set(), generation: 0 };
 
 /**
  * The last diff applied to this experiment's cached detail, from any sender — a cell edit, undo
@@ -287,6 +287,7 @@ function applyMutationResponse(queryClient: QueryClient, id: string, response: M
     const model = previous;
     queryClient.setQueryData<ModelPatch>(experimentKeys.modelPatch(id), (last) => ({
       previous: model,
+      conflicts: new Set(Object.keys(response.conflicts)),
       generation: (last?.generation ?? 0) + 1,
     }));
   }

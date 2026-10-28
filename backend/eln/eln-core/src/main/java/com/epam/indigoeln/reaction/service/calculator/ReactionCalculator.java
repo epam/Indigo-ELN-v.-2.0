@@ -33,7 +33,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Deque;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.epam.indigoeln.common.model.units.DensityUnit.G_ML;
 import static com.epam.indigoeln.common.model.units.MolUnit.MOL;
@@ -109,8 +111,9 @@ public class ReactionCalculator {
     private final List<CalculableProperty<?, ?>> properties = new ArrayList<>();
     private final List<Formula<?>> formulas = new ArrayList<>();
     private final List<Seed> seeds = new ArrayList<>();
+    /** Field ids ({@link CalculableProperty#getFieldId()}) of user-entered values reverted to resolve a conflict, to the conflict. */
     @Getter
-    private final List<String> debugMessages = new ArrayList<>();
+    private final Map<String, String> conflicts = new LinkedHashMap<>();
 
     public void recalculate(ExperimentModel experimentModel) {
         log.debug("recalculation started");
@@ -173,6 +176,9 @@ public class ReactionCalculator {
             } catch (RecalculationConflictException e) {
                 log.debug("overwritten: {}: {}", pair.property, e.reason);
                 revert();
+                if (pair.value.isUserEntered()) {
+                    conflicts.put(pair.property.getFieldId(), e.reason);
+                }
                 // proceed with the next seed
             }
         }
@@ -239,8 +245,7 @@ public class ReactionCalculator {
 
     private RecalculationConflictException reportConflict(String message) {
         log.debug(message);
-        debugMessages.add(message);
-        return new RecalculationConflictException("calculation conflict");
+        return new RecalculationConflictException(message);
     }
 
     @RequiredArgsConstructor

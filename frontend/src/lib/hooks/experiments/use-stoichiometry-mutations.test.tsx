@@ -20,7 +20,7 @@ vi.mock('@/lib/api', async () => {
 const { useStoichiometryMutations } = await import('@/lib/hooks/experiments/use-stoichiometry-mutations');
 
 const EXPERIMENT = makeExperimentDetails({ id: '22222222-2222-2222-2222-222222222222' });
-const RESPONSE = { patch: {}, unresolvedInputs: {}, messages: [], debugMessages: [] };
+const RESPONSE = { patch: {}, unresolvedInputs: {}, messages: [], conflicts: {} };
 
 /** A promise the test settles by hand, so a request can be observed while still in flight. */
 function deferred<T>() {

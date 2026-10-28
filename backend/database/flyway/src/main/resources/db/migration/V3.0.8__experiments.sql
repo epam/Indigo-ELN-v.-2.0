@@ -98,7 +98,7 @@ CREATE TABLE Experiment_Revision (
     version INT,
     snapshot JSONB,
     messages VARCHAR(1024)[] NOT NULL DEFAULT '{}',
-    debug_messages VARCHAR(1024)[] NOT NULL DEFAULT '{}',
+    conflicts JSONB NOT NULL DEFAULT '{}',
     CONSTRAINT experiment_revision_pk PRIMARY KEY (experiment_id, revision),
     CONSTRAINT experiment_revision_experiment_id_fk FOREIGN KEY (experiment_id) REFERENCES Experiment (id),
     CONSTRAINT experiment_revision_experiment_id_version_uq UNIQUE (experiment_id, version)

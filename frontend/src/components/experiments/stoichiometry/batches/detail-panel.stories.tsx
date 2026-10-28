@@ -38,6 +38,7 @@ const IDLE: StoichiometryMutations = {
   save: async () => true,
   savingCells: new Set(),
   previousModel: EXPERIMENT.model,
+  conflicts: new Set(),
   generation: 0,
 };
 
@@ -49,7 +50,7 @@ const spyHandlers = [
     sent.push(await request.json());
     // A whole `MutationResponse`: one without `messages` rejects in `applyMutationResponse`,
     // which a dialog waiting on its save reads as a failure and stays open for.
-    return HttpResponse.json({ patch: {}, unresolvedInputs: {}, messages: [], debugMessages: [] });
+    return HttpResponse.json({ patch: {}, unresolvedInputs: {}, messages: [], conflicts: {} });
   }),
   ...handlers,
 ];

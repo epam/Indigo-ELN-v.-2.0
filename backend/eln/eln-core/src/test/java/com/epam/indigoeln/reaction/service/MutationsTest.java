@@ -67,6 +67,7 @@ import org.junit.jupiter.api.TestInfo;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -424,6 +425,7 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutateSetInputWeight(1, 1, "100");
         experiment.mutateSetInputWeight(2, 1, "200");
         experiment.mutateSetInputRowEQ(2, "2");
+        assertThat(experiment.lastConflicts()).containsOnlyKeys(experiment.inputSample(2, 1).getAnchor() + ":weight");
         assertThat(experiment.input(2)).hasEq(2.0);
         experiment.mutateSetInputWeight(1, 1, null);
         experiment.mutateSetInputRowEQ(2, null);
@@ -437,6 +439,7 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(2).getAnchor(), "2"), false);
         experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "10"), false);
         experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(2, 1).getAnchor(), "20"), false);
+        assertThat(experiment.lastConflicts()).containsOnlyKeys(experiment.input(2).getAnchor() + ":eq");
         experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(2).getAnchor(), null), false);
         experiment.mutate(new ReactionInputSampleMutation.SetInputWeight(experiment.inputSample(1, 1).getAnchor(), "10.20"), false);
         experiment.mutate(new ReactionInputMutation.SetInputRowEQ(experiment.input(1).getAnchor(), "1"), false);
@@ -619,6 +622,7 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutateSetInputMolarity(1, 1, "10.0");
         experiment.mutateSetInputMol(1, 1, "4");
         experiment.mutateSetInputVolume(1, 1, "100");
+        assertThat(experiment.lastConflicts()).containsOnlyKeys(experiment.inputSample(1, 1).getAnchor() + ":mol");
         assertThat(experiment.inputSample(1, 1)).hasMolarity(10.0, M); // should have overwritten mol instead of molarity
         assertThat(experiment.inputSample(1, 1)).hasVolume(100.0, ML);
         assertThat(experiment.inputSample(1, 1).getMol()).isCalculated();
@@ -630,6 +634,7 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutateSetInputDensity(1, 1, "10.0");
         experiment.mutateSetInputMol(1, 1, "4");
         experiment.mutateSetInputWeight(1, 1, "100");
+        assertThat(experiment.lastConflicts()).containsOnlyKeys(experiment.inputSample(1, 1).getAnchor() + ":mol");
         assertThat(experiment.inputSample(1, 1)).hasDensity(10.0); // should have overwritten mol instead of density
         assertThat(experiment.inputSample(1, 1)).hasWeight(100.0, G);
         assertThat(experiment.inputSample(1, 1).getMol()).isCalculated();
@@ -1110,11 +1115,17 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutateSetInputWeight(2, 1, "200");
         experiment.mutateSetInputRowEQ(1, "1");
         experiment.mutateSetInputRowEQ(2, "2");
+        assertThat(experiment.lastConflicts()).containsOnlyKeys(experiment.inputSample(2, 1).getAnchor() + ":weight");
         assertThat(experiment.inputSample(2, 1).getWeight()).isCalculated();
 
         experiment.mutateSetInputVolume(2, 1, "2");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         assertThat(experiment.inputSample(2, 1).getWeight()).isCalculated();
+
+        // stored on the revision, and shown in the history report
+        assertThat(new String(experiment.detailsReport(), StandardCharsets.UTF_8))
+                .contains("\"conflicts\":{\"" + experiment.inputSample(2, 1).getAnchor() + ":weight\":\"")
+                .contains("value conflict");
     }
 
     @Test
@@ -1176,6 +1187,7 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutateSetInputMol(1, 1, "0.01");
         experiment.mutateSetInputDensity(1, 1, "4");
         experiment.mutateSetInputVolume(1, 1, null);
+        assertThat(experiment.lastConflicts()).containsOnlyKeys(experiment.inputSample(1, 1).getAnchor() + ":mol");
         assertThat(experiment.inputSample(1, 1).getVolume()).isEmpty();
     }
 }

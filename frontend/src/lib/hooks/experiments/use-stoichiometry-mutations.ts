@@ -25,6 +25,8 @@ export interface StoichiometryMutations {
    * landed since mount, so every value equals itself and nothing flashes.
    */
   previousModel: ExperimentModel;
+  /** Cells whose user-entered value the last patch overwrote — see `ModelPatch.conflicts`. */
+  conflicts: ReadonlySet<string>;
   /** Counts patches — see `ModelPatch.generation`. */
   generation: number;
 }
@@ -78,5 +80,11 @@ export function useStoichiometryMutations(experiment: ExperimentDetails): Stoich
     [run],
   );
 
-  return { save, savingCells, previousModel: patch.previous ?? experiment.model, generation: patch.generation };
+  return {
+    save,
+    savingCells,
+    previousModel: patch.previous ?? experiment.model,
+    conflicts: patch.conflicts,
+    generation: patch.generation,
+  };
 }
