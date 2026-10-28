@@ -1,17 +1,19 @@
 DROP VIEW IF EXISTS Project_View_2;
 
--- Postgres tend to fall back to full table scan on OR conditions, so using UNION ALL for viewAll vs normal
 CREATE OR REPLACE VIEW Project_Access_View AS
-SELECT p.id project_id, pa.level current_access_or_null, array_length(p.full_acl, 1) acl_count
-FROM Project p
-LEFT JOIN LATERAL unnest(p.full_acl) pa ON pa.user_id = current_setting('eln.currentUserId')::UUID
-WHERE current_setting('eln.viewAllProjects')::BOOLEAN
-UNION ALL
-SELECT p.id project_id, pa.level current_access_or_null, array_length(p.full_acl, 1) acl_count
-FROM Project p
-LEFT JOIN LATERAL unnest(p.full_acl) pa ON pa.user_id = current_setting('eln.currentUserId')::UUID
-WHERE NOT current_setting('eln.viewAllProjects')::BOOLEAN
-  AND acl_user_ids(p.full_acl) @> ARRAY[current_setting('eln.currentUserId')::UUID];
+SELECT project_id, current_access_or_null
+FROM (
+    SELECT p.id project_id,
+           COALESCE(
+               CASE WHEN p.created_by_id = current_setting('eln.currentUserId')::UUID THEN 'AUTHOR'::Access_Level END,
+               pa.level,
+               CASE WHEN pi.user_id IS NOT NULL THEN 'IMPLICIT_VIEW'::Access_Level END
+           ) current_access_or_null
+    FROM Project p
+    LEFT JOIN Project_ACL pa ON pa.project_id = p.id AND pa.user_id = current_setting('eln.currentUserId')::UUID
+    LEFT JOIN Project_Implicit_Access pi ON pi.project_id = p.id AND pi.user_id = current_setting('eln.currentUserId')::UUID
+) t
+WHERE current_setting('eln.viewAllProjects')::BOOLEAN OR current_access_or_null IS NOT NULL;
 
 
 CREATE OR REPLACE FUNCTION update_Project_counters(

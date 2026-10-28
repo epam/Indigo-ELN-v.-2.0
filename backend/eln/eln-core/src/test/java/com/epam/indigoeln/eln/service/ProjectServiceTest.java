@@ -585,10 +585,11 @@ class ProjectServiceTest extends ELNBaseTest {
                     assertThat(revision.getUser()).isEqualTo(JOHN_USER_REF);
                     assertThat(revision.getSummary()).isEqualTo("Edited Team: granted maggie EDIT access");
                 });
+        // nested entities inherit access without getting revisions of their own
         assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
-                .last().satisfies(revision -> assertThat(revision.getSummary()).isEqualTo("Access updated because of the changes in project testUpdateAccess"));
+                .noneMatch(revision -> revision.getSummary().startsWith("Access updated"));
         assertThat(experimentClient.getExperimentRevisions(experiment.getId(), true))
-                .last().satisfies(revision -> assertThat(revision.getSummary()).isEqualTo("Access updated because of the changes in project testUpdateAccess"));
+                .noneMatch(revision -> revision.getSummary().startsWith("Access updated"));
 
         projectClient.updateProjectAccess(project.getId(), AccessForm.of(MAGGIE_USERNAME, AccessLevel.NONE));
         assertThat(projectClient.getProjectRevisions(project.getId()))

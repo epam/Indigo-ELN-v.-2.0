@@ -5,7 +5,7 @@ CREATE TABLE Compound (
     can_smiles VARCHAR(1000) NOT NULL,
     stereoisomer_code_id UUID NOT NULL,
     salt_code_id UUID NOT NULL,
-    salt_eq_100 INT,
+    salt_eq DECIMAL,
     source Sample_Source NOT NULL,
     compound_key VARCHAR(1000),
     chemical_name VARCHAR(1000),
@@ -17,10 +17,9 @@ CREATE TABLE Compound (
     picture BYTEA NOT NULL,
     CONSTRAINT compound_stereoisomer_code_fk FOREIGN KEY (stereoisomer_code_id) REFERENCES Dictionary_Item (id),
     CONSTRAINT compound_salt_code_fk FOREIGN KEY (salt_code_id) REFERENCES Dictionary_Item (id),
-    CONSTRAINT compound_uq UNIQUE (can_smiles, stereoisomer_code_id, salt_code_id, salt_eq_100)
+    CONSTRAINT compound_uq UNIQUE NULLS NOT DISTINCT (can_smiles, stereoisomer_code_id, salt_code_id, salt_eq)
 );
 CREATE INDEX ix_compound_mol_file ON Compound USING bingo_idx (mol_file bingo.molecule);
-CREATE UNIQUE INDEX ix_compound_uq_2 ON Compound (source, compound_key) WHERE compound_key IS NOT NULL;
 
 CREATE TABLE Marked_Sample (
     id UUID PRIMARY KEY,

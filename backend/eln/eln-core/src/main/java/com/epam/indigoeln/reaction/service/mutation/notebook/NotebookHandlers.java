@@ -97,8 +97,7 @@ class EditNotebookAccessHandler extends AbstractNotebookMutationHandler<Notebook
     public String doHandle(NotebookEntity notebook, NotebookMutation.EditNotebookAccess mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
         String summary = entityMutationHelper.formatEditAccessSummary(mutation.edits());
         projectRepository.lockProject(notebook.getProject());
-        aclService.updateNotebookACL(notebook.getProject(), notebook, mutation.edits());
-        // !!! create revisions for project/experiment, if they are affected
+        aclService.updateNotebookACL(notebook, mutation.edits());
         return summary;
     }
 }
@@ -137,14 +136,3 @@ class DeleteNotebookAttachmentHandler extends AbstractNotebookMutationHandler<No
     }
 }
 
-@Dependent
-@MutationHandlerFor(NotebookMutation.NotebookAccessUpdated.class)
-class NotebookAccessUpdatedHandler extends AbstractNotebookMutationHandler<NotebookMutation.NotebookAccessUpdated> {
-
-    @Override
-    public String doHandle(NotebookEntity notebook, NotebookMutation.NotebookAccessUpdated mutation, NotebookMutationContext context, NotebookSnapshot snapshotBefore) {
-        aclService.recalculateACL(notebook);
-        String reason = mutation.projectName() != null ? "project " + mutation.projectName() : "experiment " + mutation.experimentName();
-        return "Access updated because of the changes in " + reason;
-    }
-}

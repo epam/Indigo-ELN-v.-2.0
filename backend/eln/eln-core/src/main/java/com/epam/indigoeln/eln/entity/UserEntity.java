@@ -35,7 +35,6 @@ import java.util.Set;
 public class UserEntity extends BaseEntity {
 
     @NotEmpty
-    @Basic(fetch = FetchType.LAZY)
     private String username;
 
     @NotNull

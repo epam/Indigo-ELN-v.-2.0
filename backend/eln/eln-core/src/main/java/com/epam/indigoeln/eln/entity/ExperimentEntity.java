@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.entity;
 
-import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.config.hibernate.ExperimentModelType;
 import com.epam.indigoeln.eln.common.config.SearchVectorType;
 import com.epam.indigoeln.eln.model.AccessLevel;
@@ -38,8 +37,6 @@ import java.util.*;
         attributeNodes = {
                 @NamedAttributeNode("createdBy"),
                 @NamedAttributeNode("modifiedBy"),
-                @NamedAttributeNode("shortACL"),
-                @NamedAttributeNode("aclCount"),
                 @NamedAttributeNode("markedOrNull"),
         }
 )
@@ -53,15 +50,13 @@ import java.util.*;
                 @NamedAttributeNode("literature"),
                 @NamedAttributeNode("therapeuticArea"),
                 @NamedAttributeNode("projectCode"),
-                @NamedAttributeNode("aclEntities"),
                 @NamedAttributeNode("model"),
                 @NamedAttributeNode("batchCreator"),
                 @NamedAttributeNode("linkedExperiments"),
                 @NamedAttributeNode("continuedFrom"),
                 @NamedAttributeNode("continuedTo"),
                 @NamedAttributeNode("currentAccessOrNull"),
-                @NamedAttributeNode("markedOrNull"),
-                @NamedAttributeNode("attachments")
+                @NamedAttributeNode("markedOrNull")
         }
 )
 @NamedEntityGraph(
@@ -161,16 +156,6 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments<Expe
     private byte @Nullable [] picture;
 
     @NotNull
-    @Basic(fetch = FetchType.LAZY)
-    @Type(ACLEntryArrayType.class)
-    private List<ACLEntry> shortACL = List.of();
-
-    @NotNull
-    @Basic(fetch = FetchType.LAZY)
-    @Type(ACLEntryArrayType.class)
-    private List<ACLEntry> fullACL = List.of();
-
-    @NotNull
     private Boolean deleted;
 
     @NotNull
@@ -213,13 +198,6 @@ public class ExperimentEntity extends BaseEntity implements WithAttachments<Expe
     @Fetch(FetchMode.SELECT)
     @LazyGroup("access_view")
     private AccessLevel currentAccessOrNull;
-
-    @Nullable
-    @Basic(fetch = FetchType.LAZY)
-    @Column(table = "Experiment_Access_View", insertable = false, updatable = false)
-    @Fetch(FetchMode.SELECT)
-    @LazyGroup("access_view")
-    private Integer aclCount;
 
     @Nullable
     @Basic(fetch = FetchType.LAZY)

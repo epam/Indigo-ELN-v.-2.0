@@ -251,7 +251,7 @@ class EditExperimentAccessHandler extends AbstractExperimentMutationHandler<Expe
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.EditExperimentAccess mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         String summary = entityMutationHelper.formatEditAccessSummary(mutation.edits());
         projectRepository.lockProject(experiment.getProject());
-        aclService.updateExperimentACL(experiment.getNotebook().getProject(), experiment.getNotebook(), experiment, mutation.edits());
+        aclService.updateExperimentACL(experiment, mutation.edits());
         return summary;
     }
 }
@@ -309,28 +309,6 @@ class DeleteExperimentAttachmentHandler extends ExperimentEditMutationHandlerBas
     @Override
     public void doRestoreStateAfterUndo(ExperimentEntity experiment, ExperimentSnapshot snapshot, ExperimentMutation.DeleteExperimentAttachment mutation) {
         restoreAttachments(experiment, attachmentRepository.getReferences(checkNotNull(snapshot.getAttachments())));
-    }
-}
-
-@Dependent
-@MutationHandlerFor(ExperimentMutation.ExperimentAccessUpdated.class)
-class ExperimentAccessUpdatedHandler extends AbstractExperimentMutationHandler<ExperimentMutation.ExperimentAccessUpdated> {
-
-    @Override
-    protected void doValidateAccess(ExperimentEntity experiment) {
-        // nothing
-    }
-
-    @Override
-    protected void doValidateStatus(ExperimentEntity experiment) {
-        // nothing
-    }
-
-    @Override
-    public String doHandle(ExperimentEntity experiment, ExperimentMutation.ExperimentAccessUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        aclService.recalculateACL(experiment);
-        String reason = mutation.projectName() != null ? "project " + mutation.projectName() : "notebook " + mutation.notebookName();
-        return "Access updated because of the changes in " + reason;
     }
 }
 

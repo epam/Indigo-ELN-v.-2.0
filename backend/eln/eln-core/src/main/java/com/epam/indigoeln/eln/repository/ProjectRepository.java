@@ -81,7 +81,7 @@ public class ProjectRepository extends BaseRepository<ProjectEntity> {
 
     public void lock(UUID id) {
         // Lock the base table row directly via native SQL, entirely bypassing Hibernate's own lock tracking.
-        // Project_Access_View (backing currentAccessOrNull) is a non-simple view (UNION ALL of LATERAL joins)
+        // Project_Access_View (backing currentAccessOrNull) is a non-simple view (outer joins over ACL tables)
         // that Postgres cannot lock, and combining PESSIMISTIC_WRITE with it - eagerly or via a later fetch on
         // the locked entity - fails or leaves the entity stale (Hibernate reapplies a managed entity's lock
         // mode to later fetches, and re-find()ing an already-managed entity doesn't refresh its data). A plain

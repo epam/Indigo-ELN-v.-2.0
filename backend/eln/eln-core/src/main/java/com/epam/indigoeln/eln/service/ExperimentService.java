@@ -206,7 +206,7 @@ public class ExperimentService {
         notebookRepository.loadWithACL(experiment.getNotebook().getId());
         ExperimentMutation mutation = new ExperimentMutation.EditExperimentAccess(form);
         experimentModelService.applyMutation(experiment, mutation);
-        return experimentMapper.convertACLList(experiment.getFullACL());
+        return experimentMapper.convertACLList(experiment.getEffectiveACL());
     }
 
     @SneakyThrows

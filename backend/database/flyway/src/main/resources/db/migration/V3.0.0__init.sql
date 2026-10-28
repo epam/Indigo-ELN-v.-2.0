@@ -18,8 +18,6 @@ CREATE TYPE Access_Level AS ENUM (
     'AUTHOR'
 );
 
-CREATE TYPE ACL_Entry AS (user_id UUID, display_name TEXT, username TEXT, level Access_Level, inherited BOOLEAN);
-
 CREATE TYPE Experiment_Count AS (status Experiment_Status, count INT);
 
 CREATE TYPE Application_Permission AS ENUM (
@@ -88,9 +86,3 @@ CREATE TYPE Reaction_Role AS ENUM (
     'SOLVENT',
     'OUTPUT'
 );
-
-CREATE FUNCTION acl_user_ids(ACL_Entry[])
-RETURNS UUID[]
-AS $$
-    SELECT array_agg((a).user_id) FROM unnest($1) a;
-$$ LANGUAGE SQL IMMUTABLE PARALLEL SAFE;
