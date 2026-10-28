@@ -29,6 +29,14 @@ CREATE TABLE Notebook_ACL (
     CONSTRAINT notebook_acl_user_id_fk FOREIGN KEY (user_id) REFERENCES User_Account (id) ON DELETE CASCADE
 );
 
+CREATE TABLE Notebook_Implicit_Access (
+    notebook_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    CONSTRAINT notebook_implicit_access_pk PRIMARY KEY (notebook_id, user_id),
+    CONSTRAINT notebook_implicit_access_notebook_id_fk FOREIGN KEY (notebook_id) REFERENCES Notebook (id) ON DELETE CASCADE,
+    CONSTRAINT notebook_implicit_access_user_id_fk FOREIGN KEY (user_id) REFERENCES User_Account (id) ON DELETE CASCADE
+);
+
 CREATE TABLE Notebook_Revision (
     notebook_id UUID NOT NULL,
     revision INT NOT NULL,

@@ -131,22 +131,28 @@ public class ACLService {
     /**
      * Brings implicit access of all containers above {@code entity} in line with the user's access to nested entities.
      * {@code granted} means the user has just gained access to {@code entity}, so no need to look further.
+     * Otherwise, a container that keeps the user keeps containers above it unchanged as well.
      */
     private void updateImplicitAccess(WithACL<?, ?> entity, UserEntity user, boolean granted) {
         for (WithACL<?, ?> container = entity.getACLParent(); container != null; container = container.getACLParent()) {
             if (granted) {
                 container.getImplicitUsers().add(user);
-            } else {
-                refreshImplicitAccess(container, user);
+            } else if (refreshImplicitAccess(container, user)) {
+                break;
             }
         }
     }
 
-    private void refreshImplicitAccess(WithACL<?, ?> container, UserEntity user) {
+    /**
+     * @return whether the user keeps implicit access to {@code container}
+     */
+    private boolean refreshImplicitAccess(WithACL<?, ?> container, UserEntity user) {
         if (hasNestedAccess(container, user)) {
             container.getImplicitUsers().add(user);
+            return true;
         } else {
             container.getImplicitUsers().remove(user);
+            return false;
         }
     }
 
@@ -195,6 +201,9 @@ public class ACLService {
         return false;
     }
 
+    /**
+     * Relies on implicit access of nested containers being up to date, so callers refresh them bottom-up.
+     */
     private boolean hasNestedAccess(WithACL<?, ?> container, UserEntity user) {
         Set<? extends WithACL<?, ?>> nested = switch (container) {
             case ProjectEntity p -> p.getNotebooks();
@@ -203,6 +212,6 @@ public class ACLService {
         };
         return nested.stream().anyMatch(child -> child.getCreatedBy().equals(user)
                 || child.getAclEntities().containsKey(user)
-                || hasNestedAccess(child, user));
+                || child.getImplicitUsers().contains(user));
     }
 }

@@ -50,15 +50,13 @@ import java.util.*;
                 @NamedAttributeNode("literature"),
                 @NamedAttributeNode("therapeuticArea"),
                 @NamedAttributeNode("projectCode"),
-                @NamedAttributeNode("aclEntities"),
                 @NamedAttributeNode("model"),
                 @NamedAttributeNode("batchCreator"),
                 @NamedAttributeNode("linkedExperiments"),
                 @NamedAttributeNode("continuedFrom"),
                 @NamedAttributeNode("continuedTo"),
                 @NamedAttributeNode("currentAccessOrNull"),
-                @NamedAttributeNode("markedOrNull"),
-                @NamedAttributeNode("attachments")
+                @NamedAttributeNode("markedOrNull")
         }
 )
 @NamedEntityGraph(

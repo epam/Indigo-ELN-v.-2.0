@@ -41,13 +41,9 @@ import java.util.*;
         attributeNodes = {
                 @NamedAttributeNode("createdBy"),
                 @NamedAttributeNode("modifiedBy"),
-                @NamedAttributeNode("keywords"),
-                @NamedAttributeNode("aclEntities"),
-                @NamedAttributeNode("implicitUsers"),
                 @NamedAttributeNode("notebookCount"),
                 @NamedAttributeNode("experimentCount"),
-                @NamedAttributeNode("currentAccessOrNull"),
-                @NamedAttributeNode("attachments")
+                @NamedAttributeNode("currentAccessOrNull")
         }
 )
 @NamedEntityGraph(

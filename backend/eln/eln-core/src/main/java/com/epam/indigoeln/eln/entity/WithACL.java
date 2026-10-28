@@ -14,8 +14,6 @@ import static com.epam.indigoeln.eln.model.AccessLevel.IMPLICIT_VIEW;
 
 public interface WithACL<A extends BaseACLEntity, P extends WithACL<?, ?>> {
 
-    int SHORT_ACL_SIZE = 3;
-
     UserEntity getCreatedBy();
 
     Map<UserEntity, A> getAclEntities();
@@ -56,16 +54,5 @@ public interface WithACL<A extends BaseACLEntity, P extends WithACL<?, ?>> {
                         .thenComparing(ACLEntry::isInherited)
                         .thenComparing(ACLEntry::getDisplayName))
                 .toList();
-    }
-
-    default List<ACLEntry> getShortACL() {
-        return getEffectiveACL().stream()
-                .filter(e -> e.getLevel() != IMPLICIT_VIEW)
-                .limit(SHORT_ACL_SIZE)
-                .toList();
-    }
-
-    default Integer getAclCount() {
-        return getEffectiveACL().size();
     }
 }
