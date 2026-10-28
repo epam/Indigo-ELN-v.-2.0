@@ -41,6 +41,7 @@ import java.util.*;
                 @NamedAttributeNode("createdBy"),
                 @NamedAttributeNode("modifiedBy"),
                 @NamedAttributeNode("aclEntities"),
+                @NamedAttributeNode("implicitUsers"),
                 @NamedAttributeNode("experimentCount"),
                 @NamedAttributeNode("currentAccessOrNull"),
                 @NamedAttributeNode("attachments")
@@ -50,6 +51,7 @@ import java.util.*;
         name = "Notebook.withACL",
         attributeNodes = {
                 @NamedAttributeNode("aclEntities"),
+                @NamedAttributeNode("implicitUsers"),
                 @NamedAttributeNode("experiments")
         }
 )
@@ -88,6 +90,11 @@ public class NotebookEntity extends BaseEntity implements WithAttachments<Notebo
     @OneToMany(mappedBy = "notebook", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKeyJoinColumn(name = "user_id")
     private Map<UserEntity, NotebookACLEntity> aclEntities = HashMap.newHashMap(0);
+
+    @NotNull
+    @ManyToMany
+    @JoinTable(name = "Notebook_Implicit_Access", joinColumns = @JoinColumn(name = "notebook_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<UserEntity> implicitUsers = HashSet.newHashSet(0);
 
     @NotNull
     @OneToMany(mappedBy = "parent")

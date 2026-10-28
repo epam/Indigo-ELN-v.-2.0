@@ -6,10 +6,9 @@ FROM (
     SELECT e.id experiment_id,
            COALESCE(
                CASE WHEN e.created_by_id = current_setting('eln.currentUserId')::UUID THEN 'AUTHOR'::Access_Level END,
-               NULLIF(ea.level, 'IMPLICIT_VIEW'),
-               NULLIF(na.level, 'IMPLICIT_VIEW'),
-               NULLIF(pa.level, 'IMPLICIT_VIEW'),
-               ea.level
+               ea.level,
+               na.level,
+               pa.level
            ) current_access_or_null
     FROM Experiment e
     LEFT JOIN Experiment_ACL ea ON ea.experiment_id = e.id AND ea.user_id = current_setting('eln.currentUserId')::UUID

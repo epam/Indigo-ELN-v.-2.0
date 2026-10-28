@@ -43,6 +43,7 @@ import java.util.*;
                 @NamedAttributeNode("modifiedBy"),
                 @NamedAttributeNode("keywords"),
                 @NamedAttributeNode("aclEntities"),
+                @NamedAttributeNode("implicitUsers"),
                 @NamedAttributeNode("notebookCount"),
                 @NamedAttributeNode("experimentCount"),
                 @NamedAttributeNode("currentAccessOrNull"),
@@ -53,6 +54,7 @@ import java.util.*;
         name = "Project.withACL",
         attributeNodes = {
                 @NamedAttributeNode("aclEntities"),
+                @NamedAttributeNode("implicitUsers"),
                 @NamedAttributeNode("notebooks")
         }
 )
@@ -86,6 +88,11 @@ public class ProjectEntity extends BaseEntity implements WithAttachments<Project
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKeyJoinColumn(name = "user_id")
     private Map<UserEntity, ProjectACLEntity> aclEntities = HashMap.newHashMap(0);
+
+    @NotNull
+    @ManyToMany
+    @JoinTable(name = "Project_Implicit_Access", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<UserEntity> implicitUsers = HashSet.newHashSet(0);
 
     @NotNull
     @ElementCollection

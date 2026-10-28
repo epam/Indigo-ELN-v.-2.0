@@ -574,7 +574,7 @@
 									<text><![CDATA[Molarity:]]></text>
 								</element>
 								<element kind="textField" x="74" y="48" width="74" height="16">
-									<expression><![CDATA[!$F{molarity}.isEmpty() ? $F{molarity} : ""]]></expression>
+									<expression><![CDATA[$F{molarity}.toUserFriendlyString(true, "")]]></expression>
 								</element>
 								<element kind="staticText" x="0" y="64" width="74" height="16">
 									<text><![CDATA[Hazard:]]></text>

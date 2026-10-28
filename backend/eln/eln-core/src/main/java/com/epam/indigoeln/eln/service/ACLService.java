@@ -81,13 +81,11 @@ public class ACLService {
     }
 
     public void initNotebookACL(NotebookEntity notebook) {
-        applyImplicitAccess(notebook.getProject(), userService.getCurrentUserEntity(), IMPLICIT_VIEW);
+        updateImplicitAccess(notebook, userService.getCurrentUserEntity(), true);
     }
 
     public void initExperimentACL(ExperimentEntity experiment) {
-        if (applyImplicitAccess(experiment.getNotebook(), userService.getCurrentUserEntity(), IMPLICIT_VIEW)) {
-            applyImplicitAccess(experiment.getProject(), userService.getCurrentUserEntity(), IMPLICIT_VIEW);
-        }
+        updateImplicitAccess(experiment, userService.getCurrentUserEntity(), true);
     }
 
     public void updateProjectACL(ProjectEntity project, List<AccessForm> updates) {
@@ -97,46 +95,59 @@ public class ACLService {
 
         for (AccessForm update : updates) {
             UserEntity user = userService.getEntity(update.getUsername());
-            applyAccess(project, user, update.getLevel(), update.isDeleteNested());
+            if (applyAccess(project, user, update.getLevel(), update.isDeleteNested()) && update.isDeleteNested()) {
+                for (NotebookEntity notebook : project.getNotebooks()) {
+                    refreshImplicitAccess(notebook, user);
+                }
+                refreshImplicitAccess(project, user);
+            }
         }
     }
 
-    public void updateNotebookACL(ProjectEntity project, NotebookEntity notebook, List<AccessForm> updates) {
+    public void updateNotebookACL(NotebookEntity notebook, List<AccessForm> updates) {
         // preload all ACL lists
         experimentRepository.findByNotebookWithACLEntities(notebook);
 
         for (AccessForm update : updates) {
             UserEntity user = userService.getEntity(update.getUsername());
             if (applyAccess(notebook, user, update.getLevel(), update.isDeleteNested())) {
-                applyImplicitAccess(project, user, update.getLevel());
+                if (update.isDeleteNested()) {
+                    refreshImplicitAccess(notebook, user);
+                }
+                updateImplicitAccess(notebook, user, update.getLevel() != NONE);
             }
         }
     }
 
-    public void updateExperimentACL(ProjectEntity project, NotebookEntity notebook, ExperimentEntity experiment, List<AccessForm> updates) {
+    public void updateExperimentACL(ExperimentEntity experiment, List<AccessForm> updates) {
         for (AccessForm update : updates) {
             UserEntity user = userService.getEntity(update.getUsername());
             if (applyAccess(experiment, user, update.getLevel(), update.isDeleteNested())) {
-                if (applyImplicitAccess(notebook, user, update.getLevel())) {
-                    applyImplicitAccess(project, user, update.getLevel());
-                }
+                updateImplicitAccess(experiment, user, update.getLevel() != NONE);
             }
         }
     }
 
-    private boolean applyImplicitAccess(WithACL<?, ?> container, UserEntity user, AccessLevel childLevel) {
-        WithACL<?, ?> containerOrParent = container;
-        BaseACLEntity entry = null;
-        while (entry == null && containerOrParent != null) {
-            entry = containerOrParent.getAclEntities().get(user);
-            containerOrParent = containerOrParent.getACLParent();
+    /**
+     * Brings implicit access of all containers above {@code entity} in line with the user's access to nested entities.
+     * {@code granted} means the user has just gained access to {@code entity}, so no need to look further.
+     */
+    private void updateImplicitAccess(WithACL<?, ?> entity, UserEntity user, boolean granted) {
+        for (WithACL<?, ?> container = entity.getACLParent(); container != null; container = container.getACLParent()) {
+            if (granted) {
+                container.getImplicitUsers().add(user);
+            } else {
+                refreshImplicitAccess(container, user);
+            }
         }
-        if (childLevel != AccessLevel.NONE && entry == null && !container.getCreatedBy().equals(user)) {
-            return applyAccess(container, user, IMPLICIT_VIEW, false);
-        } else if (childLevel == AccessLevel.NONE && entry != null && entry.getLevel() == IMPLICIT_VIEW) {
-            return applyAccess(container, user, AccessLevel.NONE, false);
+    }
+
+    private void refreshImplicitAccess(WithACL<?, ?> container, UserEntity user) {
+        if (hasNestedAccess(container, user)) {
+            container.getImplicitUsers().add(user);
+        } else {
+            container.getImplicitUsers().remove(user);
         }
-        return false;
     }
 
     private boolean applyAccess(WithACL<?, ?> container, UserEntity user, AccessLevel level, boolean deleteNested) {
@@ -146,22 +157,13 @@ public class ACLService {
         if (level == AUTHOR && !user.equals(container.getCreatedBy())) {
             throw new InvalidRequestException("Cannot assign AUTHOR permission to anyone else");
         }
+        if (level == IMPLICIT_VIEW) {
+            throw new InvalidRequestException("IMPLICIT_VIEW permission cannot be assigned");
+        }
         if (deleteNested && level != NONE) {
             throw new InvalidRequestException("Nested permissions can be deleted only when removing access");
         }
         if (level == AccessLevel.NONE) {
-            if (!deleteNested && container.getAclEntities().containsKey(user) && hasNestedAccess(container, user)) {
-                // keep the container visible to a user who still has access to some nested entity
-                boolean updated = applyAccess(container, user, IMPLICIT_VIEW, false);
-                if (container instanceof ProjectEntity project) {
-                    for (NotebookEntity notebook : project.getNotebooks()) {
-                        if (!notebook.getCreatedBy().equals(user) && !notebook.getAclEntities().containsKey(user) && hasNestedAccess(notebook, user)) {
-                            updated |= applyAccess(notebook, user, IMPLICIT_VIEW, false);
-                        }
-                    }
-                }
-                return updated;
-            }
             boolean removed = container.getAclEntities().remove(user) != null;
             if (removed) {
                 log.debug("applyAccess: removed {} from {}", user, container);

@@ -6,13 +6,14 @@ FROM (
     SELECT n.id notebook_id,
            COALESCE(
                CASE WHEN n.created_by_id = current_setting('eln.currentUserId')::UUID THEN 'AUTHOR'::Access_Level END,
-               NULLIF(na.level, 'IMPLICIT_VIEW'),
-               NULLIF(pa.level, 'IMPLICIT_VIEW'),
-               na.level
+               na.level,
+               pa.level,
+               CASE WHEN ni.user_id IS NOT NULL THEN 'IMPLICIT_VIEW'::Access_Level END
            ) current_access_or_null
     FROM Notebook n
     LEFT JOIN Notebook_ACL na ON na.notebook_id = n.id AND na.user_id = current_setting('eln.currentUserId')::UUID
     LEFT JOIN Project_ACL pa ON pa.project_id = n.project_id AND pa.user_id = current_setting('eln.currentUserId')::UUID
+    LEFT JOIN Notebook_Implicit_Access ni ON ni.notebook_id = n.id AND ni.user_id = current_setting('eln.currentUserId')::UUID
 ) t
 WHERE current_setting('eln.viewAllNotebooks')::BOOLEAN OR current_access_or_null IS NOT NULL;
 

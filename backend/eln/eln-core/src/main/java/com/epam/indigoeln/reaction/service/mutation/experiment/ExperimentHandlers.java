@@ -251,7 +251,7 @@ class EditExperimentAccessHandler extends AbstractExperimentMutationHandler<Expe
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.EditExperimentAccess mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         String summary = entityMutationHelper.formatEditAccessSummary(mutation.edits());
         projectRepository.lockProject(experiment.getProject());
-        aclService.updateExperimentACL(experiment.getNotebook().getProject(), experiment.getNotebook(), experiment, mutation.edits());
+        aclService.updateExperimentACL(experiment, mutation.edits());
         return summary;
     }
 }

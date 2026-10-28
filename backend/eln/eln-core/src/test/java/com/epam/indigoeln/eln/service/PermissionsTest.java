@@ -630,6 +630,13 @@ class PermissionsTest extends ELNBaseTest {
 
         @Test
         @Order(101)
+        void testCannotAssignImplicitViewPermission() {
+            assertThatClientCall(() -> projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, IMPLICIT_VIEW)))
+                    .isBadRequest("IMPLICIT_VIEW permission cannot be assigned");
+        }
+
+        @Test
+        @Order(101)
         void testCannotRemoveAuthorPermission() {
             assertThatClientCall(() -> projectClient.updateProjectAccess(project.getId(), AccessForm.of(JOHN_USERNAME, VIEW)))
                     .isBadRequest("AUTHOR permission cannot be removed");
@@ -715,6 +722,27 @@ class PermissionsTest extends ELNBaseTest {
             experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
             assertThatACL(notebookClient.getNotebook(notebook.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
             assertThatACL(projectClient.getProject(project.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
+        }
+
+        @Test
+        @Order(360)
+        void testInheritedAccessWinsOverImplicitView() {
+            experimentClient.updateExperimentAccess(experiment.getId(), AccessForm.of(WILLOW_USERNAME, VIEW));
+            projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, EDIT));
+            assertThatACL(notebookClient.getNotebook(notebook.getId()).getAcl())
+                    .containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, EDIT, true);
+            withUser(WILLOW_USERNAME, () -> assertThat(notebookClient.getNotebook(notebook.getId()).getCurrentPermissions())
+                    .contains(ApplicationPermission.EDIT_NOTEBOOKS));
+        }
+
+        @Test
+        @Order(370)
+        void testRemovingNestedAccessRemovesImplicitView() {
+            projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, NONE, true));
+            assertThatACL(projectClient.getProject(project.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
+            assertThatACL(notebookClient.getNotebook(notebook.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
+            assertThatACL(experimentClient.getExperiment(experiment.getId()).getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
+            withUser(WILLOW_USERNAME, () -> assertThat(projectClient.getProjects(project.getName(), null, null, PAGING).getItems()).isEmpty());
         }
 
         @Test
