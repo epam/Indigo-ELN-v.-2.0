@@ -22,6 +22,9 @@ public class MutationResponse {
     @NotNull
     List<String> messages = new ArrayList<>();
 
+    /**
+     * User-entered values the recalculation replaced to resolve a conflict, as {@code <row or sample anchor>:<property name>}.
+     */
     @NotNull
-    List<String> debugMessages = new ArrayList<>();
+    List<String> conflicts = new ArrayList<>();
 }

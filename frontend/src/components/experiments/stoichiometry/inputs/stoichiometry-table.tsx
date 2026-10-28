@@ -601,6 +601,7 @@ function CompoundCell({
         <NumericCell
           value={column.value(input)}
           previous={previousInput && column.value(previousInput)}
+          conflicted={mutations.conflicts.has(cell)}
           generation={mutations.generation}
           editable={false}
           pending={false}
@@ -625,6 +626,7 @@ function CompoundCell({
         <NumericCell
           value={column.value(input)}
           previous={previousInput && column.value(previousInput)}
+          conflicted={mutations.conflicts.has(cell)}
           generation={mutations.generation}
           editable={canEdit && (column.editable?.(input) ?? true)}
           pending={pending}
@@ -737,6 +739,7 @@ function SampleCell({
         <NumericCell
           value={column.value(sample)}
           previous={previousSample && column.value(previousSample)}
+          conflicted={mutations.conflicts.has(cell)}
           generation={mutations.generation}
           editable={canEdit && (column.editable?.(sample) ?? true)}
           pending={pending}

@@ -86,7 +86,7 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
             ReactionCalculator calculator = reactionCalculatorFactory.get();
             try {
                 calculator.recalculate(experiment.getModel());
-                context.getResponse().getDebugMessages().addAll(calculator.getDebugMessages());
+                context.getResponse().getConflicts().addAll(calculator.getConflicts());
                 updateDates(experiment, userService.getCurrentUserEntity());
                 doNotifyAfterRecalculate(experiment, context);
                 doValidateModel(experiment.getModel());
@@ -115,7 +115,7 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, T mutation, String summary, Integer revisionNo, JsonNode patch, ExperimentMutationContext context, ExperimentSnapshot snapshotAfter) {
         ExperimentRevisionEntity revision = revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), summary, mutation, patch);
         revision.setMessages(new ArrayList<>(context.getResponse().getMessages()));
-        revision.setDebugMessages(new ArrayList<>(context.getResponse().getDebugMessages()));
+        revision.setConflicts(new ArrayList<>(context.getResponse().getConflicts()));
         return revision;
     }
 

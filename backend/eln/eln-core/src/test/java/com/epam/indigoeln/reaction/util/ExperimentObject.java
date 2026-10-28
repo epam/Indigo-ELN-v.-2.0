@@ -89,6 +89,11 @@ public class ExperimentObject {
         return response;
     }
 
+    /** {@code lastMutationResponse().getConflicts()}: field ids of user-entered values the last mutation overwrote. */
+    public List<String> lastConflicts() {
+        return lastMutationResponse().getConflicts();
+    }
+
     public ExperimentDetailsDTO experiment() {
         if (experiment == null) {
             experiment = experimentClient.getExperiment(id);
@@ -200,10 +205,13 @@ public class ExperimentObject {
 
     @SneakyThrows
     public void generateDetailsReport(File destinationFile) {
+        System.err.println("Experiment details report is available at file://" + destinationFile.getAbsolutePath());
+        Files.write(destinationFile.toPath(), detailsReport());
+    }
+
+    public byte[] detailsReport() {
         try (Response response = miscClient.generateExperimentDetailsReport(id)) {
-            System.err.println("Experiment details report is available at file://" + destinationFile.getAbsolutePath());
-            byte[] bytes = (byte[]) response.getEntity();
-            Files.write(destinationFile.toPath(), bytes);
+            return (byte[]) response.getEntity();
         }
     }
 

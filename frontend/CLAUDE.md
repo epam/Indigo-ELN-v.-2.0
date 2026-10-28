@@ -333,6 +333,11 @@ Three properties of the diff, all easier to know than to rediscover:
   counterpart in that previous model **by anchor** (`findByAnchor`), down to each `NumericCell`,
   which compares its `EnteredValue` with the previous one field by field (`hasChanged`). With no
   patch since mount the current model stands in for the previous one, so nothing differs.
+  That comparison drives the green flash only. The red one is the backend's call:
+  `MutationResponse.conflicts` lists the user-entered values the recalculation replaced, as
+  `<anchor>:<field>`, which is exactly `cellId` because the numeric column ids are the model's field
+  names. It is published as `ModelPatch.conflicts`, and a cell flashes red if its id is in it. A
+  user clearing or undoing their own value is not a conflict, so it never flashes red.
 
 `response.messages` become toasts via `notifyInfo`. `unresolvedInputs` is **not** read by 
 `applyMutationResponse` either, but it is not ignored: it belongs to whoever sent the mutation 

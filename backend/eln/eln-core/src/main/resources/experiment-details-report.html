@@ -304,6 +304,9 @@ function makeEntry(rev) {
   if (rev.messages.length > 0) {
     body.appendChild(makeSection('Messages', '<pre class="code-block">' + rev.messages.join('\n') + '</pre>', true));
   }
+  if (rev.conflicts.length > 0) {
+    body.appendChild(makeSection('Conflicts', '<pre class="code-block">' + rev.conflicts.join('\n') + '</pre>', true));
+  }
   body.appendChild(makeSection('Mutation',     '<pre class="code-block">' + renderJson(rev.mutation) + '</pre>', false));
   body.appendChild(makeSection('JSON Diff',    '<pre class="code-block">' + renderJson(rev.jsonDiff) + '</pre>', false));
   body.appendChild(makeSection('Diff',         '<div class="audit-log">' + rev.diff + '</div>', true));

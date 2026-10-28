@@ -77,6 +77,18 @@ public class CalculableProperty<C extends ExperimentNode, U extends MeasurementU
         };
     }
 
+    /** {@code <row or sample anchor>:<property name>}: the same id the frontend gives the cell showing this value. */
+    public String getFieldId() {
+        String anchor = switch (container) {
+            case ReactionInput i -> i.getAnchor().toString();
+            case ReactionInputSample s -> s.getAnchor().toString();
+            case ReactionOutput o -> o.getAnchor().toString();
+            case ReactionOutputSample s -> s.getAnchor().toString();
+            default -> throw new IllegalArgumentException(container.getClass().getName());
+        };
+        return anchor + ':' + modelProperty.name();
+    }
+
     public String getName() {
         return containerDisplayName(container) + '.' + modelProperty.name();
     }

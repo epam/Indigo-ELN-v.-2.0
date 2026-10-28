@@ -64,6 +64,7 @@ function isExternal(event: FocusEvent<HTMLElement>): boolean {
 export function NumericCell({
   value,
   previous,
+  conflicted,
   generation,
   editable,
   pending,
@@ -76,6 +77,8 @@ export function NumericCell({
    * — see `StoichiometryMutations.previousModel`. Drives the flash.
    */
   previous: EnteredValue | undefined;
+  /** The last patch overwrote this cell's user-entered value — see `ModelPatch.conflicts`. Flashes red. */
+  conflicted: boolean;
   /** Counts patches — see `ModelPatch.generation`. */
   generation: number;
   editable: boolean;
@@ -106,13 +109,13 @@ export function NumericCell({
   const shownValue = inFlight ? inFlight.value : (value?.value ?? null);
   const text = shownValue ?? '—';
   // A value on its way to the server is written as what it is: one the user entered.
-  const classes = inFlight ? USER_ENTERED_CLASSES : determineCellClasses(value, previous);
+  const classes = inFlight ? USER_ENTERED_CLASSES : determineCellClasses(value, previous, conflicted);
   /**
    * A flash is a CSS animation, which plays only when its class is *added*. Undo then redo moves
    * the same cells twice running, and the class would simply stay — so a cell this patch changed
    * remounts its value box, keyed by the patch, and the animation starts over.
    */
-  const flashKey = hasChanged(value, previous) ? generation : undefined;
+  const flashKey = hasChanged(value, previous) || conflicted ? generation : undefined;
   // Only a colour. An em-dash keeps the column's alignment, so an empty cell has the same edge as
   // the numbers above and below it — a column that half-centres itself has no edge to read at all.
   const emptyClass = shownValue == null ? 'text-neutral-700' : undefined;

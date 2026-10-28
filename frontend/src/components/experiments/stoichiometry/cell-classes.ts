@@ -23,14 +23,6 @@ export function hasChanged(value: EnteredValue | undefined, previous: EnteredVal
 }
 
 /**
- * Whether the last patch threw away a value the user had entered: it was theirs before, and the
- * backend has now calculated it, or left it empty, to resolve a conflict.
- */
-export function isOverwritten(value: EnteredValue | undefined, previous: EnteredValue | undefined): boolean {
-  return previous?.source === 'U' && (value?.source === 'C' || value?.value == null);
-}
-
-/**
  * What a numeric cell looks like, given where its value came from and what the last patch did
  * to it.
  *
@@ -39,16 +31,21 @@ export function isOverwritten(value: EnteredValue | undefined, previous: Entered
  * - **Provenance**, a steady state, read off `EnteredValue.source`: `U` is a value a person
  *   typed, `D` a default.
  * - **What just happened to it**, a one-shot flash. Green when the backend recalculated the
- *   value, red when it overwrote one the user had entered (`isOverwritten`).
+ *   value, red when it overwrote one the user had entered — `conflicted`, which the backend
+ *   reports as `MutationResponse.conflicts`.
  * - **Validity**: a value of zero or less is written in red.
  *
- * Both flashes compare the value with `previous`, the same cell before the last patch — see
+ * The green flash compares the value with `previous`, the same cell before the last patch — see
  * `hasChanged`. That keeps the table still on first load, when there is no patch and the caller
  * passes the value itself, and leaves alone every cell a patch did not move.
  */
-export function determineCellClasses(value: EnteredValue | undefined, previous: EnteredValue | undefined): string[] {
+export function determineCellClasses(
+  value: EnteredValue | undefined,
+  previous: EnteredValue | undefined,
+  conflicted: boolean,
+): string[] {
   // An empty cell has nothing to style, unless emptying it is what overwrote the user's value.
-  if (value?.value == null && !isOverwritten(value, previous)) return [];
+  if (value?.value == null && !conflicted) return [];
 
   const nonPositive = value?.value != null && Number(value.value) <= 0;
 
@@ -64,7 +61,7 @@ export function determineCellClasses(value: EnteredValue | undefined, previous: 
     classes.push('text-neutral-700', 'italic');
   }
 
-  if (isOverwritten(value, previous)) {
+  if (conflicted) {
     classes.push('animate-[flash-red_500ms_ease-in-out]');
   } else if (value?.source === 'C' && hasChanged(value, previous)) {
     classes.push('animate-[flash-green_500ms_ease-in-out]');

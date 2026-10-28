@@ -173,6 +173,7 @@ public class ExperimentEditingTest extends MutationsTestBase {
         experiment.mutateSetInputWeight(2, 1, "2");
         experiment.mutateSetInputVolume(2, 1, "1.05");
         experiment.mutateSetInputMolarity(2, 1, "100");
+        assertThat(experiment.lastConflicts()).containsExactly(experiment.inputSample(2, 1).getAnchor() + ":weight");
         experiment.mutateSetInputPurity(2, 1, "1");
 
         assertThat(experiment.inputSample(1, 1)).hasMol(0.010853, MOL).hasVolume(0.63371, ML);
@@ -300,62 +301,62 @@ public class ExperimentEditingTest extends MutationsTestBase {
         experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
 
         experiment.mutateSetInputRowMol(1, "1");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutateSetInputRowEQ(1, "2");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutateSetInputMol(1, 1, "1");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutateSetInputPurity(1, 1, "90");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         // exact value 51.187776724497475
         experiment.mutateSetInputWeight(1, 1, "51.187777");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutateSetInputMolarity(1, 1, "1.5");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         // exact value 666.6666702547958
         experiment.mutateSetInputVolume(1, 1, "666.66667");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         // exact value 0.0767816650867462
         experiment.mutateSetInputDensity(1, 1, "0.076781665");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
 
         experiment.mutateSetInputRowMol(2, "3");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutateSetInputRowEQ(2, "6");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutateSetInputMol(2, 1, "3");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutateSetInputPurity(2, 1, "75");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         // exact value 240.20799446105957
         experiment.mutateSetInputWeight(2, 1, "240.20799");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutateSetInputMolarity(2, 1, "2");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutateSetInputVolume(2, 1, "1500");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         // exact value 0.1601386629740397
         experiment.mutateSetInputDensity(2, 1, "0.16013866");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
 
         experiment.mutateAddProductSample(1);
         OutputAnchor output = experiment.output(1).getAnchor();
         experiment.mutate(new ReactionOutputMutation.SetOutputRowEQ(output, "4"));
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
 
         OutputSampleAnchor outputSample = experiment.outputSample(1, 1).getAnchor();
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualMol(outputSample, "1.5"));
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputPurity(outputSample, "60"));
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(outputSample, "220.2650")); // exact value 220.264995098114
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolarity(outputSample, "0.5"));
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputVolume(outputSample, "3000.0001")); // exact value 3000.0000667634818
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputDensity(outputSample, "0.073421665")); // exact value 0.07342166503270467
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
     }
 
     @Test
@@ -364,7 +365,9 @@ public class ExperimentEditingTest extends MutationsTestBase {
         experiment.mutateSetInputWeight(1, 1, "100");
         experiment.mutateSetInputRowMol(2, "2");
         experiment.mutateSetInputWeight(2, 1, "200");
+        assertThat(experiment.lastConflicts()).containsExactly(experiment.input(2).getAnchor() + ":mol");
         experiment.mutateSetInputRowEQ(2, "2");
+        assertThat(experiment.lastConflicts()).containsExactly(experiment.inputSample(2, 1).getAnchor() + ":weight");
         assertThat(experiment.input(1).getEq().isDefault()).isTrue();
     }
 }

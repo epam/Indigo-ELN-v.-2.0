@@ -156,7 +156,7 @@ export const TAKEN_NOTEBOOK_NAME = '00000002';
 export const NEXT_NOTEBOOK_NAME = '00000004';
 
 /** The members of a `MutationResponse` that are empty unless a handler has something to say. */
-const EMPTY_RESPONSE = { unresolvedInputs: {}, messages: [], debugMessages: [] };
+const EMPTY_RESPONSE = { unresolvedInputs: {}, messages: [], conflicts: [] };
 
 /**
  * What `/mutate` answers for a `SetScheme`: a diff, not a document. The real backend re-reads
@@ -721,6 +721,8 @@ export const recalculatingMutateHandlers = [
   http.post(`${ELN}/experiments/:id/mutate`, () =>
     HttpResponse.json({
       ...EMPTY_RESPONSE,
+      // The user's volume below was replaced to resolve a conflict.
+      conflicts: ['ins0000d:volume'],
       patch: {
         model: {
           reactions: {

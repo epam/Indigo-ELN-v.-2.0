@@ -251,6 +251,8 @@ export interface ExperimentDetails extends BaseExperiment {
  */
 export interface ModelPatch {
   previous: ExperimentModel | undefined;
+  /** `MutationResponse.conflicts` of that diff: the cells whose user-entered value it overwrote. */
+  conflicts: ReadonlySet<string>;
   /*
    * TODO(model-patch-revision): replace with the experiment revision the patch produced, stored
    * here rather than read off the detail. Needs `/mutate` (and `importSDF`) to return it — today

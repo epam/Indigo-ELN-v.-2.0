@@ -375,7 +375,7 @@ describe('model patch', () => {
       patch: { model: { $old: null, $new: { reactions: [] } } },
       unresolvedInputs: {},
       messages: [],
-      debugMessages: [],
+      conflicts: ['ins00001:weight'],
     });
 
     const view = renderHook(
@@ -388,10 +388,12 @@ describe('model patch', () => {
     );
     expect(view.result.current.patch.generation).toBe(0);
     expect(view.result.current.patch.previous).toBeUndefined();
+    expect(view.result.current.patch.conflicts).toEqual(new Set());
 
     await act(() => view.result.current.undo.mutateAsync({ type: 'Undo' }));
     await waitFor(() => expect(view.result.current.patch.generation).toBe(1));
     expect(view.result.current.patch.previous).toEqual(experiment.model);
+    expect(view.result.current.patch.conflicts).toEqual(new Set(['ins00001:weight']));
     expect(view.result.current.detail.data?.model).toEqual({ reactions: [] });
 
     await act(() => view.result.current.undo.mutateAsync({ type: 'Redo' }));

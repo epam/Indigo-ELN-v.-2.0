@@ -58,10 +58,11 @@ public class ExperimentRevisionEntity extends BaseRevisionEntity {
     @JdbcTypeCode(SqlTypes.ARRAY)
     private List<String> messages = new ArrayList<>();
 
+    /** {@code MutationResponse.conflicts}: user-entered values the recalculation replaced. */
     @NotNull
     @Basic(fetch = FetchType.LAZY)
     @JdbcTypeCode(SqlTypes.ARRAY)
-    private List<String> debugMessages = new ArrayList<>();
+    private List<String> conflicts = new ArrayList<>();
 
     public record CompositeID(
             ExperimentEntity experiment,

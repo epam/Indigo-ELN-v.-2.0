@@ -4,14 +4,14 @@ import { determineCellClasses } from '@/components/experiments/stoichiometry/cel
 
 import type { EnteredValue } from '@/lib/types/reactions.ts';
 
-/** No patch since mount: the caller passes the value as its own previous. */
+/** No patch since mount: the caller passes the value as its own previous, and nothing conflicted. */
 function unpatched(value: EnteredValue): string[] {
-  return determineCellClasses(value, value);
+  return determineCellClasses(value, value, false);
 }
 
 describe('determineCellClasses', () => {
   it('returns nothing for an absent value', () => {
-    expect(determineCellClasses(undefined, undefined)).toEqual([]);
+    expect(determineCellClasses(undefined, undefined, false)).toEqual([]);
   });
 
   describe('provenance', () => {
@@ -35,14 +35,14 @@ describe('determineCellClasses', () => {
   describe('flashes', () => {
     it('flashes green when a calculated value changed', () => {
       const value: EnteredValue = { value: '2', source: 'C' };
-      expect(determineCellClasses(value, { value: '1', source: 'C' })).toEqual([
+      expect(determineCellClasses(value, { value: '1', source: 'C' }, false)).toEqual([
         'animate-[flash-green_500ms_ease-in-out]',
       ]);
     });
 
     it('flashes green when a default value is now calculated', () => {
       const value: EnteredValue = { value: '1', source: 'C' };
-      expect(determineCellClasses(value, { value: '1', source: 'D' })).toEqual([
+      expect(determineCellClasses(value, { value: '1', source: 'D' }, false)).toEqual([
         'animate-[flash-green_500ms_ease-in-out]',
       ]);
     });
@@ -50,39 +50,33 @@ describe('determineCellClasses', () => {
     it('flashes green when a calculated value appears where there was none', () => {
       // The row is new, so the model before the patch has nothing for this cell.
       const value: EnteredValue = { value: '1', source: 'C' };
-      expect(determineCellClasses(value, undefined)).toEqual(['animate-[flash-green_500ms_ease-in-out]']);
+      expect(determineCellClasses(value, undefined, false)).toEqual(['animate-[flash-green_500ms_ease-in-out]']);
     });
 
     it('does not flash a calculated value that came back unchanged', () => {
       const value: EnteredValue = { value: '1', source: 'C' };
-      expect(determineCellClasses(value, { value: '1', source: 'C' })).toEqual([]);
+      expect(determineCellClasses(value, { value: '1', source: 'C' }, false)).toEqual([]);
     });
 
-    it('flashes red when a user-entered value is now calculated — the backend overwrote it', () => {
+    it('flashes red when the backend reports the cell as conflicted', () => {
       const value: EnteredValue = { value: '2', source: 'C' };
-      expect(determineCellClasses(value, { value: '1', source: 'U', revision: 3 })).toEqual([
+      expect(determineCellClasses(value, { value: '1', source: 'U', revision: 3 }, true)).toEqual([
         'animate-[flash-red_500ms_ease-in-out]',
       ]);
     });
 
-    it('flashes red even when the calculated value equals what the user had entered', () => {
-      const value: EnteredValue = { value: '1', source: 'C' };
-      expect(determineCellClasses(value, { value: '1', source: 'U', revision: 3 })).toEqual([
+    it('flashes red on a conflicted cell left empty', () => {
+      expect(determineCellClasses(undefined, { value: '1', source: 'U', revision: 3 }, true)).toEqual([
         'animate-[flash-red_500ms_ease-in-out]',
       ]);
     });
 
-    it('flashes red when a user-entered value is now empty', () => {
-      expect(determineCellClasses({}, { value: '1', source: 'U', revision: 3 })).toEqual([
-        'animate-[flash-red_500ms_ease-in-out]',
-      ]);
-      expect(determineCellClasses(undefined, { value: '1', source: 'U', revision: 3 })).toEqual([
-        'animate-[flash-red_500ms_ease-in-out]',
-      ]);
-    });
-
-    it('does not flash red when a calculated value is now empty', () => {
-      expect(determineCellClasses(undefined, { value: '1', source: 'C' })).toEqual([]);
+    it('does not flash red when a user-entered value is replaced without a conflict', () => {
+      // The user cleared it, or undid it: their own doing, so no warning.
+      expect(determineCellClasses(undefined, { value: '1', source: 'U', revision: 3 }, false)).toEqual([]);
+      expect(
+        determineCellClasses({ value: '2', source: 'C' }, { value: '1', source: 'U', revision: 3 }, false),
+      ).toEqual(['animate-[flash-green_500ms_ease-in-out]']);
     });
   });
 
@@ -121,16 +115,10 @@ describe('determineCellClasses', () => {
       // make. This is the early return, and dropping it would flash every cell
       // the user is editing.
       const value: EnteredValue = { value: '2', source: 'U', revision: 9 };
-      expect(determineCellClasses(value, { value: '1', source: 'U', revision: 4 })).toEqual([
+      expect(determineCellClasses(value, { value: '1', source: 'U', revision: 4 }, false)).toEqual([
         'text-blue-400',
         'font-semibold',
       ]);
-    });
-
-    it('does not flash an overwritten value the patch left alone', () => {
-      // Overwritten by an earlier patch, and still so: the previous value is already calculated.
-      const value: EnteredValue = { value: '1', source: 'C' };
-      expect(determineCellClasses(value, { ...value })).toEqual([]);
     });
   });
 });

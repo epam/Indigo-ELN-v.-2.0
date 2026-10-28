@@ -969,5 +969,10 @@ export interface MutationResponse {
   unresolvedInputs: Record<Anchor, string>;
   /** Things the user should be told about what the mutation did. */
   messages: string[];
-  debugMessages: string[];
+  /**
+   * The values the user had entered that recalculation replaced to resolve a conflict, as cell ids:
+   * `<row or sample anchor>:<field>` — exactly `cellId(anchor, column)`, since the numeric column
+   * ids are the model's field names. What a cell flashes red for.
+   */
+  conflicts: string[];
 }
