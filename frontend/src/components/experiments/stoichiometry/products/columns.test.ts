@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { PRODUCT_COLUMNS, productHaystack } from '@/components/experiments/stoichiometry/products/columns';
+import {
+  HIDEABLE_PRODUCT_COLUMNS,
+  PRODUCT_COLUMNS,
+  productHaystack,
+} from '@/components/experiments/stoichiometry/products/columns';
 import { makeReactionOutput, unknownCompound } from '@/mocks/fixtures';
 
 import type { ReactionOutput } from '@/lib/types/reactions.ts';
@@ -56,5 +60,23 @@ describe('productHaystack', () => {
   /** An unknown compound has no registry fields beyond the default codes — reading them would throw. */
   it('skips the registry fields of an unknown compound', () => {
     expect(productHaystack(row({ compound: unknownCompound() }))).toBe('p0 00 - parent structure');
+  });
+});
+
+describe('HIDEABLE_PRODUCT_COLUMNS', () => {
+  it('offers every column but #, Output Name and Add Batch, in table order', () => {
+    expect(HIDEABLE_PRODUCT_COLUMNS.map((column) => column.id)).toEqual([
+      'reactionStep',
+      'type',
+      'formula',
+      'molWeight',
+      'exactMass',
+      'theoWeight',
+      'theoMol',
+      'saltCode',
+      'saltEQ',
+      'stereoisomerCode',
+      'eq',
+    ]);
   });
 });

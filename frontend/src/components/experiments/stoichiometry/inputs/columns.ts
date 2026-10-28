@@ -1,5 +1,6 @@
 import { asEnteredValue } from '@/components/experiments/stoichiometry/columns';
 
+import type { HideableColumn } from '@/lib/hooks/experiments/use-hidden-columns';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import { sortByName } from '@/lib/types/dictionaries.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
@@ -67,6 +68,11 @@ interface ColumnBase {
    * would be clipped to its header's width.
    */
   fitContent?: boolean;
+  /**
+   * Offered by the Column Selector. The columns without it — #, Compound ID, the amounts, Rxn
+   * Role, Limiting, a batch's Batch # and amounts, Delete — are what the table *is*, and stay.
+   */
+  hideable?: true;
 }
 
 type Cell<Row> =
@@ -215,6 +221,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'eq',
     header: 'EQ',
+    hideable: true,
     // Room to type a digit or two and a decimal point into a cell that mostly shows `1`.
     minWidth: 56,
     // So the sample details below widen `sampleSpacer` rather than this.
@@ -235,6 +242,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'formula',
     header: 'Mol Form.',
+    hideable: true,
     // For the same reason as EQ's.
     fitContent: true,
     kind: 'html',
@@ -243,6 +251,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'molWeight',
     header: 'Mol. Weight',
+    hideable: true,
     // For the same reason as EQ's.
     fitContent: true,
     kind: 'numeric',
@@ -260,6 +269,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'casNumber',
     header: 'CAS #',
+    hideable: true,
     // For the same reason as EQ's.
     fitContent: true,
     kind: 'readonly',
@@ -268,6 +278,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'chemicalName',
     header: 'Chem. Name',
+    hideable: true,
     // For the same reason as EQ's.
     fitContent: true,
     kind: 'text',
@@ -286,6 +297,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'saltCode',
     header: 'Salt Code',
+    hideable: true,
     // For the same reason as Limiting's. The select does not truncate, so a longer salt code
     // still widens the column.
     fitContent: true,
@@ -299,6 +311,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'saltEQ',
     header: 'Salt EQ',
+    hideable: true,
     // For the same reason as Limiting's.
     fitContent: true,
     kind: 'numeric',
@@ -312,6 +325,7 @@ export const COMPOUND_COLUMNS: InputColumn[] = [
   {
     id: 'stereoisomerCode',
     header: 'Stereoisomer Code',
+    hideable: true,
     // For the same reason as Salt EQ's.
     fitContent: true,
     kind: 'dictionary',
@@ -416,6 +430,7 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
       {
         id: 'density',
         header: 'Density',
+        hideable: true,
         minWidth: 90,
         equalWidth: true,
         kind: 'numeric',
@@ -430,6 +445,7 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
       {
         id: 'molarity',
         header: 'Molarity',
+        hideable: true,
         minWidth: 90,
         equalWidth: true,
         kind: 'numeric',
@@ -444,6 +460,7 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
       {
         id: 'purity',
         header: 'Purity',
+        hideable: true,
         minWidth: 90,
         equalWidth: true,
         kind: 'numeric',
@@ -454,6 +471,7 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
       {
         id: 'hazards',
         header: 'Hazard Comments',
+        hideable: true,
         kind: 'multiDictionary',
         dictionary: 'HEALTH_HAZARD',
         value: (sample) => sortByName(sample.healthHazards),
@@ -466,6 +484,7 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
       {
         id: 'comment',
         header: 'Comments',
+        hideable: true,
         kind: 'text',
         value: (sample) => sample.comment,
         mutation: (sample, comment) => ({ type: 'SetInputComment', anchor: sample.anchor, comment }),
@@ -481,3 +500,38 @@ export const SAMPLE_COLUMNS: SampleColumn[] = [
     mutation: (sample) => ({ type: 'RemoveInput', anchor: sample.anchor }),
   },
 ];
+
+/**
+ * What the Column Selector offers, in menu order: the compound columns marked `hideable`, then the
+ * batch details. One list because they share one menu; their ids do not collide among the
+ * hideable ones (`weight` and friends exist on both levels, but neither is hideable).
+ */
+export const HIDEABLE_INPUT_COLUMNS: readonly HideableColumn[] = [
+  ...COMPOUND_COLUMNS,
+  ...SAMPLE_COLUMNS.flatMap((column) => (column.kind === 'group' ? column.parts : [])),
+]
+  .filter((column) => column.hideable)
+  .map(({ id, header }) => ({ id, header }));
+
+/**
+ * The table's columns with `hidden` taken out, both levels at once.
+ *
+ * A batch row has to span exactly as many host columns as a compound row, or the rows fall out of
+ * line. So each compound column hidden takes one column off the details group's span — the one
+ * batch cell wide enough to give it up — and the group's own parts are filtered like any other.
+ * The group starts out spanning more host columns than there are hideable compound columns, so it
+ * never drops below one.
+ */
+export function visibleInputColumns(hidden: ReadonlySet<string>): {
+  compound: InputColumn[];
+  sample: SampleColumn[];
+} {
+  const compound = COMPOUND_COLUMNS.filter((column) => !hidden.has(column.id));
+  const removed = COMPOUND_COLUMNS.length - compound.length;
+  const sample = SAMPLE_COLUMNS.map((column) =>
+    column.kind === 'group'
+      ? { ...column, span: column.span - removed, parts: column.parts.filter((part) => !hidden.has(part.id)) }
+      : column,
+  );
+  return { compound, sample };
+}
