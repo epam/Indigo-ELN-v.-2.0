@@ -1,9 +1,15 @@
 package com.epam.indigoeln.eln.util;
 
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.MolarityUnit;
+import com.epam.indigoeln.common.model.units.VolumeUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.reaction.metamodel.property.Metamodel;
 import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
+import com.epam.indigoeln.reaction.model.EnteredValue;
 import com.epam.indigoeln.reaction.model.ExperimentNode;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
@@ -38,6 +44,11 @@ public class ExperimentModelUtil {
         }
         return null;
     }
+
+    private static final TypeReference<EnteredValue<WeightUnit>> EV_WEIGHT_TYPE = new TypeReference<>() {};
+    private static final TypeReference<EnteredValue<VolumeUnit>> EV_VOLUME_TYPE = new TypeReference<>() {};
+    private static final TypeReference<EnteredValue<MolUnit>> EV_MOL_TYPE = new TypeReference<>() {};
+    private static final TypeReference<EnteredValue<MolarityUnit>> EV_MOLARITY_TYPE = new TypeReference<>() {};
 
     public interface PropertyVisitor {
 

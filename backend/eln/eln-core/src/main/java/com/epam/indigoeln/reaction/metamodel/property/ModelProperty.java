@@ -1,7 +1,7 @@
 package com.epam.indigoeln.reaction.metamodel.property;
 
-import com.epam.indigoeln.reaction.model.EnteredValue;
 import com.epam.indigoeln.common.model.units.MeasurementUnit;
+import com.epam.indigoeln.reaction.model.EnteredValue;
 import com.google.common.base.Preconditions;
 import org.jspecify.annotations.Nullable;
 

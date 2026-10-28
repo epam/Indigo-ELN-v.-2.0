@@ -1,13 +1,30 @@
+import { http, HttpResponse } from 'msw';
 import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
 import { TeamCard } from '@/components/common/team-card';
 import { useProject, useUpdateProjectAccess } from '@/lib/api/projects';
 import { makeAclEntry, PROJECT_ACL } from '@/mocks/fixtures';
+import { handlers } from '@/mocks/handlers';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { ACLEntry } from '@/lib/types/common.ts';
+import type { AccessForm, ACLEntry } from '@/lib/types/common.ts';
 
 const PROJECT_ID = '11111111-1111-1111-1111-111111111111';
+
+const NESTED_REMOVAL_LABEL = 'Also remove this member from all Notebooks and Experiments in this Project.';
+
+/** Every `POST /access` body, so a story can check what a removal actually sent. */
+const sent: AccessForm[][] = [];
+
+const spyHandlers = [
+  http.post('/api/eln/projects/:id/access', async ({ request }) => {
+    const body = (await request.json()) as AccessForm[];
+    sent.push(body);
+    const removed = new Set(body.filter((form) => form.level === 'NONE').map((form) => form.username));
+    return HttpResponse.json(PROJECT_ACL.filter((entry) => !removed.has(entry.username)));
+  }),
+  ...handlers,
+];
 
 /**
  * `TeamCard` takes its two mutations as props, so every story needs a wrapper that makes
@@ -17,7 +34,15 @@ function ProjectTeamCard({ acl, canManage }: { acl: ACLEntry[]; canManage: boole
   const addMembers = useUpdateProjectAccess(PROJECT_ID);
   const changeLevel = useUpdateProjectAccess(PROJECT_ID);
 
-  return <TeamCard acl={acl} canManage={canManage} addMembers={addMembers} changeLevel={changeLevel} />;
+  return (
+    <TeamCard
+      acl={acl}
+      canManage={canManage}
+      addMembers={addMembers}
+      changeLevel={changeLevel}
+      nestedRemovalLabel={NESTED_REMOVAL_LABEL}
+    />
+  );
 }
 
 /**
@@ -82,6 +107,47 @@ export const ChangeLevel: Story = {
 
     await waitFor(() => expect(canvas.queryByRole('button', { name: /Can View/ })).not.toBeInTheDocument());
     await expect(canvas.getAllByRole('button', { name: /Can Edit/ })).toHaveLength(2);
+  },
+};
+
+/**
+ * None asks first. The cascade box starts ticked, so a plain Remove takes the member off
+ * everything below the project too.
+ */
+export const RemoveMember: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <TeamCardFromCache />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    await userEvent.click(await canvas.findByRole('button', { name: /Can View/ }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'None' }));
+
+    await expect(await screen.findByRole('checkbox', { name: NESTED_REMOVAL_LABEL })).toBeChecked();
+    await expect(sent).toHaveLength(0);
+    await userEvent.click(screen.getByRole('button', { name: 'Remove' }));
+
+    await waitFor(() => expect(canvas.queryByText('Tom Becker')).not.toBeInTheDocument());
+    await expect(sent).toEqual([[{ username: 'tom.becker', level: 'NONE', deleteNested: true }]]);
+  },
+};
+
+/** Cancel sends nothing and leaves the member in place. */
+export const RemoveMemberCancelled: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <TeamCardFromCache />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    await userEvent.click(await canvas.findByRole('button', { name: /Can View/ }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'None' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Cancel' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    await expect(canvas.getByText('Tom Becker')).toBeInTheDocument();
+    await expect(sent).toHaveLength(0);
   },
 };
 

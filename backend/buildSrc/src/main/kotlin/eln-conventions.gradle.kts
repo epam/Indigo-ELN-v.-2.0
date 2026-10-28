@@ -4,6 +4,7 @@ import org.gradle.testing.jacoco.tasks.JacocoReport
 plugins {
     java
     jacoco
+    id("io.github.dsdolzhenko.dotenv")
 }
 
 repositories {

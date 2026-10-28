@@ -10,6 +10,7 @@ import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.Reaction;
 import com.epam.indigoeln.reaction.model.ReactionAnchor;
+import com.epam.indigoeln.reaction.model.UnitSource;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerRegistry;
 import com.epam.indigoeln.reaction.service.mutation.MutationResult;
@@ -48,6 +49,7 @@ public class ExperimentModelService {
     @Valid
     public ExperimentModel createNewModel() {
         ExperimentModel model = new ExperimentModel();
+        model.setUnitSource(UnitSource.DEFAULT_UNITS);
         Reaction reaction = Reaction.create(model, ReactionAnchor.create());
         model.setReactions(List.of(reaction));
         return model;

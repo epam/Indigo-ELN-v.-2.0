@@ -5,7 +5,6 @@ import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.eln.common.util.SearchVector;
 import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.eln.indigowrapper.IndigoMolecule;
-import com.epam.indigoeln.eln.indigowrapper.IndigoRendererAPI;
 import com.epam.indigoeln.reaction.model.CompoundKey;
 import com.epam.indigoeln.sampleregistration.entity.SRSCompoundEntity;
 import com.epam.indigoeln.sampleregistration.entity.SRSSampleEntity;
@@ -47,8 +46,6 @@ public class SampleRegistrationService {
     SRSSampleRepository sampleRepository;
     @Inject
     IndigoAPI indigo;
-    @Inject
-    IndigoRendererAPI indigoRenderer;
 
     public SampleRegistrationResponse registerSample(SampleRegistrationRequest request) {
         IndigoMolecule molecule = indigo.loadMolecule(request.getMolfile());
@@ -119,10 +116,6 @@ public class SampleRegistrationService {
             compound.setMolWeight(molWeight != null ? molWeight : molecule.molecularWeight());
             compound.setExactMass(exactMass != null ? exactMass : molecule.monoisotopicMass());
             compound.setFormula(new MolFormula(molecule.molecularFormula()));
-
-            indigoRenderer.setRenderOptions("svg", 300, 200);
-            byte[] buf = indigoRenderer.renderToBuffer(molecule);
-            compound.setPicture(buf);
         }
         if (compound.getChemicalName() == null) {
             compound.setChemicalName(chemicalName);

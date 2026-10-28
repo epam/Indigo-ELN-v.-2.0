@@ -8,6 +8,8 @@ import type { Project, ProjectDetails, TotalCounts } from '@/lib/types/projects.
 import type {
   CompoundRef,
   EnteredValue,
+  EnteredValueSource,
+  ExperimentModel,
   Reaction,
   ReactionInput,
   ReactionInputSample,
@@ -293,9 +295,23 @@ export const DICTIONARY_ITEMS = makeDictionaryItems([
   'Fume hood',
 ]);
 
+/**
+ * The experiment-wide units the fixtures' values are written in — mg and mmol, the scale a
+ * bench reaction is weighed at, rather than the backend's g/mol defaults. Spread into every
+ * fixture model, so a value and the header above it agree.
+ */
+export const MODEL_UNITS = {
+  unitSource: {
+    weightUnit: 'MG',
+    volumeUnit: 'ML',
+    molUnit: 'MMOL',
+    molarityUnit: 'M',
+  },
+} as const satisfies Pick<ExperimentModel, 'unitSource'>;
+
 /** A short helper for the `EnteredValue`s below — every numeric cell in the model is one. */
-function entered<U extends string>(value: string, unit: U, source: EnteredValue<U>['source']): EnteredValue<U> {
-  return { value, unit, source };
+function entered(value: string, source: EnteredValueSource, revision?: number): EnteredValue {
+  return revision == null ? { value, source } : { value, source, revision };
 }
 
 /** An unidentified compound: only the codes, at their defaults, and a blank Mol. Weight. */
@@ -313,8 +329,8 @@ function knownCompound(overrides: Partial<CompoundRef> = {}): CompoundRef {
     stereoisomerCode: DEFAULT_STEREOISOMER_CODE,
     saltCode: DEFAULT_SALT_CODE,
     formula: 'C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>',
-    molWeight: entered('102.09', 'G_PER_MOL', 'fixed'),
-    exactMass: entered('102.0317', 'NO_UNIT', 'fixed'),
+    molWeight: entered('102.09', 'F'),
+    exactMass: entered('102.0317', 'F'),
     calculatedBatchMF: 'C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>',
     compoundKey: 'STR-00000000-89',
     casNumber: '108-24-7',
@@ -329,7 +345,7 @@ export function makeReactionInputSample(
   return {
     anchor,
     nbkBatchNumber: '20260101-0001-001',
-    purity: entered('100', 'NO_UNIT', 'default'),
+    purity: entered('100', 'D'),
     sampleSource: 'VIRTUAL',
     healthHazards: [],
     ...overrides,
@@ -346,7 +362,7 @@ export function makeReactionInput(anchor: string, overrides: Partial<ReactionInp
     anchor,
     role: 'REACTANT',
     compound: knownCompound(),
-    eq: entered('1', 'NO_UNIT', 'default'),
+    eq: entered('1', 'D'),
     samples: [makeReactionInputSample(`${anchor.slice(0, -1)}a`)],
     ...overrides,
   };
@@ -388,15 +404,15 @@ export const REACTION_INPUTS: ReactionInput[] = [
   makeReactionInput('inp00001', {
     limiting: true,
     chemicalName: 'Salicylic acid',
-    mol: entered('4.9', 'MMOL', 'calculated'),
+    mol: entered('4.9', 'C'),
     // The sum of its one batch's weight. No batch has a volume, so the row has none either.
-    weight: entered('676.5', 'MG', 'calculated'),
+    weight: entered('676.5', 'C'),
     samples: [
       makeReactionInputSample('ins0000a', {
         ...srsSample('STR-00000000-89-001'),
-        weight: entered('676.5', 'MG', 12),
-        mol: entered('4.9', 'MMOL', 'calculated'),
-        purity: entered('98.5', 'NO_UNIT', 12),
+        weight: entered('676.5', 'U', 12),
+        mol: entered('4.9', 'C'),
+        purity: entered('98.5', 'U', 12),
         healthHazards: HAZARDS.slice(0, 2),
       }),
     ],
@@ -416,23 +432,23 @@ export const REACTION_INPUTS: ReactionInput[] = [
       makeReactionInputSample('ins0000b', {
         ...srsSample('STR-00000000-90-002'),
         nbkBatchNumber: '20260101-0001-002',
-        volume: entered('4.5', 'ML', 8),
-        density: entered('1.08', 'G_ML', 'fixed'),
-        mol: entered('0.0049', 'MMOL', 'calculated'),
+        volume: entered('4.5', 'U', 8),
+        density: entered('1.08', 'F'),
+        mol: entered('0.0049', 'C'),
         comment: 'Dried over molecular sieves before use',
       }),
       makeReactionInputSample('ins0000c', {
         ...srsSample('STR-00000000-90-003'),
         nbkBatchNumber: '20260101-0001-003',
-        volume: entered('12', 'ML', 8),
-        mol: entered('0.013', 'MMOL', 'calculated'),
+        volume: entered('12', 'U', 8),
+        mol: entered('0.013', 'C'),
       }),
       makeReactionInputSample('ins0000d', {
         ...srsSample('STR-00000000-90-004'),
         nbkBatchNumber: '20260101-0001-004',
-        // Overwritten by the backend — the row that flashes red once a patch lands.
-        volume: { value: '0.75', unit: 'ML', source: 'calculated', overwritten: true },
-        molarity: entered('0.5', 'M', 3),
+        // Hand-entered — `recalculatingMutateHandlers` overwrites it, so it flashes red.
+        volume: entered('0.75', 'U', 3),
+        molarity: entered('0.5', 'U', 3),
       }),
       makeReactionInputSample('ins0000e', {
         ...srsSample('STR-00000000-90-006'),
@@ -449,20 +465,20 @@ export const REACTION_INPUTS: ReactionInput[] = [
     compound: {
       compoundID: 'c0000000-0000-4000-8000-000000000003',
       formula: 'C<sub>5</sub>H<sub>5</sub>N',
-      molWeight: entered('79.1', 'G_PER_MOL', 'fixed'),
-      exactMass: entered('79.0422', 'NO_UNIT', 'fixed'),
+      molWeight: entered('79.1', 'F'),
+      exactMass: entered('79.0422', 'F'),
       calculatedBatchMF: 'C<sub>5</sub>H<sub>5</sub>N',
       compoundKey: 'VIRT-000012',
       stereoisomerCode: DEFAULT_STEREOISOMER_CODE,
       saltCode: SALT_CODE,
       saltEQ: 1,
     },
-    eq: entered('2', 'NO_UNIT', 5),
-    weight: entered('790', 'MG', 'calculated'),
+    eq: entered('2', 'U', 5),
+    weight: entered('790', 'C'),
     samples: [
       makeReactionInputSample('ins0000f', {
         nbkBatchNumber: '20260101-0001-007',
-        weight: entered('790', 'MG', 5),
+        weight: entered('790', 'U', 5),
       }),
     ],
   }),
@@ -508,7 +524,7 @@ export function makeReactionOutputSample(
     anchor,
     nbkBatchNumber: '20260101-0001-001',
     // A new batch starts at 100 % purity, and virtual until registered — `AddProductSampleHandler`.
-    purity: entered('100', 'NO_UNIT', 'default'),
+    purity: entered('100', 'D'),
     sampleSource: 'VIRTUAL',
     healthHazards: [],
     handlingPrecautions: [],
@@ -542,9 +558,9 @@ export function makeReactionOutput(anchor: string, overrides: Partial<ReactionOu
     type: 'FINAL',
     intended: true,
     compound: knownCompound(),
-    eq: entered('1', 'NO_UNIT', 'default'),
-    theoMol: entered('4.9', 'MMOL', 'calculated'),
-    theoWeight: entered('500.4', 'MG', 'calculated'),
+    eq: entered('1', 'D'),
+    theoMol: entered('4.9', 'C'),
+    theoWeight: entered('500.4', 'C'),
     samples: [],
     ...overrides,
   };
@@ -559,20 +575,20 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
       compoundID: 'c0000000-0000-4000-8000-000000000010',
       compoundKey: 'STR-00000000-95',
       formula: 'C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>',
-      molWeight: entered('180.16', 'G_PER_MOL', 'fixed'),
-      exactMass: entered('180.0423', 'NO_UNIT', 'fixed'),
+      molWeight: entered('180.16', 'F'),
+      exactMass: entered('180.0423', 'F'),
       calculatedBatchMF: 'C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>',
     }),
-    eq: entered('1', 'NO_UNIT', 7),
+    eq: entered('1', 'U', 7),
     samples: [
       // The batch every detail-panel story reads: one value in each field the panel shows,
       // including all five of the composites it can render but not yet edit.
       makeReactionOutputSample('ous00001', {
-        actualWeight: entered('246', 'MG', 12),
-        actualMol: entered('1.35', 'MMOL', 'calculated'),
-        molarity: entered('0.04', 'M', 12),
-        yield: entered('27.5', 'NO_UNIT', 'calculated'),
-        purity: entered('98.5', 'NO_UNIT', 12),
+        actualWeight: entered('246', 'U', 12),
+        actualMol: entered('1.35', 'C'),
+        molarity: entered('0.04', 'U', 12),
+        yield: entered('27.5', 'C'),
+        purity: entered('98.5', 'U', 12),
         source: SOURCE,
         sourceDetails: SOURCE_DETAILS,
         componentState: COMPONENT_STATE,
@@ -605,22 +621,22 @@ export const REACTION_OUTPUTS: ReactionOutput[] = [
     compound: {
       compoundID: 'c0000000-0000-4000-8000-000000000011',
       formula: 'C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>',
-      molWeight: entered('60.052', 'G_PER_MOL', 'fixed'),
-      exactMass: entered('60.0211', 'NO_UNIT', 'fixed'),
+      molWeight: entered('60.052', 'F'),
+      exactMass: entered('60.0211', 'F'),
       calculatedBatchMF: 'C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>',
       compoundKey: 'VIRT-000031',
       stereoisomerCode: DEFAULT_STEREOISOMER_CODE,
       saltCode: SALT_CODE,
       saltEQ: 1,
     },
-    theoWeight: entered('294.3', 'MG', 'calculated'),
+    theoWeight: entered('294.3', 'C'),
     samples: [
       makeReactionOutputSample('ous00003', {
         nbkBatchNumber: '20260101-0001-003',
         registrationStatus: 'REGISTERED',
         sampleSource: 'SRS',
         sampleKey: 'STR-00000031-01-001',
-        actualWeight: entered('88', 'MG', 9),
+        actualWeight: entered('88', 'U', 9),
       }),
     ],
   }),
@@ -700,7 +716,7 @@ export function makeExperimentDetails(overrides: Partial<ExperimentDetails> = {}
     acl: EXPERIMENT_ACL,
     currentPermissions: ['VIEW_EXPERIMENTS', 'EDIT_EXPERIMENTS', 'MANAGE_EXPERIMENT_ACCESS'],
     // `ExperimentModel.reactions` is @NotEmpty on the backend, and the screen relies on it.
-    model: { reactions: [makeReaction()], significantFigures: 5 },
+    model: { ...MODEL_UNITS, reactions: [makeReaction()], significantFigures: 5 },
     projectId: '11111111-1111-1111-1111-111111111111',
     projectName: 'Kinase Inhibitor Screening',
     notebookId: '77777777-7777-7777-7777-777777777777',
@@ -1039,9 +1055,8 @@ export const REVISION_DIFF_HTML =
   "<td colspan='1' rowspan='1'><span class='key'>input 1:</span></td>" +
   "<td colspan='1' rowspan='1'><span class='key'>theoWeight:</span></td>" +
   "<td colspan='1' rowspan='1'>" +
-  "<span class='old ev-default'>1.20 g</span>&ensp;<span class='comment'>[default]</span> \u2192 " +
-  "<span class='new ev-user-entered'>1.35 g&ensp;(exact value 1.3492)</span>&ensp;" +
-  "<span class='comment'>[user-entered]</span> <span class='warning'>[overwritten]</span>" +
+  "<span class='old ev-default'>1.20</span>&ensp;<span class='comment'>[default]</span> \u2192 " +
+  "<span class='new ev-user-entered'>1.35</span>&ensp;<span class='comment'>[user-entered]</span>" +
   '</td></tr>\n' +
   "<tr><td colspan='2' rowspan='1'><span class='key'>rxnfile:</span></td>" +
   "<td colspan='2' rowspan='1'><span class='old'>null</span> \u2192 <span class='new'>" +

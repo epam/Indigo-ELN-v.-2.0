@@ -2,6 +2,7 @@ import { Briefcase } from 'lucide-react';
 import { useState } from 'react';
 
 import { LabelledColumn as Column } from '@/components/common/labelled-column';
+import { FormDialog } from '@/components/common/form-dialog';
 import { ApproveDialog } from '@/components/signatures/approve-dialog';
 import { Button } from '@/components/ui/button';
 
@@ -72,6 +73,7 @@ export function SignatureRow({ item: document }: { item: SignatureDocument }) {
 function SignatureLine({ documentId, signature }: { documentId: string; signature: DocumentSignature }) {
   const decide = useSignatureDecision(documentId);
   const [approving, setApproving] = useState(false);
+  const [rejecting, setRejecting] = useState(false);
 
   return (
     <div className="flex items-center gap-2">
@@ -94,7 +96,7 @@ function SignatureLine({ documentId, signature }: { documentId: string; signatur
             size="sm"
             disabled={decide.isPending}
             loading={decide.isPending && decide.variables.decision === 'reject'}
-            onClick={() => decide.mutate({ decision: 'reject' })}
+            onClick={() => setRejecting(true)}
           >
             Reject
           </Button>
@@ -106,6 +108,21 @@ function SignatureLine({ documentId, signature }: { documentId: string; signatur
               setApproving(false);
             }}
           />
+          <FormDialog
+            open={rejecting}
+            onOpenChange={setRejecting}
+            title="Reject Document"
+            submitLabel="Reject"
+            submitVariant="destructive"
+            onSubmit={async () => {
+              await decide.mutateAsync({ decision: 'reject' });
+              setRejecting(false);
+            }}
+          >
+            <p className="text-[14px]/6 text-neutral-800">
+              Are you sure you want to reject this document? The experiment goes back to its author as rejected.
+            </p>
+          </FormDialog>
         </span>
       ) : (
         <span className={cn('shrink-0', SIGNATURE_STATUS_COLOR[signature.status])}>

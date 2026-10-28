@@ -43,8 +43,8 @@ class SetOutputActualMolHandler extends AbstractReactionOutputSampleMutationHand
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualMol mutation, ExperimentMutationContext context) {
-        setEnteredValue(sample.getActualMol(), sample::setActualMol, mutation.actualMol(), mutation.unit(), experiment.getRevision());
-        return formatSetterSummary("batch actual mol", mutation.actualMol(), mutation.unit());
+        setEnteredValue(sample.getActualMol(), sample::setActualMol, mutation.actualMol(), model.getUnitSource().getMolUnit(), experiment.getRevision());
+        return formatSetterSummary("batch actual mol", mutation.actualMol(), model.getUnitSource().getMolUnit());
     }
 }
 
@@ -54,8 +54,8 @@ class SetOutputActualWeightHandler extends AbstractReactionOutputSampleMutationH
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionOutput row, ReactionOutputSample sample, ReactionOutputSampleMutation.SetOutputActualWeight mutation, ExperimentMutationContext context) {
-        setEnteredValue(sample.getActualWeight(), sample::setActualWeight, mutation.actualWeight(), mutation.unit(), experiment.getRevision());
-        return formatSetterSummary("batch actual weight", mutation.actualWeight(), mutation.unit());
+        setEnteredValue(sample.getActualWeight(), sample::setActualWeight, mutation.actualWeight(), model.getUnitSource().getWeightUnit(), experiment.getRevision());
+        return formatSetterSummary("batch actual weight", mutation.actualWeight(), model.getUnitSource().getWeightUnit());
     }
 }
 
@@ -83,17 +83,13 @@ class RegisterSampleHandler extends AbstractReactionOutputSampleMutationHandler<
         SaltCodeRef saltCode = dictionaryService.get(compound.getSaltCode());
         SampleRegistrationRequest.SampleRegistrationRequestBuilder request = ModelUtil.buildSampleRegistrationRequest(compound, saltCode)
                 .nbkBatchNumber(sampleRow.getNbkBatchNumber())
-                .purity(sampleRow.getPurity().isEmpty() ? null : sampleRow.getPurity().toBigDecimal())
+                .purity(sampleRow.getPurity().toBigDecimalOrNull())
                 .compoundState(sampleRow.getComponentState() != null ? sampleRow.getComponentState().getId() : null)
                 .healthHazards(StreamEx.of(sampleRow.getHealthHazards()).map(HealthHazardRef::getId).toSet())
-                .batchComment(sampleRow.getBatchComment());
-        if (!sampleRow.getDensity().isEmpty()) {
-            request.density(sampleRow.getDensity().toBigDecimal());
-        }
-        if (!sampleRow.getMolarity().isEmpty()) {
-            request.molarity(sampleRow.getMolarity().toBigDecimal());
-            request.molarityUnit(sampleRow.getMolarity().getUnit());
-        }
+                .batchComment(sampleRow.getBatchComment())
+                .density(sampleRow.getDensity().toBigDecimalOrNull())
+                .molarity(sampleRow.getMolarity().toBigDecimalOrNull())
+                .molarityUnit(sampleRow.getMolarity().hasValue() ? experiment.getModel().getUnitSource().getMolarityUnit() : null);
         SampleRegistrationResponse response = sampleRegistrationClient.registerSample(request.build());
 
         if (compound.getSource() == SampleSource.VIRTUAL) {

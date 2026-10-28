@@ -1,14 +1,21 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
-import com.epam.indigoeln.common.model.units.DensityUnit;
-import com.epam.indigoeln.common.model.units.MolUnit;
-import com.epam.indigoeln.common.model.units.MolarityUnit;
-import com.epam.indigoeln.common.model.units.VolumeUnit;
-import com.epam.indigoeln.common.model.units.WeightUnit;
-import com.epam.indigoeln.eln.model.*;
+import com.epam.indigoeln.eln.model.ComponentStateRef;
+import com.epam.indigoeln.eln.model.CompoundProtectionRef;
+import com.epam.indigoeln.eln.model.HandlingPrecautionsRef;
+import com.epam.indigoeln.eln.model.HealthHazardRef;
+import com.epam.indigoeln.eln.model.SaltCodeRef;
+import com.epam.indigoeln.eln.model.SampleSourceDetailsRef;
+import com.epam.indigoeln.eln.model.SampleSourceRef;
+import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
+import com.epam.indigoeln.eln.model.StorageInstructionsRef;
 import com.epam.indigoeln.reaction.model.OutputAnchor;
 import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
-import com.epam.indigoeln.reaction.model.outputsample.*;
+import com.epam.indigoeln.reaction.model.outputsample.ExternalSupplier;
+import com.epam.indigoeln.reaction.model.outputsample.MeltingPoint;
+import com.epam.indigoeln.reaction.model.outputsample.PurityCalculation;
+import com.epam.indigoeln.reaction.model.outputsample.ResidualSolvent;
+import com.epam.indigoeln.reaction.model.outputsample.SolubidityInSolvent;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
@@ -27,22 +34,19 @@ public interface ReactionOutputSampleMutation extends ExperimentMutation {
 
     record SetOutputDensity (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable String density,
-            @Nullable DensityUnit unit
+            @Nullable String density
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputMolarity (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable String molarity,
-            @Nullable MolarityUnit unit
+            @Nullable String molarity
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputVolume (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable String volume,
-            @Nullable VolumeUnit unit
+            @Nullable String volume
     ) implements ReactionOutputSampleMutation {
     }
 
@@ -60,15 +64,13 @@ public interface ReactionOutputSampleMutation extends ExperimentMutation {
 
     record SetOutputActualMol (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable String actualMol,
-            @Nullable MolUnit unit
+            @Nullable String actualMol
     ) implements ReactionOutputSampleMutation {
     }
 
     record SetOutputActualWeight (
             @NotNull OutputSampleAnchor anchor,
-            @Nullable String actualWeight,
-            @Nullable WeightUnit unit
+            @Nullable String actualWeight
     ) implements ReactionOutputSampleMutation {
     }
 

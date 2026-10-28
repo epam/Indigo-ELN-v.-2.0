@@ -88,6 +88,10 @@ const BACKEND_MUTATION_TYPES = [
 
   'CreateExperiment',
   'SetExperimentSignificantFigures',
+  'SetExperimentWeightUnit',
+  'SetExperimentVolumeUnit',
+  'SetExperimentMolUnit',
+  'SetExperimentMolarityUnit',
   'EditExperimentAttributes',
   'EditExperimentAccess',
   'SetBatchCreator',
@@ -147,9 +151,9 @@ describe('the mutation mirror', () => {
    *   backend/eln/eln-api/src/main/java/com/epam/indigoeln/reaction/model/mutation/Mutation.java
    * ```
    */
-  it("lists each of the backend's 94 members exactly once", () => {
-    expect(BACKEND_MUTATION_TYPES).toHaveLength(94);
-    expect(new Set(BACKEND_MUTATION_TYPES).size).toBe(94);
+  it("lists each of the backend's 98 members exactly once", () => {
+    expect(BACKEND_MUTATION_TYPES).toHaveLength(98);
+    expect(new Set(BACKEND_MUTATION_TYPES).size).toBe(98);
   });
 
   /**

@@ -38,6 +38,7 @@ function ProjectInfoTab() {
         canManage={project.currentPermissions.includes('MANAGE_PROJECT_ACCESS')}
         addMembers={addMembers}
         changeLevel={changeLevel}
+        nestedRemovalLabel="Also remove this member from all Notebooks and Experiments in this Project."
       />
     </div>
   );

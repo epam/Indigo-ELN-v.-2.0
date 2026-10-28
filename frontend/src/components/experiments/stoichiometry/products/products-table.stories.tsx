@@ -4,7 +4,7 @@ import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 import { ReactionProductsTable } from '@/components/experiments/stoichiometry/products/products-table';
 import { useExperiment } from '@/lib/api/experiments';
 import { clearColumnChoices } from '@/mocks/column-choices';
-import { makeExperimentDetails, makeReaction, makeReactionOutput } from '@/mocks/fixtures';
+import { makeExperimentDetails, makeReaction, makeReactionOutput, MODEL_UNITS } from '@/mocks/fixtures';
 import { failingMutateHandlers, handlers, slowMutateHandlers } from '@/mocks/handlers';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -28,6 +28,7 @@ const spyHandlers = [
  */
 const TWO_STEPS = makeExperimentDetails({
   model: {
+    ...MODEL_UNITS,
     significantFigures: 5,
     reactions: [
       makeReaction(),
@@ -66,7 +67,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole('columnheader', { name: 'Theo. Weight' })).toBeInTheDocument();
+    await expect(canvas.getByRole('columnheader', { name: 'Theo. Weight, mg' })).toBeInTheDocument();
     await expect(canvas.getByRole('textbox', { name: 'Output Name, P0' })).toHaveValue('P0');
     await expect(canvas.getAllByRole('row')).toHaveLength(4); // header + three products
     await expect(canvas.queryByDisplayValue('P3')).not.toBeInTheDocument();
@@ -232,7 +233,7 @@ export const ShowAllSteps: Story = {
 export const Empty: Story = {
   args: {
     experiment: makeExperimentDetails({
-      model: { significantFigures: 5, reactions: [makeReaction({ outputs: [] })] },
+      model: { ...MODEL_UNITS, significantFigures: 5, reactions: [makeReaction({ outputs: [] })] },
     }),
   },
   play: async ({ canvasElement }) => {

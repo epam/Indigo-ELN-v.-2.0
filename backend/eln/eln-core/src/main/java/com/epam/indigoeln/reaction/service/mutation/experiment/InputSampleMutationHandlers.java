@@ -15,8 +15,8 @@ class SetInputMolHandler extends AbstractReactionInputSampleMutationHandler<Reac
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputMol mutation, ExperimentMutationContext context) {
-        setEnteredValue(sample.getMol(), sample::setMol, mutation.mol(), mutation.unit(), experiment.getRevision());
-        return formatSetterSummary("input sample mol", mutation.mol(), mutation.unit());
+        setEnteredValue(sample.getMol(), sample::setMol, mutation.mol(), model.getUnitSource().getMolUnit(), experiment.getRevision());
+        return formatSetterSummary("input sample mol", mutation.mol(), model.getUnitSource().getMolUnit());
     }
 }
 
@@ -26,8 +26,8 @@ class SetInputWeightHandler extends AbstractReactionInputSampleMutationHandler<R
 
     @Override
     public String handle(ExperimentEntity experiment, ExperimentModel model, Reaction reaction, ReactionInput row, ReactionInputSample sample, ReactionInputSampleMutation.SetInputWeight mutation, ExperimentMutationContext context) {
-        setEnteredValue(sample.getWeight(), sample::setWeight, mutation.weight(), mutation.unit(), experiment.getRevision());
-        return formatSetterSummary("input sample weight", mutation.weight(), mutation.unit());
+        setEnteredValue(sample.getWeight(), sample::setWeight, mutation.weight(), model.getUnitSource().getWeightUnit(), experiment.getRevision());
+        return formatSetterSummary("input sample weight", mutation.weight(), model.getUnitSource().getWeightUnit());
     }
 }
 

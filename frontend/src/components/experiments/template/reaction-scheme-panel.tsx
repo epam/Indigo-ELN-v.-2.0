@@ -8,9 +8,8 @@ import { NOT_A_REACTION } from '@/lib/reactions';
 import { notifyError } from '@/lib/toast';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
 
-import type { UUID } from '@/lib/types/common.ts';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
-import type { Reaction } from '@/lib/types/reactions.ts';
+import type { Anchor, Reaction } from '@/lib/types/reactions.ts';
 
 /**
  * One reaction step's drawn scheme, over the reaction's own rxnfile.
@@ -49,7 +48,7 @@ export function ReactionSchemePanel({
    * time this is set the patch has already been applied, so the `reaction` prop the dialog is
    * handed is the one that actually contains the new input rows.
    */
-  const [unresolvedInputs, setUnresolvedInputs] = useState<Record<UUID, string> | null>(null);
+  const [unresolvedInputs, setUnresolvedInputs] = useState<Record<Anchor, string> | null>(null);
 
   return (
     // The dialog covers the frame during a save, but a mutation queued behind another write

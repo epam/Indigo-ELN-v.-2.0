@@ -1,8 +1,6 @@
 package com.epam.indigoeln.reaction.service.calculator;
 
 import com.epam.indigoeln.common.model.units.DensityUnit;
-import com.epam.indigoeln.reaction.model.EnteredValue;
-import com.epam.indigoeln.common.model.units.EnteredValueSource;
 import com.epam.indigoeln.common.model.units.MeasurementUnit;
 import com.epam.indigoeln.common.model.units.MolUnit;
 import com.epam.indigoeln.common.model.units.MolWeightUnit;
@@ -10,13 +8,20 @@ import com.epam.indigoeln.common.model.units.MolarityUnit;
 import com.epam.indigoeln.common.model.units.NoUnit;
 import com.epam.indigoeln.common.model.units.VolumeUnit;
 import com.epam.indigoeln.common.model.units.WeightUnit;
-import com.epam.indigoeln.common.util.Pair;
 import com.epam.indigoeln.reaction.metamodel.ReactionInputMetamodel;
 import com.epam.indigoeln.reaction.metamodel.ReactionInputSampleMetamodel;
 import com.epam.indigoeln.reaction.metamodel.ReactionOutputMetamodel;
 import com.epam.indigoeln.reaction.metamodel.ReactionOutputSampleMetamodel;
 import com.epam.indigoeln.reaction.metamodel.property.ModelProperty;
-import com.epam.indigoeln.reaction.model.*;
+import com.epam.indigoeln.reaction.model.EnteredValue;
+import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.model.ExperimentNode;
+import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionInputSample;
+import com.epam.indigoeln.reaction.model.ReactionOutput;
+import com.epam.indigoeln.reaction.model.ReactionOutputSample;
+import com.epam.indigoeln.reaction.util.CalculationContext;
 import jakarta.enterprise.context.Dependent;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +29,20 @@ import lombok.extern.slf4j.Slf4j;
 import one.util.streamex.StreamEx;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
-import java.util.function.Supplier;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.List;
 
+import static com.epam.indigoeln.common.model.units.DensityUnit.G_ML;
+import static com.epam.indigoeln.common.model.units.MolUnit.MOL;
+import static com.epam.indigoeln.common.model.units.NoUnit.NO_UNIT;
+import static com.epam.indigoeln.common.model.units.VolumeUnit.ML;
+import static com.epam.indigoeln.common.model.units.WeightUnit.G;
 import static com.epam.indigoeln.reaction.model.EnteredValue.DEFAULT_ONE;
-import static com.epam.indigoeln.reaction.service.calculator.EnteredValueOpt.*;
+import static com.epam.indigoeln.reaction.service.calculator.Calculation.readOnly;
+import static com.epam.indigoeln.reaction.service.calculator.Calculation.sum;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
@@ -89,13 +103,12 @@ import static com.google.common.base.Preconditions.checkState;
 @Dependent
 public class ReactionCalculator {
 
-    private static final Comparator<Pair<Property<?, ?>, EnteredValue<?>>> SEED_COMPARATOR = ((Comparator<Pair<Property<?,?>, EnteredValue<?>>>) ReactionCalculator::compareProperties).reversed();
+    private static final Comparator<Seed> SEED_COMPARATOR = ((Comparator<Seed>) ReactionCalculator::compareProperties).reversed();
 
     private int nodeOrdinal = 0;
-    private final List<Property<?, ?>> properties = new ArrayList<>();
+    private final List<CalculableProperty<?, ?>> properties = new ArrayList<>();
     private final List<Formula<?>> formulas = new ArrayList<>();
-    private final List<Pair<Property<?, ?>, EnteredValue<?>>> seeds = new ArrayList<>();
-    private final List<Property<?, ?>> overwritten = new ArrayList<>();
+    private final List<Seed> seeds = new ArrayList<>();
     @Getter
     private final List<String> debugMessages = new ArrayList<>();
 
@@ -104,18 +117,15 @@ public class ReactionCalculator {
         new ModelProps(experimentModel);
 
         // collect seeds
-        // TODO use sample density/molarity/purity as defaults, for samples from DB
-        Property<?, ?> clearedProperty = null;
-        for (Property<?, ?> property : properties) {
-            EnteredValue<?> value = property.getValue();
-            if (value.getSource().isUserEntered()) {
-                if (value.isEmpty()) {
-                    clearedProperty = property;
-                    property.setValue(EnteredValue.empty(), null);
-                } else {
-                    seeds.add(Pair.of(property, value));
-                }
-            } else if (value.getSource().isCalculated()) {
+        CalculableProperty<?, ?> clearedProperty = null;
+        for (CalculableProperty<?, ?> property : properties) {
+            EnteredValue<?> value = property.get();
+            if (value.isUserEntered()) {
+                seeds.add(new Seed(property, value));
+            } else if (value.isUserCleared()) {
+                clearedProperty = property;
+                property.setValue(EnteredValue.empty(), null);
+            } else if (value.isCalculated()) {
                 property.setValue(EnteredValue.empty(), null);
             }
         }
@@ -125,31 +135,30 @@ public class ReactionCalculator {
             log.debug("seeds:\n\t{}", StreamEx.of(seeds).joining("\n\t"));
         }
 
-        for (Pair<Property<?, ?>, EnteredValue<?>> seed : seeds) {
-            if (!seed.a().getValue().getSource().isFixed()) {
-                seed.a().setValue(EnteredValue.empty(), null);
+        for (Seed seed : seeds) {
+            if (!seed.property.get().isFixed()) {
+                seed.property.setValue(EnteredValue.empty(), null);
             }
         }
 
-        for (Pair<Property<?, ?>, EnteredValue<?>> pair : seeds) {
+        for (Seed pair : seeds) {
             snapshot();
             try {
-                Property<?, ?> seed = pair.a();
-                // set selected value
-                EnteredValue<?> existingValue = seed.getValue();
-                EnteredValue<?> seedValue = pair.b();
+                CalculableProperty<?, ?> seed = pair.property;
+                EnteredValue<?> seedValue = pair.value;
                 log.debug("apply seed: {} = {}", seed.getName(), seedValue);
-                if (!existingValue.isEmpty()) {
-                    if (seedValue.getSource().isDefault()) {
-                        log.debug("value already set to {}, ignoring default", existingValue);
+                if (seed.get().hasValue()) {
+                    if (seedValue.isDefault()) {
+                        log.debug("value already set to {}, ignoring default", seed);
                         continue;
                     }
-                    if (!existingValue.valueEquals(seedValue)) {
-                        String message = "%s: seed value conflict:\n\tcurrent : %s (exact value %s)\n\tprevious: %s (exact value %s) from %s".formatted(seed.getName(), seedValue, seedValue.toExactBigDecimal(), existingValue, existingValue.toExactBigDecimal(), seed.getCalculatedFrom());
+                    if (!seed.get().valueEquals(seedValue)) {
+                        String message = "%s: seed value conflict:\n\tcurrent : %s (base value %s)\n\tprevious: %s (base value %s) from %s".formatted(seed.getName(), seedValue, seedValue.getBaseValue(), seed, seed.get().getBaseValue(), seed.getCalculatedFrom());
                         throw reportConflict(message);
                     }
                 }
-                seed.setValueUnchecked(seedValue);
+                //noinspection unchecked,rawtypes
+                seed.setValue((EnteredValue) seedValue, null);
                 Deque<Formula<?>> queue = new ArrayDeque<>(seed.getDownstream());
                 // walk the graph
                 while (!queue.isEmpty()) {
@@ -158,47 +167,38 @@ public class ReactionCalculator {
                         queue.addAll(formula.target.getDownstream());
                     }
                 }
-                if (clearedProperty != null && !clearedProperty.getValue().isEmpty()) {
+                if (clearedProperty != null && clearedProperty.get().hasValue()) {
                     throw new RecalculationConflictException("to satisfy cleared property " + clearedProperty);
                 }
             } catch (RecalculationConflictException e) {
-                log.debug("overwritten: {}: {}", pair.a(), e.reason);
-                overwritten.add(pair.a());
+                log.debug("overwritten: {}: {}", pair.property, e.reason);
                 revert();
                 // proceed with the next seed
             }
         }
         log.debug("recalculation done");
-        if (!overwritten.isEmpty()) {
-            log.debug("overwritten: {}", overwritten);
-            for (Property<?, ?> property : overwritten) {
-                EnteredValue<?> value = property.getValue();
-                value = value.withOverwritten(true);
-                property.setValueUnchecked(value);
-            }
-        }
     }
 
-    private <C extends ExperimentNode, U extends MeasurementUnit> EnteredValueOpt.Property<C, U> prop(C container, ModelProperty<C, EnteredValue<U>> property) {
-        Property<C, U> node = new Property<>(container, property, ++nodeOrdinal);
+    private <C extends ExperimentNode, U extends MeasurementUnit> CalculableProperty<C, U> prop(C container, ModelProperty<C, EnteredValue<U>> property, U unit) {
+        CalculableProperty<C, U> node = new CalculableProperty<>(container, property, unit, ++nodeOrdinal);
         properties.add(node);
         return node;
     }
 
-    private <C extends ExperimentNode, U extends MeasurementUnit> EnteredValueOpt.Property<C, U> prop(C container, ModelProperty<C, EnteredValue<U>> property, EnteredValue<U> defaultValue) {
-        Property<C, U> node = prop(container, property);
-        seeds.add(Pair.of(node, defaultValue));
+    private <C extends ExperimentNode, U extends MeasurementUnit> CalculableProperty<C, U> prop(C container, ModelProperty<C, EnteredValue<U>> property, U unit, EnteredValue<U> defaultValue) {
+        CalculableProperty<C, U> node = prop(container, property, unit);
+        seeds.add(new Seed(node, defaultValue));
         return node;
     }
 
-    private <U extends MeasurementUnit> Formula<U> formula(String name, Property<?, U> target, Supplier<EnteredValueOpt<U>> supplier, Property<?, ?>... sources) {
+    private <U extends MeasurementUnit> Formula<U> formula(String name, CalculableProperty<?, U> target, Calculation<U> supplier, CalculableProperty<?, ?>... sources) {
         Formula<U> formula = new Formula<>(name, target, supplier, sources);
         formulas.add(formula);
         return formula;
     }
 
     private void snapshot() {
-        for (Property<?, ?> property : properties) {
+        for (CalculableProperty<?, ?> property : properties) {
             property.snapshot();
         }
         for (Formula<?> formula : formulas) {
@@ -207,7 +207,7 @@ public class ReactionCalculator {
     }
 
     private void revert() {
-        for (Property<?, ?> property : properties) {
+        for (CalculableProperty<?, ?> property : properties) {
             property.revert();
         }
         for (Formula<?> formula : formulas) {
@@ -216,25 +216,24 @@ public class ReactionCalculator {
     }
 
     private <U extends MeasurementUnit> boolean recalculateFormula(Formula<U> formula) {
-        if (!formula.value.isEmpty()) {
+        if (formula.value.hasValue()) { // already calculated
             return false;
         }
-        EnteredValue<U> calculated = formula.supplier.get().getValue();
-        if (calculated.isEmpty()) {
+        EnteredValue<U> calculated = formula.supplier.get();
+        if (!calculated.hasValue()) {
             return false;
         }
-        Property<?, U> target = formula.target;
-        EnteredValue<U> stored = target.getValue();
-        if (stored.isEmpty()) {
-            log.debug("calculated {} as {} (exact value {}) from formula {}", target.getName(), calculated, calculated.toExactBigDecimal(), formula);
+        CalculableProperty<?, U> target = formula.target;
+        if (!target.get().hasValue()) {
+            log.debug("calculated {} as {} from formula {}", target.getName(), calculated, formula);
             formula.value = calculated;
             target.setValue(calculated, formula);
             return true;
         }
-        if (stored.valueEquals(calculated)) {
+        if (target.get().valueEquals(calculated)) {
             return false;
         }
-        String message = "%s: calculated value conflict:\n\tcurrent : %s (exact value %s) from %s\n\tprevious: %s (exact value %s) from %s".formatted(target.getName(), calculated, calculated.toExactBigDecimal(), formula, stored, stored.toExactBigDecimal(), target.getCalculatedFrom());
+        String message = "%s: calculated value conflict:\n\tcurrent : %s (base value %s) from %s\n\tprevious: %s (base value %s) from %s".formatted(target.getName(), calculated, calculated.getBaseValue(), formula, target, target.get().getBaseValue(), target.getCalculatedFrom());
         throw reportConflict(message);
     }
 
@@ -302,19 +301,19 @@ public class ReactionCalculator {
     class InputProps extends AbstractProps<ReactionInput> {
 
         final ReactionProps reaction;
-        final Property<ReactionInput, MolUnit> mol;
-        final Property<ReactionInput, NoUnit> eq;
-        final Property<ReactionInput, WeightUnit> weight;
-        final Property<ReactionInput, VolumeUnit> volume;
+        final CalculableProperty<ReactionInput, MolUnit> mol;
+        final CalculableProperty<ReactionInput, NoUnit> eq;
+        final CalculableProperty<ReactionInput, WeightUnit> weight;
+        final CalculableProperty<ReactionInput, VolumeUnit> volume;
         final List<InputSampleProps> samples;
 
         private InputProps(ReactionProps reaction, ReactionInput input) {
             super(input);
             this.reaction = reaction;
-            mol = prop(input, ReactionInputMetamodel.MOL);
-            eq = prop(input, ReactionInputMetamodel.EQ, DEFAULT_ONE);
-            weight = prop(input, ReactionInputMetamodel.WEIGHT);
-            volume = prop(input, ReactionInputMetamodel.VOLUME);
+            mol = prop(input, ReactionInputMetamodel.MOL, CalculationContext.getMolUnit());
+            eq = prop(input, ReactionInputMetamodel.EQ, NO_UNIT, DEFAULT_ONE);
+            weight = prop(input, ReactionInputMetamodel.WEIGHT, CalculationContext.getWeightUnit());
+            volume = prop(input, ReactionInputMetamodel.VOLUME, CalculationContext.getVolumeUnit());
             samples = StreamEx.of(input.getSamples())
                     .map(x -> new InputSampleProps(this, x))
                     .toList();
@@ -322,13 +321,13 @@ public class ReactionCalculator {
 
         private void init() {
             checkState(reaction.limiting != null);
-            List<Property<ReactionInputSample, MolUnit>> sampleMols = StreamEx.of(samples)
+            List<CalculableProperty<ReactionInputSample, MolUnit>> sampleMols = StreamEx.of(samples)
                     .map(s -> s.mol)
                     .toList();
-            List<Property<ReactionInputSample, WeightUnit>> sampleWeights = StreamEx.of(samples)
+            List<CalculableProperty<ReactionInputSample, WeightUnit>> sampleWeights = StreamEx.of(samples)
                     .map(s -> s.weight)
                     .toList();
-            List<Property<ReactionInputSample, VolumeUnit>> sampleVolumes = StreamEx.of(samples)
+            List<CalculableProperty<ReactionInputSample, VolumeUnit>> sampleVolumes = StreamEx.of(samples)
                     .map(s -> s.volume)
                     .toList();
             InputProps limiting = reaction.limiting;
@@ -336,33 +335,33 @@ public class ReactionCalculator {
             formula(
                     "F1.1: mol = sum sampleN.mol",
                     mol,
-                    () -> sum(ZERO_MOL, sampleMols)
+                    sum(sampleMols, MOL)
             ).addSources(sampleMols);
 
             formula(
-                    "F10.1: input.weight = ∑ sampleN.weight",
+                    "F10.1: input.weight = sum(sampleN.weight)",
                     weight,
-                    () -> sum(ZERO_WEIGHT, sampleWeights)
+                    sum(sampleWeights, G)
             ).addSources(sampleWeights);
 
             formula(
-                    "F11.1: input.volume = ∑ sampleN.volume",
+                    "F11.1: input.volume = sum(sampleN.volume)",
                     volume,
-                    () -> sum(ZERO_VOLUME, sampleVolumes)
+                    sum(sampleVolumes, ML)
             ).addSources(sampleVolumes);
 
             if (this != limiting) {
                 formula(
                         "F2.1: nonLimiting.mol = limiting.mol / limiting.eq * input.eq",
                         mol,
-                        () -> limiting.mol.divide(limiting.eq).multiply(eq),
+                        limiting.mol.divide(limiting.eq).multiply(eq),
                         limiting.mol, limiting.eq, eq
                 );
 
                 formula(
                         "F2.2: nonLimiting.eq = input.mol / limiting.mol * limiting.eq",
                         eq,
-                        () -> mol.divide(limiting.mol).multiply(limiting.eq),
+                        mol.divide(limiting.mol).multiply(limiting.eq),
                         mol, limiting.mol, limiting.eq
                 );
             }
@@ -372,82 +371,80 @@ public class ReactionCalculator {
     class InputSampleProps extends AbstractProps<ReactionInputSample> {
 
         final InputProps input;
-        final Property<ReactionInputSample, MolUnit> mol;
-        final Property<ReactionInputSample, WeightUnit> weight;
-        final Property<ReactionInputSample, NoUnit> purity;
-        final Property<ReactionInputSample, MolarityUnit> molarity;
-        final Property<ReactionInputSample, VolumeUnit> volume;
-        final Property<ReactionInputSample, DensityUnit> density;
-
-        EnteredValueOpt<NoUnit> purityAsFraction() {
-            return purity.multiply(ONE_HUNDREDTH);
-        }
+        final CalculableProperty<ReactionInputSample, MolUnit> mol;
+        final CalculableProperty<ReactionInputSample, WeightUnit> weight;
+        final CalculableProperty<ReactionInputSample, NoUnit> purity;
+        final CalculableProperty<ReactionInputSample, MolarityUnit> molarity;
+        final CalculableProperty<ReactionInputSample, VolumeUnit> volume;
+        final CalculableProperty<ReactionInputSample, DensityUnit> density;
+        final Calculation<NoUnit> purityAsFraction;
 
         private InputSampleProps(InputProps input, ReactionInputSample sample) {
             super(sample);
             this.input = input;
-            mol = prop(sample, ReactionInputSampleMetamodel.MOL);
-            weight = prop(sample, ReactionInputSampleMetamodel.WEIGHT);
-            purity = prop(sample, ReactionInputSampleMetamodel.PURITY, EnteredValue.DEFAULT_ONE_HUNDRED);
-            molarity = prop(sample, ReactionInputSampleMetamodel.MOLARITY);
-            volume = prop(sample, ReactionInputSampleMetamodel.VOLUME);
-            density = prop(sample, ReactionInputSampleMetamodel.DENSITY);
+            mol = prop(sample, ReactionInputSampleMetamodel.MOL, CalculationContext.getMolUnit());
+            weight = prop(sample, ReactionInputSampleMetamodel.WEIGHT, CalculationContext.getWeightUnit());
+            purity = prop(sample, ReactionInputSampleMetamodel.PURITY, NO_UNIT, EnteredValue.DEFAULT_ONE_HUNDRED);
+            molarity = prop(sample, ReactionInputSampleMetamodel.MOLARITY, CalculationContext.getMolarityUnit());
+            volume = prop(sample, ReactionInputSampleMetamodel.VOLUME, CalculationContext.getVolumeUnit());
+            density = prop(sample, ReactionInputSampleMetamodel.DENSITY, G_ML);
+            purityAsFraction = purity.multiply(0.01);
         }
 
         private void init() {
-            EnteredValueOpt<MolWeightUnit> molWeight = opt(input.container.getCompound().getMolWeight());
+            Calculation<MolWeightUnit> molWeight = readOnly(input.container.getCompound().getMolWeight());
 
-            List<Property<ReactionInputSample, MolUnit>> otherSampleMols = StreamEx.of(input.samples)
+            List<CalculableProperty<ReactionInputSample, MolUnit>> otherSampleMols = StreamEx.of(input.samples)
                     .filter(s -> s != this)
                     .map(s -> s.mol)
                     .toList();
 
             formula(
-                    "F1.2: mol = input.mol - ∑ otherSampleN.mol",
+                    "F1.2: mol = input.mol - sum(otherSampleN.mol)",
                     mol,
-                    () -> input.mol.subtract(sum(ZERO_MOL, otherSampleMols)),
+                    input.mol.subtract(sum(otherSampleMols, MOL)),
                     input.mol
             ).addSources(otherSampleMols);
 
             formula(
                     "F3.1: sample.mol = sample.weight * sample.purity / molWeight",
                     mol,
-                    () -> weight.multiply(purityAsFraction()).divide(molWeight),
+                    weight.multiply(purityAsFraction).divide(molWeight),
                     weight, purity
             );
 
             formula(
                     "F4.1: sample.mol = sample.molarity * sample.volume",
                     mol,
-                    () -> molarity.multiply(volume),
+                    molarity.multiply(volume),
                     molarity, volume
             );
 
             formula(
                     "F3.2: sample.weight = sample.mol * molWeight / sample.purity",
                     weight,
-                    () -> mol.multiply(molWeight).divide(purityAsFraction()),
+                    mol.multiply(molWeight).divide(purityAsFraction),
                     mol, purity
             );
 
             formula(
                     "F5.1: sample.weight = sample.volume * sample.density",
                     weight,
-                    () -> volume.multiply(density),
+                    volume.multiply(density),
                     volume, density
             );
 
             formula(
                     "F4.3: sample.volume = sample.mol / sample.molarity",
                     volume,
-                    () -> mol.divide(molarity),
+                    mol.divide(molarity),
                     mol, molarity
             );
 
             formula(
                     "F5.2: sample.volume = sample.weight / sample.density",
                     volume,
-                    () -> weight.divide(density),
+                    weight.divide(density),
                     weight, density
             );
         }
@@ -456,31 +453,31 @@ public class ReactionCalculator {
     class OutputProps extends AbstractProps<ReactionOutput> {
 
         final ReactionProps reaction;
-        final Property<ReactionOutput, MolUnit> theoMol;
-        final Property<ReactionOutput, NoUnit> eq;
-        final Property<ReactionOutput, WeightUnit> theoWeight;
+        final CalculableProperty<ReactionOutput, MolUnit> theoMol;
+        final CalculableProperty<ReactionOutput, NoUnit> eq;
+        final CalculableProperty<ReactionOutput, WeightUnit> theoWeight;
         final List<OutputSampleProps> samples;
 
         private OutputProps(ReactionProps reaction, ReactionOutput output) {
             super(output);
             this.reaction = reaction;
-            theoMol = prop(output, ReactionOutputMetamodel.THEO_MOL);
-            eq = prop(output, ReactionOutputMetamodel.EQ, DEFAULT_ONE);
-            theoWeight = prop(output, ReactionOutputMetamodel.THEO_WEIGHT);
+            theoMol = prop(output, ReactionOutputMetamodel.THEO_MOL, CalculationContext.getMolUnit());
+            eq = prop(output, ReactionOutputMetamodel.EQ, NO_UNIT, DEFAULT_ONE);
+            theoWeight = prop(output, ReactionOutputMetamodel.THEO_WEIGHT, CalculationContext.getWeightUnit());
             samples = StreamEx.of(output.getSamples())
                     .map(x -> new OutputSampleProps(this, x))
                     .toList();
         }
 
         private void init() {
-            EnteredValueOpt<MolWeightUnit> molWeight = opt(container.getCompound().getMolWeight());
+            Calculation<MolWeightUnit> molWeight = readOnly(container.getCompound().getMolWeight());
             InputProps limiting = reaction.limiting;
 
             if (limiting != null) {
                 formula(
                         "F6.1: output.theoMol = limiting.mol / limiting.eq * output.eq",
                         theoMol,
-                        () -> limiting.mol.divide(limiting.eq).multiply(eq),
+                        limiting.mol.divide(limiting.eq).multiply(eq),
                         limiting.mol, limiting.eq, eq
                 );
             }
@@ -488,7 +485,7 @@ public class ReactionCalculator {
             formula(
                     "F7.1: output.theoWeight = output.theoMol * molWeight",
                     theoWeight,
-                    () -> theoMol.multiply(molWeight),
+                    theoMol.multiply(molWeight),
                     theoMol
             );
         }
@@ -497,106 +494,106 @@ public class ReactionCalculator {
     class OutputSampleProps extends AbstractProps<ReactionOutputSample> {
 
         final OutputProps output;
-        final Property<ReactionOutputSample, MolUnit> actualMol;
-        final Property<ReactionOutputSample, WeightUnit> actualWeight;
-        final Property<ReactionOutputSample, NoUnit> purity;
-        final Property<ReactionOutputSample, MolarityUnit> molarity;
-        final Property<ReactionOutputSample, VolumeUnit> volume;
-        final Property<ReactionOutputSample, DensityUnit> density;
-        final Property<ReactionOutputSample, NoUnit> yieldValue;
-
-        EnteredValueOpt<NoUnit> purityAsFraction() {
-            return purity.multiply(ONE_HUNDREDTH);
-        }
+        final CalculableProperty<ReactionOutputSample, MolUnit> actualMol;
+        final CalculableProperty<ReactionOutputSample, WeightUnit> actualWeight;
+        final CalculableProperty<ReactionOutputSample, NoUnit> purity;
+        final CalculableProperty<ReactionOutputSample, MolarityUnit> molarity;
+        final CalculableProperty<ReactionOutputSample, VolumeUnit> volume;
+        final CalculableProperty<ReactionOutputSample, DensityUnit> density;
+        final CalculableProperty<ReactionOutputSample, NoUnit> yieldValue;
+        final Calculation<NoUnit> purityAsFraction;
+        final Calculation<NoUnit> yieldAsFraction;
 
         private OutputSampleProps(OutputProps output, ReactionOutputSample sample) {
             super(sample);
             this.output = output;
-            actualMol = prop(sample, ReactionOutputSampleMetamodel.ACTUAL_MOL);
-            actualWeight = prop(sample, ReactionOutputSampleMetamodel.ACTUAL_WEIGHT);
-            purity = prop(sample, ReactionOutputSampleMetamodel.PURITY, EnteredValue.DEFAULT_ONE_HUNDRED);
-            molarity = prop(sample, ReactionOutputSampleMetamodel.MOLARITY);
-            volume = prop(sample, ReactionOutputSampleMetamodel.VOLUME);
-            density = prop(sample, ReactionOutputSampleMetamodel.DENSITY);
-            yieldValue = prop(sample, ReactionOutputSampleMetamodel.YIELD);
+            actualMol = prop(sample, ReactionOutputSampleMetamodel.ACTUAL_MOL, CalculationContext.getMolUnit());
+            actualWeight = prop(sample, ReactionOutputSampleMetamodel.ACTUAL_WEIGHT, CalculationContext.getWeightUnit());
+            purity = prop(sample, ReactionOutputSampleMetamodel.PURITY, NO_UNIT, EnteredValue.DEFAULT_ONE_HUNDRED);
+            molarity = prop(sample, ReactionOutputSampleMetamodel.MOLARITY, CalculationContext.getMolarityUnit());
+            volume = prop(sample, ReactionOutputSampleMetamodel.VOLUME, CalculationContext.getVolumeUnit());
+            density = prop(sample, ReactionOutputSampleMetamodel.DENSITY, G_ML);
+            yieldValue = prop(sample, ReactionOutputSampleMetamodel.YIELD, NO_UNIT);
+            purityAsFraction = purity.multiply(0.01);
+            yieldAsFraction = yieldValue.multiply(0.01);
         }
 
         private void init() {
-            EnteredValueOpt<MolWeightUnit> molWeight = opt(output.container.getCompound().getMolWeight());
+            Calculation<MolWeightUnit> molWeight = readOnly(output.container.getCompound().getMolWeight());
 
             formula(
                     "F3.3: sample.actualMol = sample.actualWeight * sample.purity / molWeight",
                     actualMol,
-                    () -> actualWeight.multiply(purityAsFraction()).divide(molWeight),
+                    actualWeight.multiply(purityAsFraction).divide(molWeight),
                     actualWeight, purity
             );
 
             formula(
                     "F4.4: sample.actualMol = sample.molarity * sample.volume",
                     actualMol,
-                    () -> molarity.multiply(volume),
+                    molarity.multiply(volume),
                     molarity, volume
             );
 
             formula(
                     "F8.2: outputSample.actualMol = outputSample.yield * output.theoMol",
                     actualMol,
-                    () -> yieldValue.divide(DEFAULT_ONE_HUNDRED).multiply(output.theoMol),
+                    yieldAsFraction.multiply(output.theoMol),
                     yieldValue, output.theoMol
             );
 
             formula(
                     "F3.4: sample.actualWeight = sample.actualMol * molWeight / sample.purity",
                     actualWeight,
-                    () -> actualMol.multiply(molWeight).divide(purityAsFraction()),
+                    actualMol.multiply(molWeight).divide(purityAsFraction),
                     actualMol, purity
             );
 
             formula(
                     "F5.4: sample.actualWeight = sample.volume * sample.density",
                     actualWeight,
-                    () -> volume.multiply(density),
+                    volume.multiply(density),
                     volume, density
             );
 
             formula(
                     "F9.2: outputSample.actualWeight = outputSample.yield / outputSample.purity * output.theoWeight",
                     actualWeight,
-                    () -> yieldValue.multiply(ONE_HUNDREDTH).divide(purityAsFraction()).multiply(output.theoWeight),
+                    yieldAsFraction.divide(purityAsFraction).multiply(output.theoWeight),
                     yieldValue, purity, output.theoWeight
             );
 
             formula(
                     "F4.6: sample.volume = sample.actualMol / sample.molarity",
                     volume,
-                    () -> actualMol.divide(molarity),
+                    actualMol.divide(molarity),
                     actualMol, molarity
             );
 
             formula(
                     "F5.5: sample.volume = sample.actualWeight / sample.density",
                     volume,
-                    () -> actualWeight.divide(density),
+                    actualWeight.divide(density),
                     actualWeight, density
             );
 
             formula(
                     "F8.1: outputSample.yield = outputSample.actualMol / output.theoMol",
                     yieldValue,
-                    () -> actualMol.divide(output.theoMol).multiply(DEFAULT_ONE_HUNDRED),
+                    actualMol.percentageOf(output.theoMol),
                     actualMol, output.theoMol
             );
 
             formula(
                     "F9.1: outputSample.yield = outputSample.actualWeight * outputSample.purity / output.theoWeight",
                     yieldValue,
-                    () -> actualWeight.multiply(purityAsFraction()).divide(output.theoWeight).multiply(DEFAULT_ONE_HUNDRED),
+                    actualWeight.<WeightUnit>multiply(purityAsFraction).percentageOf(output.theoWeight),
                     actualWeight, purity, output.theoWeight
             );
         }
     }
 
-    private static boolean isUnderLimitingInput(Property<?, ?> value) {
+    private static boolean isUnderLimitingInput(CalculableProperty<?, ?> value) {
         return switch (value.getContainer()) {
             case ReactionInput i -> i.isLimiting();
             case ReactionInputSample s -> s.getRow().isLimiting();
@@ -604,23 +601,22 @@ public class ReactionCalculator {
         };
     }
 
-    private static int compareProperties(Pair<Property<?, ?>, EnteredValue<?>> pa, Pair<Property<?, ?>, EnteredValue<?>> pb) {
-        Property<?, ?> a = pa.a(), b = pb.a();
-        EnteredValue<?> valueA = pa.b(), valueB = pb.b();
-        EnteredValueSource sourceA = valueA.getSource(), sourceB = valueB.getSource();
-        checkState(sourceA.isUserEntered() || sourceA.isDefault());
-        checkState(sourceB.isUserEntered() || sourceB.isDefault());
+    private static int compareProperties(Seed pa, Seed pb) {
+        CalculableProperty<?, ?> a = pa.property, b = pb.property;
+        EnteredValue<?> valueA = pa.value, valueB = pb.value;
+        checkState(valueA.isUser() || valueA.isDefault());
+        checkState(valueB.isUser() || valueB.isDefault());
 
-        boolean userEnteredA = sourceA.isUserEntered();
-        boolean userEnteredB = sourceB.isUserEntered();
+        boolean userEnteredA = valueA.isUser();
+        boolean userEnteredB = valueB.isUser();
 
         int result;
 
-        // purity is more priority than other (default purity is more important than other defaults and even other user-entered)
+        // purity, density and molarity are more priority than other (default purity is more important than other defaults and even other user-entered)
         // (since in case of conflict we can likely recalculate user-entered, but we are not allowed to calculate purity)
-        boolean purityA = a.getModelProperty().name().equals("purity");
-        boolean purityB = b.getModelProperty().name().equals("purity");
-        result = Boolean.compare(purityA, purityB);
+        boolean priorityA = a.getModelProperty().name().equals("purity") || a.getModelProperty().name().equals("density") || a.getModelProperty().name().equals("molarity");
+        boolean priorityB = b.getModelProperty().name().equals("purity") || b.getModelProperty().name().equals("density") || b.getModelProperty().name().equals("molarity");
+        result = Boolean.compare(priorityA, priorityB);
         if (result != 0) {
             return result;
         }
@@ -641,7 +637,7 @@ public class ReactionCalculator {
 
         // later user-entered is more priority
         if (userEnteredA && userEnteredB) {
-            result = Integer.compare(sourceA.getPriority(), sourceB.getPriority());
+            result = Integer.compare(valueA.getPriority(), valueB.getPriority());
             if (result != 0) {
                 return result;
             }
@@ -650,4 +646,9 @@ public class ReactionCalculator {
         // to have total ordering, use model order as fallback
         return Integer.compare(a.getOrdinal(), b.getOrdinal());
     }
+
+    private record Seed (
+            CalculableProperty<?, ?> property,
+            EnteredValue<?> value
+    ) {}
 }

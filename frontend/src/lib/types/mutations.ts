@@ -2,7 +2,7 @@ import type { AccessForm, DocumentStatus, UserRef, UUID } from '@/lib/types/comm
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import type { ExperimentRef } from '@/lib/types/experiments.ts';
 import type {
-  DensityUnit,
+  Anchor,
   ExternalSupplier,
   MeltingPoint,
   MolarityUnit,
@@ -28,7 +28,7 @@ import type { SampleDTO } from '@/lib/types/samples.ts';
  * `@JsonTypeInfo(Id.SIMPLE_NAME, property = "type")`, so the wire shape is a discriminated
  * union whose tag is the record's own class name.
  *
- * **This is the complete set** — all 94 members of the backend's `@JsonSubTypes` list, in its
+ * **This is the complete set** — all 98 members of the backend's `@JsonSubTypes` list, in its
  * order — rather than only the ones a screen sends today. The unions below mirror the Java
  * interface hierarchy one for one, so a member that exists there and not here is a diff of two
  * files rather than a search through the app.
@@ -71,6 +71,10 @@ export type ExperimentMutation =
  */
 export type ModelMutation =
   | SetExperimentSignificantFigures
+  | SetExperimentWeightUnit
+  | SetExperimentVolumeUnit
+  | SetExperimentMolUnit
+  | SetExperimentMolarityUnit
   | SetBatchCreator
   | Undo
   | Redo
@@ -80,10 +84,14 @@ export type ModelMutation =
   | ReactionOutputMutation
   | ReactionOutputSampleMutation;
 
-/** The seventeen mutations declared on `ExperimentMutation` itself — no row anchor involved. */
+/** The twenty-one mutations declared on `ExperimentMutation` itself — no row anchor involved. */
 export type ExperimentLevelMutation =
   | CreateExperiment
   | SetExperimentSignificantFigures
+  | SetExperimentWeightUnit
+  | SetExperimentVolumeUnit
+  | SetExperimentMolUnit
+  | SetExperimentMolarityUnit
   | EditExperimentAttributes
   | EditExperimentAccess
   | SetBatchCreator
@@ -224,6 +232,31 @@ export interface SetExperimentSignificantFigures {
   significantFigures: number;
 }
 
+/**
+ * The unit every value of a quantity is shown and entered in, experiment-wide. The backend
+ * converts the user-entered values to it and recalculates the rest, so the patch carries every
+ * affected value already in the new unit.
+ */
+export interface SetExperimentWeightUnit {
+  type: 'SetExperimentWeightUnit';
+  weightUnit: WeightUnit;
+}
+
+export interface SetExperimentVolumeUnit {
+  type: 'SetExperimentVolumeUnit';
+  volumeUnit: VolumeUnit;
+}
+
+export interface SetExperimentMolUnit {
+  type: 'SetExperimentMolUnit';
+  molUnit: MolUnit;
+}
+
+export interface SetExperimentMolarityUnit {
+  type: 'SetExperimentMolarityUnit';
+  molarityUnit: MolarityUnit;
+}
+
 /** `PUT /experiments/{id}`, not `/mutate`. Every member is a `JsonNullable` — see above. */
 export interface EditExperimentAttributes {
   type: 'EditExperimentAttributes';
@@ -331,7 +364,7 @@ export interface Redo {
  */
 export interface SetScheme {
   type: 'SetScheme';
-  anchor: UUID;
+  anchor: Anchor;
   /** Note the capital `F`; the model field this writes is `Reaction.rxnfile`. Null clears it. */
   rxnFile: string | null;
 }
@@ -343,11 +376,11 @@ export interface SetScheme {
  */
 export interface ResolveInputs {
   type: 'ResolveInputs';
-  anchor: UUID;
+  anchor: Anchor;
   /** Input row anchor → the catalog hit to bind to it, sent back whole. */
-  inputSamples: Record<UUID, SampleDTO>;
+  inputSamples: Record<Anchor, SampleDTO>;
   /** Input row anchor → the anchor of the sample created on it; the same keys as `inputSamples`. */
-  createdSampleAnchors: Record<UUID, UUID>;
+  createdSampleAnchors: Record<Anchor, Anchor>;
 }
 
 /**
@@ -358,18 +391,18 @@ export interface ResolveInputs {
 export interface AddEmptyInput {
   type: 'AddEmptyInput';
   /** The reaction's own anchor, not a row's. */
-  anchor: UUID;
-  createdInputAnchor: UUID;
-  createdSampleAnchor: UUID;
+  anchor: Anchor;
+  createdInputAnchor: Anchor;
+  createdSampleAnchor: Anchor;
 }
 
 /** The same, for a catalog hit — sent back whole; the backend imports its compound. */
 export interface AddInput {
   type: 'AddInput';
-  anchor: UUID;
+  anchor: Anchor;
   sample: SampleDTO;
-  createdInputAnchor: UUID;
-  createdSampleAnchor: UUID;
+  createdInputAnchor: Anchor;
+  createdSampleAnchor: Anchor;
 }
 
 /**
@@ -379,9 +412,9 @@ export interface AddInput {
  */
 export interface AddNoProductSample {
   type: 'AddNoProductSample';
-  anchor: UUID;
-  createdOutputAnchor: UUID;
-  createdSampleAnchor: UUID;
+  anchor: Anchor;
+  createdOutputAnchor: Anchor;
+  createdSampleAnchor: Anchor;
 }
 
 /**
@@ -391,7 +424,7 @@ export interface AddNoProductSample {
  */
 export interface ImportSDF {
   type: 'ImportSDF';
-  anchor: UUID;
+  anchor: Anchor;
   compoundIDs: UUID[];
   samples: SampleDTO[];
 }
@@ -409,26 +442,24 @@ export interface ImportSDF {
  * coerces a JSON string into it, and the records are due to be changed to match. Do not
  * "correct" it to a number.
  *
- * Clearing a value sends `null` for the value *and* its unit.
+ * A value is in the experiment's unit for its quantity (`ExperimentModel.unitSource`), so none of these carries one. Clearing a value sends `null`.
  */
 export interface SetInputRowRole {
   type: 'SetInputRowRole';
-  anchor: UUID;
+  anchor: Anchor;
   /** `OUTPUT` is a valid enum member but never a valid choice for an input row. */
   role: ReactionRole;
 }
 
-/** Note `molUnit`, not `unit` — the sample-level `SetInputMol` spells the same thing `unit`. */
 export interface SetInputRowMol {
   type: 'SetInputRowMol';
-  anchor: UUID;
+  anchor: Anchor;
   mol: string | null;
-  molUnit: MolUnit | null;
 }
 
 export interface SetInputRowChemicalName {
   type: 'SetInputRowChemicalName';
-  anchor: UUID;
+  anchor: Anchor;
   chemicalName: string | null;
 }
 
@@ -439,108 +470,103 @@ export interface SetInputRowChemicalName {
  */
 export interface SetInputRowLimiting {
   type: 'SetInputRowLimiting';
-  anchor: UUID;
+  anchor: Anchor;
 }
 
 export interface SetInputRowSaltCode {
   type: 'SetInputRowSaltCode';
-  anchor: UUID;
+  anchor: Anchor;
   saltCode: DictionaryItemRef;
 }
 
 export interface SetInputRowSaltEQ {
   type: 'SetInputRowSaltEQ';
-  anchor: UUID;
+  anchor: Anchor;
   /** A string, though the record says `Double` — see the note above. */
   saltEQ: string | null;
 }
 
 export interface SetInputRowEQ {
   type: 'SetInputRowEQ';
-  anchor: UUID;
+  anchor: Anchor;
   eq: string | null;
 }
 
 export interface SetInputCompoundStereoisomerCode {
   type: 'SetInputCompoundStereoisomerCode';
-  anchor: UUID;
+  anchor: Anchor;
   stereoisomerCode: DictionaryItemRef;
 }
 
 /** Only meaningful for an unknown compound (no `compoundID`); a known one carries a registry value. */
 export interface SetInputCompoundMolWeight {
   type: 'SetInputCompoundMolWeight';
-  anchor: UUID;
+  anchor: Anchor;
   molWeight: string | null;
 }
 
 /** Deletes the compound row and every sample under it. */
 export interface RemoveInputRow {
   type: 'RemoveInputRow';
-  anchor: UUID;
+  anchor: Anchor;
 }
 
 /* ── Input samples ─────────────────────────────────────────────────────────────────────── */
 
 export interface SetInputDensity {
   type: 'SetInputDensity';
-  anchor: UUID;
+  anchor: Anchor;
   density: string | null;
-  unit: DensityUnit | null;
 }
 
 export interface SetInputMolarity {
   type: 'SetInputMolarity';
-  anchor: UUID;
+  anchor: Anchor;
   molarity: string | null;
-  unit: MolarityUnit | null;
 }
 
 export interface SetInputVolume {
   type: 'SetInputVolume';
-  anchor: UUID;
+  anchor: Anchor;
   volume: string | null;
-  unit: VolumeUnit | null;
 }
 
-/** Purity is a percentage and carries no unit — the model types it `EnteredValue<NoUnit>`. */
+/** Purity is a percentage and carries no unit. */
 export interface SetInputPurity {
   type: 'SetInputPurity';
-  anchor: UUID;
+  anchor: Anchor;
   purity: string | null;
 }
 
 /** `@NotNull` on the record: clearing the list means sending `[]`, never `null`. */
 export interface SetInputHealthHazards {
   type: 'SetInputHealthHazards';
-  anchor: UUID;
+  anchor: Anchor;
   healthHazards: DictionaryItemRef[];
 }
 
 export interface SetInputMol {
   type: 'SetInputMol';
-  anchor: UUID;
+  anchor: Anchor;
   mol: string | null;
-  unit: MolUnit | null;
 }
 
 export interface SetInputWeight {
   type: 'SetInputWeight';
-  anchor: UUID;
+  anchor: Anchor;
   weight: string | null;
-  unit: WeightUnit | null;
 }
 
 export interface SetInputComment {
   type: 'SetInputComment';
-  anchor: UUID;
+  anchor: Anchor;
   comment: string | null;
 }
 
 /** Deletes one sample. The row survives — `RemoveInputRow` is what deletes the compound. */
 export interface RemoveInput {
   type: 'RemoveInput';
-  anchor: UUID;
+  anchor: Anchor;
 }
 
 /* ── Output rows ───────────────────────────────────────────────────────────────────────── */
@@ -558,8 +584,8 @@ export interface RemoveInput {
  */
 export interface AddProductSample {
   type: 'AddProductSample';
-  anchor: UUID;
-  createdSampleAnchor: UUID;
+  anchor: Anchor;
+  createdSampleAnchor: Anchor;
 }
 
 /**
@@ -573,7 +599,7 @@ export interface AddProductSample {
  */
 export interface SetOutputRowType {
   type: 'SetOutputRowType';
-  anchor: UUID;
+  anchor: Anchor;
   outputType: ReactionOutputType;
 }
 
@@ -584,13 +610,13 @@ export interface SetOutputRowType {
  */
 export interface SetOutputRowSaltCode {
   type: 'SetOutputRowSaltCode';
-  anchor: UUID;
+  anchor: Anchor;
   saltCode: DictionaryItemRef;
 }
 
 export interface SetOutputRowSaltEQ {
   type: 'SetOutputRowSaltEQ';
-  anchor: UUID;
+  anchor: Anchor;
   /** A string, though the record says `Double` — see the note above the input rows. */
   saltEQ: string | null;
 }
@@ -598,7 +624,7 @@ export interface SetOutputRowSaltEQ {
 /** The EQ the theoretical yield is computed from: `theoMol = limiting.mol / limiting.eq * eq`. */
 export interface SetOutputRowEQ {
   type: 'SetOutputRowEQ';
-  anchor: UUID;
+  anchor: Anchor;
   eq: string | null;
 }
 
@@ -611,13 +637,13 @@ export interface SetOutputRowEQ {
  */
 export interface SetOutputRowName {
   type: 'SetOutputRowName';
-  anchor: UUID;
+  anchor: Anchor;
   name: string;
 }
 
 export interface SetOutputRowChemicalName {
   type: 'SetOutputRowChemicalName';
-  anchor: UUID;
+  anchor: Anchor;
   chemicalName: string | null;
 }
 
@@ -628,20 +654,20 @@ export interface SetOutputRowChemicalName {
  */
 export interface SetOutputRowIntended {
   type: 'SetOutputRowIntended';
-  anchor: UUID;
+  anchor: Anchor;
   intended: boolean;
 }
 
 export interface SetOutputCompoundStereoisomerCode {
   type: 'SetOutputCompoundStereoisomerCode';
-  anchor: UUID;
+  anchor: Anchor;
   stereoisomerCode: DictionaryItemRef;
 }
 
 /** Only meaningful for an unknown compound, exactly as on the input side. */
 export interface SetOutputCompoundMolWeight {
   type: 'SetOutputCompoundMolWeight';
-  anchor: UUID;
+  anchor: Anchor;
   molWeight: string | null;
 }
 
@@ -657,135 +683,130 @@ export interface SetOutputCompoundMolWeight {
  */
 export interface SetOutputDensity {
   type: 'SetOutputDensity';
-  anchor: UUID;
+  anchor: Anchor;
   density: string | null;
-  unit: DensityUnit | null;
 }
 
 export interface SetOutputMolarity {
   type: 'SetOutputMolarity';
-  anchor: UUID;
+  anchor: Anchor;
   molarity: string | null;
-  unit: MolarityUnit | null;
 }
 
 export interface SetOutputVolume {
   type: 'SetOutputVolume';
-  anchor: UUID;
+  anchor: Anchor;
   volume: string | null;
-  unit: VolumeUnit | null;
 }
 
 export interface SetOutputPurity {
   type: 'SetOutputPurity';
-  anchor: UUID;
+  anchor: Anchor;
   purity: string | null;
 }
 
 /** `@NotNull` on the record: clearing the list means sending `[]`, never `null`. */
 export interface SetOutputHealthHazards {
   type: 'SetOutputHealthHazards';
-  anchor: UUID;
+  anchor: Anchor;
   healthHazards: DictionaryItemRef[];
 }
 
 export interface SetOutputActualMol {
   type: 'SetOutputActualMol';
-  anchor: UUID;
+  anchor: Anchor;
   actualMol: string | null;
-  unit: MolUnit | null;
 }
 
 export interface SetOutputActualWeight {
   type: 'SetOutputActualWeight';
-  anchor: UUID;
+  anchor: Anchor;
   actualWeight: string | null;
-  unit: WeightUnit | null;
 }
 
 /** Sends the batch to the compound registry. Its `registrationStatus` then drives the UI. */
 export interface RegisterSample {
   type: 'RegisterSample';
-  anchor: UUID;
+  anchor: Anchor;
 }
 
 export interface SetOutputHandlingPrecautions {
   type: 'SetOutputHandlingPrecautions';
-  anchor: UUID;
+  anchor: Anchor;
   handlingPrecautions: DictionaryItemRef[];
 }
 
 export interface SetOutputStorageInstructions {
   type: 'SetOutputStorageInstructions';
-  anchor: UUID;
+  anchor: Anchor;
   storageInstructions: DictionaryItemRef[];
 }
 
 export interface SetOutputCompoundProtection {
   type: 'SetOutputCompoundProtection';
-  anchor: UUID;
+  anchor: Anchor;
   compoundProtection: DictionaryItemRef[];
 }
 
 export interface SetOutputSolubilityInSolvents {
   type: 'SetOutputSolubilityInSolvents';
-  anchor: UUID;
+  anchor: Anchor;
   solubilityInSolvents: SolubidityInSolvent[];
 }
 
 export interface SetOutputResidualSolvents {
   type: 'SetOutputResidualSolvents';
-  anchor: UUID;
+  anchor: Anchor;
   residualSolvents: ResidualSolvent[];
 }
 
 export interface SetOutputMeltingPoint {
   type: 'SetOutputMeltingPoint';
-  anchor: UUID;
+  anchor: Anchor;
   meltingPoint: MeltingPoint | null;
 }
 
 export interface SetOutputPurityCalculations {
   type: 'SetOutputPurityCalculations';
-  anchor: UUID;
+  anchor: Anchor;
   purityCalculations: PurityCalculation[];
 }
 
 export interface SetOutputExternalSupplier {
   type: 'SetOutputExternalSupplier';
-  anchor: UUID;
+  anchor: Anchor;
   externalSupplier: ExternalSupplier | null;
 }
 
 /** `SAMPLE_SOURCE`, and `SAMPLE_SOURCE_DETAILS` for the one below it. */
 export interface SetOutputSource {
   type: 'SetOutputSource';
-  anchor: UUID;
+  anchor: Anchor;
   source: DictionaryItemRef | null;
 }
 
 export interface SetOutputSourceDetails {
   type: 'SetOutputSourceDetails';
-  anchor: UUID;
+  anchor: Anchor;
   sourceDetails: DictionaryItemRef | null;
 }
 
 /** `COMPONENT_STATE` — solid, oil, solution and so on. */
 export interface SetOutputComponentState {
   type: 'SetOutputComponentState';
-  anchor: UUID;
+  anchor: Anchor;
   componentState: DictionaryItemRef | null;
 }
 
 export interface SetOutputBatchComment {
   type: 'SetOutputBatchComment';
-  anchor: UUID;
+  anchor: Anchor;
   batchComment: string | null;
 }
 
 export interface SetOutputStructureComment {
   type: 'SetOutputStructureComment';
-  anchor: UUID;
+  anchor: Anchor;
   structureComment: string | null;
 }
 
@@ -796,37 +817,37 @@ export interface SetOutputStructureComment {
  */
 export interface RemoveProductSample {
   type: 'RemoveProductSample';
-  anchor: UUID;
+  anchor: Anchor;
 }
 
 export interface SetOutputSaltCode {
   type: 'SetOutputSaltCode';
-  anchor: UUID;
+  anchor: Anchor;
   saltCode: DictionaryItemRef;
-  createdOutputAnchor: UUID;
+  createdOutputAnchor: Anchor;
 }
 
 export interface SetOutputSaltEQ {
   type: 'SetOutputSaltEQ';
-  anchor: UUID;
+  anchor: Anchor;
   /** A string, though the record says `Double` — see the note above the input rows. */
   saltEQ: string | null;
-  createdOutputAnchor: UUID;
+  createdOutputAnchor: Anchor;
 }
 
 export interface SetOutputStereoisomerCode {
   type: 'SetOutputStereoisomerCode';
-  anchor: UUID;
+  anchor: Anchor;
   stereoisomerCode: DictionaryItemRef;
-  createdOutputAnchor: UUID;
+  createdOutputAnchor: Anchor;
 }
 
 /** Redraws one batch's structure. `@NotNull` — there is no way to clear it. */
 export interface SetOutputMolfile {
   type: 'SetOutputMolfile';
-  anchor: UUID;
+  anchor: Anchor;
   molfile: string;
-  createdOutputAnchor: UUID;
+  createdOutputAnchor: Anchor;
 }
 
 /* ── Projects ──────────────────────────────────────────────────────────────────────────── */
@@ -945,7 +966,7 @@ export interface MutationResponse {
    * Input anchor → the molfile the backend could not resolve to a compound. `SetScheme`
    * populates this on essentially every scheme edit, and `ResolveInputs` is the answer to it.
    */
-  unresolvedInputs: Record<UUID, string>;
+  unresolvedInputs: Record<Anchor, string>;
   /** Things the user should be told about what the mutation did. */
   messages: string[];
   debugMessages: string[];

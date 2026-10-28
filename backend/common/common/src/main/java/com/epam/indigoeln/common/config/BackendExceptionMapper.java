@@ -1,10 +1,8 @@
 package com.epam.indigoeln.common.config;
 
-import com.epam.indigoeln.common.exception.AccessDeniedException;
-import com.epam.indigoeln.common.exception.EntityNotFoundException;
-import com.epam.indigoeln.common.exception.InvalidRequestException;
-import com.epam.indigoeln.common.exception.MutationNotUndoableException;
+import com.epam.indigoeln.common.exception.UserFacingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.google.common.base.Throwables;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -22,16 +20,26 @@ import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @ApplicationScoped
 public class BackendExceptionMapper {
 
+    /**
+     * A {@link UserFacingException} anywhere in the cause chain is returned with its own message and status.
+     * Anything else is internal: its details are only logged, and the client gets a generic message with an error id.
+     */
     @ServerExceptionMapper(priority = 0)
     public RestResponse<List<ErrorDTO>> toResponse(Exception exception) {
-        String message = exception.getClass().getName() + ": " + exception.getMessage();
-        log.error(message, exception);
-        return buildResponse(Response.Status.INTERNAL_SERVER_ERROR, new ErrorDTO(message, exception));
+        return StreamEx.of(Throwables.getCausalChain(exception))
+                .select(UserFacingException.class)
+                .findFirst()
+                .map(e -> {
+                    log.warn("{}: {}", e.getClass().getSimpleName(), e.getMessage());
+                    return buildResponse(e.getStatus(), new ErrorDTO(e.getMessage()));
+                })
+                .orElseGet(() -> internalError(exception));
     }
 
     @ServerExceptionMapper
@@ -50,45 +58,30 @@ public class BackendExceptionMapper {
                 break;
             }
         }
+        if (isReturnValue) {
+            return internalError(exception);
+        }
         ErrorDTO[] errors = exception.getConstraintViolations().stream()
                 .map(this::toErrorDTO)
                 .toArray(ErrorDTO[]::new);
         log.warn("Validation errors:\n{}", StreamEx.of(errors).joining("\n"));
-        return buildResponse(
-                isReturnValue ? Response.Status.INTERNAL_SERVER_ERROR : Response.Status.BAD_REQUEST,
-                errors
-        );
-    }
-
-    @ServerExceptionMapper
-    public RestResponse<List<ErrorDTO>> toResponse(AccessDeniedException exception) {
-        log.warn(exception.getMessage());
-        return buildResponse(Response.Status.FORBIDDEN, new ErrorDTO(exception.getMessage()));
-    }
-
-    @ServerExceptionMapper
-    public RestResponse<List<ErrorDTO>> toResponse(EntityNotFoundException exception) {
-        log.error(exception.getMessage());
-        return buildResponse(Response.Status.NOT_FOUND, new ErrorDTO(exception.getMessage()));
-    }
-
-    @ServerExceptionMapper
-    public RestResponse<List<ErrorDTO>> toResponse(InvalidRequestException exception) {
-        log.error(exception.getMessage());
-        return buildResponse(Response.Status.BAD_REQUEST, new ErrorDTO(exception.getMessage()));
-    }
-
-    @ServerExceptionMapper
-    public RestResponse<List<ErrorDTO>> toResponse(MutationNotUndoableException exception) {
-        log.error(exception.getMessage());
-        return buildResponse(Response.Status.BAD_REQUEST, new ErrorDTO(exception.getMessage()));
+        return buildResponse(Response.Status.BAD_REQUEST, errors);
     }
 
     @ServerExceptionMapper
     public RestResponse<List<ErrorDTO>> toResponse(WebApplicationException exception) {
+        if (exception.getResponse().getStatusInfo().getFamily() == Response.Status.Family.SERVER_ERROR) {
+            return internalError(exception);
+        }
         log.error("WebApplicationException", exception);
         Throwable cause = exception.getCause() != null ? exception.getCause() : exception;
         return buildResponse(exception.getResponse().getStatusInfo().toEnum(), new ErrorDTO(cause.getMessage()));
+    }
+
+    private RestResponse<List<ErrorDTO>> internalError(Throwable exception) {
+        String errorId = UUID.randomUUID().toString();
+        log.error("Unhandled error, id {}", errorId, exception);
+        return buildResponse(Response.Status.INTERNAL_SERVER_ERROR, new ErrorDTO("Unexpected server error. Error ID: " + errorId));
     }
 
     @SneakyThrows

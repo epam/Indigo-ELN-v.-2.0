@@ -103,8 +103,8 @@ export const ACTIONS_CELL_CLASS =
  * field, so it is lifted into one to reach the same cell component. Deliberately **without a
  * `source`**: it has no provenance, and claiming one would colour it as fixed or calculated.
  */
-export function asEnteredValue(value: number | undefined): EnteredValue<string> | undefined {
-  return value == null ? undefined : { value: String(value), unit: 'NO_UNIT' };
+export function asEnteredValue(value: number | undefined): EnteredValue | undefined {
+  return value == null ? undefined : { value: String(value) };
 }
 
 /**
