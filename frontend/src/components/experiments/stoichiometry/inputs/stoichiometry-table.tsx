@@ -1,4 +1,5 @@
 import { ChevronDown, ChevronRight, Plus, SquarePlus } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useMemo, useRef, useState } from 'react';
 
 import { SavingOverlay } from '@/components/common/saving-overlay';
@@ -21,25 +22,30 @@ import {
   HEADER_CELL_CLASS,
   alignOf,
 } from '@/components/experiments/stoichiometry/columns';
+import { ColumnSelector } from '@/components/experiments/stoichiometry/column-selector';
+import { ColumnHeader } from '@/components/experiments/stoichiometry/column-header';
 import { LimitingCell, RoleCell } from '@/components/experiments/stoichiometry/inputs/cells';
-import type { InputColumn, SamplePart } from '@/components/experiments/stoichiometry/inputs/columns';
+import type { InputColumn, SampleColumn, SamplePart } from '@/components/experiments/stoichiometry/inputs/columns';
 import {
-  COMPOUND_COLUMNS,
+  HIDEABLE_INPUT_COLUMNS,
   SAMPLE_COLUMNS,
   SAMPLE_INDENT_SPAN,
   shortBatchNumber,
+  visibleInputColumns,
 } from '@/components/experiments/stoichiometry/inputs/columns';
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { equalWidth, useEqualWidths } from '@/lib/hooks/use-equal-widths';
 import { cellId, useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
+import { useHiddenColumns } from '@/lib/hooks/experiments/use-hidden-columns';
 import { Button } from '@/components/ui/button';
 import { SearchInput } from '@/components/ui/search-input';
 import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/ui/menu';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
+import { findByAnchor } from '@/lib/reactions';
 import { cn, newAnchor } from '@/lib/utils';
-import type { Reaction, ReactionInput, ReactionInputSample } from '@/lib/types/reactions.ts';
+import type { ExperimentModel, Reaction, ReactionInput, ReactionInputSample } from '@/lib/types/reactions.ts';
 import { INPUT_ROLES, plainFormula } from '@/lib/types/reactions.ts';
 
 /** The values the backend accepts — `@Min(1) @Max(5)` on `SetExperimentSignificantFigures`. */
@@ -107,7 +113,8 @@ function inputHaystack(input: ReactionInput): string {
  * **Every edit is one mutation and there is no Save button**, matching the rest of the
  * experiment screen. The response is a JSON diff rather than a document, so a one-cell edit
  * comes back as a patch touching only what the recalculation moved — and the cells it moved
- * flash, which is the whole reason `mutations.patch` is threaded down to every numeric cell.
+ * flash, which is the whole reason every row is paired with its counterpart in
+ * `mutations.previousModel`, found by anchor, all the way down to each numeric cell.
  *
  * Nothing here is optimistic: a cell shows what the server last confirmed, and a failed save
  * leaves it alone (`apiFetch` has already raised the toast).
@@ -126,9 +133,13 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
 
   const mutations = useStoichiometryMutations(experiment);
   const canEdit = canEditExperiment(experiment);
+  const previousReaction = findByAnchor(mutations.previousModel.reactions, reaction.anchor);
 
   const table = useRef<HTMLTableElement>(null);
   useEqualWidths(table, EQUAL_WIDTH_PARTS);
+
+  const columnChoice = useHiddenColumns('stoichiometryInputs', HIDEABLE_INPUT_COLUMNS);
+  const columns = useMemo(() => visibleInputColumns(columnChoice.hidden), [columnChoice.hidden]);
 
   const inputs = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -156,6 +167,14 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
         onSearchChange={setSearch}
         mutations={mutations}
         onAddMaterial={() => setAddMaterialOpen(true)}
+        columnSelector={
+          <ColumnSelector
+            columns={HIDEABLE_INPUT_COLUMNS}
+            hidden={columnChoice.hidden}
+            onToggle={columnChoice.toggle}
+            onReset={columnChoice.reset}
+          />
+        }
       />
 
       {/*
@@ -179,7 +198,7 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
             <tr>
               {/* The chevron column has no header text; the chevrons speak for themselves. */}
               <th className={cn(HEADER_CELL_CLASS, ALIGN_CLASS.center)} />
-              {COMPOUND_COLUMNS.map((column) =>
+              {columns.compound.map((column) =>
                 // A spacer names nothing, so it is a plain cell rather than an empty `<th>`.
                 // `px-0` because the shared padding would be a 26px floor under a column whose
                 // whole purpose is to have no minimum of its own.
@@ -196,7 +215,12 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
                     )}
                     style={{ minWidth: column.minWidth, width: column.fitContent ? 1 : undefined }}
                   >
-                    {column.header}
+                    <ColumnHeader
+                      header={column.header}
+                      unit={column.unit}
+                      model={experiment.model}
+                      mutations={canEdit ? mutations : undefined}
+                    />
                   </th>
                 ),
               )}
@@ -205,12 +229,15 @@ export function StoichiometryTable({ experiment, reaction }: { experiment: Exper
           {inputs.map((input, index) => (
             <CompoundRow
               key={input.anchor}
+              model={experiment.model}
               input={input}
+              previousInput={findByAnchor(previousReaction?.inputs, input.anchor)}
               index={index}
               expanded={!collapsed.has(input.anchor)}
               onToggle={() => toggle(input.anchor)}
               canEdit={canEdit}
               mutations={mutations}
+              columns={columns}
             />
           ))}
         </table>
@@ -252,6 +279,7 @@ function Toolbar({
   onSearchChange,
   mutations,
   onAddMaterial,
+  columnSelector,
 }: {
   experiment: ExperimentDetails;
   reaction: Reaction;
@@ -261,6 +289,8 @@ function Toolbar({
   mutations: StoichiometryMutations;
   /** Opens the catalog search that appends a row for a registered compound. */
   onAddMaterial: () => void;
+  /** Open to anyone who can see the table: which columns show is the reader's choice, not an edit. */
+  columnSelector: ReactNode;
 }) {
   const significantFigures = experiment.model.significantFigures;
   const addInputCell = cellId(reaction.anchor, 'addInput');
@@ -313,6 +343,8 @@ function Toolbar({
           </MenuContent>
         </Menu>
 
+        {columnSelector}
+
         {/*
           Wrapped rather than given `Button`'s own `loading`, matching `AddBatchCell` — the same
           add-a-row action one level down. `SavingOverlay` runs the flag through the 300 ms delay,
@@ -359,19 +391,27 @@ function Toolbar({
  * together and keeps the compound with its own batches when anything reorders.
  */
 function CompoundRow({
+  model,
   input,
+  previousInput,
   index,
   expanded,
   onToggle,
   canEdit,
   mutations,
+  columns,
 }: {
+  model: ExperimentModel;
   input: ReactionInput;
+  /** The same row before the last patch; undefined when the patch added it. */
+  previousInput: ReactionInput | undefined;
   index: number;
   expanded: boolean;
   onToggle: () => void;
   canEdit: boolean;
   mutations: StoichiometryMutations;
+  /** Both levels' columns with the Column Selector's choice applied — see `visibleInputColumns`. */
+  columns: { compound: InputColumn[]; sample: SampleColumn[] };
 }) {
   return (
     <tbody>
@@ -389,7 +429,7 @@ function CompoundRow({
             {expanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
           </button>
         </td>
-        {COMPOUND_COLUMNS.map((column) => (
+        {columns.compound.map((column) => (
           <td
             key={column.id}
             className={cn(
@@ -402,7 +442,14 @@ function CompoundRow({
               column.kind === 'delete' && cn(ACTIONS_CELL_CLASS, 'bg-neutral-200'),
             )}
           >
-            <CompoundCell column={column} input={input} index={index} canEdit={canEdit} mutations={mutations} />
+            <CompoundCell
+              column={column}
+              input={input}
+              previousInput={previousInput}
+              index={index}
+              canEdit={canEdit}
+              mutations={mutations}
+            />
           </td>
         ))}
       </tr>
@@ -417,7 +464,7 @@ function CompoundRow({
           */}
           <tr>
             <td colSpan={SAMPLE_INDENT_SPAN} />
-            {SAMPLE_COLUMNS.map((column) => (
+            {columns.sample.map((column) => (
               <th
                 key={column.id}
                 scope="col"
@@ -439,12 +486,13 @@ function CompoundRow({
                     {column.parts.map((part, partIndex) => (
                       // `px-[9px]` is `CONTENT_BOX`'s inset, so a label starts where its values do.
                       <span key={part.id} {...partSlot(part, partIndex === column.parts.length - 1, 'px-[9px]')}>
-                        {part.header}
+                        <ColumnHeader header={part.header} unit={part.unit} model={model} />
                       </span>
                     ))}
                   </div>
                 ) : (
-                  column.header
+                  // Read-only: the unit is picked once, in `<thead>`, not in every open compound.
+                  <ColumnHeader header={column.header} unit={column.unit} model={model} />
                 )}
               </th>
             ))}
@@ -455,7 +503,7 @@ function CompoundRow({
             // inherit this hover and follows it explicitly.
             <tr key={sample.anchor} className="group/row hover:bg-neutral-100">
               <td colSpan={SAMPLE_INDENT_SPAN} />
-              {SAMPLE_COLUMNS.map((column) => (
+              {columns.sample.map((column) => (
                 <td
                   key={column.id}
                   colSpan={column.span}
@@ -475,12 +523,24 @@ function CompoundRow({
                     <div className="flex items-center gap-2">
                       {column.parts.map((part, partIndex) => (
                         <div key={part.id} {...partSlot(part, partIndex === column.parts.length - 1)}>
-                          <SampleCell column={part} sample={sample} canEdit={canEdit} mutations={mutations} />
+                          <SampleCell
+                            column={part}
+                            sample={sample}
+                            previousSample={findByAnchor(previousInput?.samples, sample.anchor)}
+                            canEdit={canEdit}
+                            mutations={mutations}
+                          />
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <SampleCell column={column} sample={sample} canEdit={canEdit} mutations={mutations} />
+                    <SampleCell
+                      column={column}
+                      sample={sample}
+                      previousSample={findByAnchor(previousInput?.samples, sample.anchor)}
+                      canEdit={canEdit}
+                      mutations={mutations}
+                    />
                   )}
                 </td>
               ))}
@@ -509,12 +569,14 @@ function partSlot(part: SamplePart, last: boolean, className?: string) {
 function CompoundCell({
   column,
   input,
+  previousInput,
   index,
   canEdit,
   mutations,
 }: {
   column: InputColumn;
   input: ReactionInput;
+  previousInput: ReactionInput | undefined;
   index: number;
   canEdit: boolean;
   mutations: StoichiometryMutations;
@@ -538,8 +600,9 @@ function CompoundCell({
       return (
         <NumericCell
           value={column.value(input)}
-          units={column.units}
-          patch={mutations.patch}
+          previous={previousInput && column.value(previousInput)}
+          conflicted={mutations.conflicts.has(cell)}
+          generation={mutations.generation}
           editable={false}
           pending={false}
           label={`${column.header}, row ${index + 1}`}
@@ -562,9 +625,9 @@ function CompoundCell({
       return (
         <NumericCell
           value={column.value(input)}
-          units={column.units}
-          suffix={column.suffix}
-          patch={mutations.patch}
+          previous={previousInput && column.value(previousInput)}
+          conflicted={mutations.conflicts.has(cell)}
+          generation={mutations.generation}
           editable={canEdit && (column.editable?.(input) ?? true)}
           pending={pending}
           label={`${column.header}, row ${index + 1}`}
@@ -632,11 +695,13 @@ function CompoundCell({
 function SampleCell({
   column,
   sample,
+  previousSample,
   canEdit,
   mutations,
 }: {
   column: SamplePart;
   sample: ReactionInputSample;
+  previousSample: ReactionInputSample | undefined;
   canEdit: boolean;
   mutations: StoichiometryMutations;
 }) {
@@ -673,9 +738,9 @@ function SampleCell({
       return (
         <NumericCell
           value={column.value(sample)}
-          units={column.units}
-          suffix={column.suffix}
-          patch={mutations.patch}
+          previous={previousSample && column.value(previousSample)}
+          conflicted={mutations.conflicts.has(cell)}
+          generation={mutations.generation}
           editable={canEdit && (column.editable?.(sample) ?? true)}
           pending={pending}
           label={label}

@@ -417,7 +417,7 @@ public class JSONPatcherTest {
         reaction.setInputs(List.of(input));
         input.setMol(EnteredValue.userEntered("10.0", MolUnit.MMOL, 1));
         verifyModel("""
-                {"model":{"reactions":{"0":{"inputs":{"0":{"mol":{"$new":{"value":"10.0","unit":"MMOL","source":1}}}}}}}}
+                {"model":{"reactions":{"0":{"inputs":{"0":{"mol":{"$new":{"source":"U","revision":1,"value":"10.0"}}}}}}}}
         """);
     }
 
@@ -442,34 +442,8 @@ public class JSONPatcherTest {
         reaction.setInputs(List.of(input));
         baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
         verifyModel("""
-                {"model":{"reactions":{"0":{"inputs":{"0":{"mol":{"$old":{"value":"15.0","unit":"MMOL","source":1}}}}}}}}
+                {"model":{"reactions":{"0":{"inputs":{"0":{"mol":{"$old":{"source":"U","revision":1,"value":"15.0"}}}}}}}}
         """);
-    }
-
-    @Test
-    void testEnteredValueOverwritten() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, unknownCompound());
-        baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, unknownCompound());
-        reaction.setInputs(List.of(input));
-        baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
-        input.setMol(EnteredValue.userEntered("10.0", MolUnit.MMOL, 1).withOverwritten(true));
-        verifyModel("""
-                {"model":{"reactions":{"0":{"inputs":{"0":{"mol":{"value":{"$old":"15.0","$new":"10.0"},"overwritten":{"$new":true}}}}}}}}
-        """, false);
-    }
-
-    @Test
-    void testEnteredValueOverwrittenWithEmpty() throws Exception {
-        ReactionInput baseInput = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, unknownCompound());
-        baseReaction.setInputs(List.of(baseInput));
-        ReactionInput input = ReactionInput.create(reaction, ReactionRole.REACTANT, INPUT, unknownCompound());
-        reaction.setInputs(List.of(input));
-        baseInput.setMol(EnteredValue.userEntered("15.0", MolUnit.MMOL, 1));
-        input.setMol(EnteredValue.<MolUnit>empty().withOverwritten(true));
-        verifyModel("""
-                {"model":{"reactions":{"0":{"inputs":{"0":{"mol":{"value":{"$old":"15.0"},"unit":{"$old":"MMOL"},"source":{"$old":1},"overwritten":{"$new":true}}}}}}}}
-        """, false);
     }
 
     private void verifySimple(@Nullable String oldValue, @Nullable String newValue, @Language("JSON") String expectedStr) {

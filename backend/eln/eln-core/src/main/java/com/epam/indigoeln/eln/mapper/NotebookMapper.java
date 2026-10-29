@@ -6,8 +6,10 @@ import com.epam.indigoeln.eln.model.*;
 import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.reaction.model.mutation.NotebookMutation;
 import jakarta.inject.Inject;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.ReportingPolicy;
 
@@ -23,11 +25,17 @@ public abstract class NotebookMapper extends AbstractMapper {
     public abstract NotebookMutation.CreateNotebook requestToMutation(NotebookRequest request);
     public abstract NotebookMutation.EditNotebookAttributes requestToMutation(NotebookEditRequest request);
 
-    @Mapping(target = "acl", source = "shortACL")
+    @Mapping(target = "acl", ignore = true)
+    @Mapping(target = "aclCount", ignore = true)
     @Mapping(target = "experimentCountByStatus", source = "entity.experimentCount")
     public abstract NotebookDTO entityToDTO(NotebookEntity entity);
 
-    @Mapping(target = "acl", source = "entity.fullACL")
+    @AfterMapping
+    protected void mapShortACL(NotebookEntity entity, @MappingTarget NotebookDTO dto) {
+        mapShortACL(entity, dto::setAcl, dto::setAclCount);
+    }
+
+    @Mapping(target = "acl", source = "entity.effectiveACL")
     @Mapping(target = "experimentCountByStatus", source = "entity.experimentCount")
     @Mapping(target = "projectId", source = "entity.project.id")
     @Mapping(target = "projectName", source = "entity.project.name")

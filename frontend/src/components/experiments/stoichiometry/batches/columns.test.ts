@@ -80,16 +80,6 @@ describe('the batch columns', () => {
     const column = BATCH_COLUMNS.find((each) => each.id === 'reactionStep');
     expect(column?.kind === 'readonly' && column.value({ ...row(), step: 1 })).toBe('2');
   });
-
-  /**
-   * Total Moles carries the whole `EnteredValue`, not its `value` — given the bare string, the
-   * unit picker would never show the saved unit.
-   */
-  it('gives Total Moles the whole entered value, unit included', () => {
-    const column = BATCH_COLUMNS.find((each) => each.id === 'actualMol');
-    const actualMol = { value: '1.35', unit: 'MMOL' as const, source: 'calculated' as const };
-    expect(column?.kind === 'numeric' && column.value(row({ actualMol }))).toEqual(actualMol);
-  });
 });
 
 describe('isSampleProtected', () => {

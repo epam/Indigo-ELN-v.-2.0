@@ -24,8 +24,9 @@ import { canEditExperiment, canRunWorkflow, workflowActionsFor } from '@/lib/typ
  * these are the client's own wording. Nothing here reports a
  * *failure*: `apiFetch` toasts every one centrally.
  *
- * `confirm` is set only for Cancel — the one action that throws work away with no way back to it.
- * Complete and Reopen are each other's undo, and both submits stop at the template dialog anyway.
+ * Every transition asks before it fires: the two submits through the template picker, the rest
+ * through `confirm`. Neither confirm label is left to `FormDialog`'s defaults — "Cancel Experiment"
+ * beside a button called "Cancel" is unreadable, so the buttons say what they do.
  */
 const WORKFLOW: Record<
   WorkflowAction,
@@ -36,8 +37,15 @@ const WORKFLOW: Record<
     done: string;
     /** Opens the signature-template picker first and passes the choice through. */
     needsTemplate?: true;
-    /** Asks for confirmation first — see `CANCEL_CONFIRM`, the only one. */
-    needsConfirm?: true;
+    /** The confirmation shown first, for every action without a template picker. */
+    confirm?: {
+      title: string;
+      body: string;
+      submitLabel: string;
+      cancelLabel?: string;
+      /** For the action that throws work away — the default blue would read as the safe choice. */
+      destructive?: true;
+    };
   }
 > = {
   complete: {
@@ -45,6 +53,11 @@ const WORKFLOW: Record<
     icon: CircleCheck,
     variant: 'default',
     done: 'Experiment marked as completed',
+    confirm: {
+      title: 'Complete Experiment',
+      body: 'Are you sure you want to complete this experiment? Once completed, you’ll need to reopen the experiment to make any further changes.',
+      submitLabel: 'Complete',
+    },
   },
   completeAndSubmit: {
     label: 'Complete and Sign',
@@ -58,7 +71,13 @@ const WORKFLOW: Record<
     icon: Ban,
     variant: 'destructive',
     done: 'Experiment cancelled',
-    needsConfirm: true,
+    confirm: {
+      title: 'Cancel Experiment',
+      body: 'Are you sure you want to cancel this experiment? Once cancelled, you’ll need to reopen the experiment to make any further changes.',
+      submitLabel: 'Cancel Experiment',
+      cancelLabel: 'Keep Experiment',
+      destructive: true,
+    },
   },
   submit: {
     label: 'Submit',
@@ -72,22 +91,12 @@ const WORKFLOW: Record<
     icon: RotateCcw,
     variant: 'outline',
     done: 'Experiment reopened',
+    confirm: {
+      title: 'Reopen Experiment',
+      body: 'Are you sure you want to reopen this experiment? After that, it will become editable again.',
+      submitLabel: 'Reopen',
+    },
   },
-};
-
-/**
- * The one confirmation in the row. Written out here rather than in the table because the dialog
- * renders it whether or not it is open — a Base UI popup animates shut, and reading the copy off
- * `pending` would blank the text out mid-transition.
- *
- * Neither label is left to `FormDialog`'s defaults: "Cancel Experiment" beside a button called
- * "Cancel" is unreadable, so both say what they do.
- */
-const CANCEL_CONFIRM = {
-  title: 'Cancel Experiment',
-  body: 'This marks the experiment cancelled and stops any further work on it. It can be reopened afterwards, but the current status is lost.',
-  submitLabel: 'Cancel Experiment',
-  cancelLabel: 'Keep Experiment',
 };
 
 /** There is no tooltip primitive here; `Avatar` names itself with a plain `title` the same way. */
@@ -117,6 +126,12 @@ export function ExperimentActions({ experiment }: { experiment: ExperimentDetail
    * share the template picker and only one dialog can be open at a time.
    */
   const [pending, setPending] = useState<WorkflowAction | null>(null);
+  /**
+   * The action whose confirmation was last opened. Never cleared, unlike `pending`: the dialog
+   * renders whether or not it is open — a Base UI popup animates shut — and reading the copy off
+   * `pending` would blank the text out mid-transition.
+   */
+  const [confirming, setConfirming] = useState<WorkflowAction>('cancel');
   const workflow = useExperimentWorkflow(experiment.id);
   const { print, printing } = usePrintReport(experiment.id);
   const saving = useExperimentSaving(experiment.id);
@@ -124,13 +139,8 @@ export function ExperimentActions({ experiment }: { experiment: ExperimentDetail
   const actions = workflowActionsFor(experiment);
   const allowed = canRunWorkflow(experiment);
 
-  /** The dialog-less actions. `mutate`, not `mutateAsync`: nothing awaits these. */
-  function send(action: WorkflowAction) {
-    workflow.mutate({ action }, { onSuccess: () => notifyInfo(WORKFLOW[action].done) });
-  }
-
   /**
-   * The same, awaited — a dialog needs the promise. It closes itself only once the write has
+   * Runs the action a dialog was opened for — the dialog needs the promise. It closes itself only once the write has
    * landed; a rejection propagates into `FormDialog`, which keeps the dialog open with the choice
    * intact and leaves the already-toasted error to speak for itself.
    */
@@ -141,9 +151,11 @@ export function ExperimentActions({ experiment }: { experiment: ExperimentDetail
   }
 
   function handleClick(action: WorkflowAction) {
-    if (WORKFLOW[action].needsTemplate || WORKFLOW[action].needsConfirm) setPending(action);
-    else send(action);
+    if (WORKFLOW[action].confirm) setConfirming(action);
+    setPending(action);
   }
+
+  const confirm = WORKFLOW[confirming].confirm!;
 
   return (
     <>
@@ -193,17 +205,17 @@ export function ExperimentActions({ experiment }: { experiment: ExperimentDetail
       />
 
       <FormDialog
-        open={pending === 'cancel'}
+        open={pending !== null && WORKFLOW[pending].confirm !== undefined}
         onOpenChange={(open) => {
           if (!open) setPending(null);
         }}
-        title={CANCEL_CONFIRM.title}
-        submitLabel={CANCEL_CONFIRM.submitLabel}
-        submitVariant="destructive"
-        cancelLabel={CANCEL_CONFIRM.cancelLabel}
-        onSubmit={() => sendFromDialog('cancel')}
+        title={confirm.title}
+        submitLabel={confirm.submitLabel}
+        submitVariant={confirm.destructive ? 'destructive' : undefined}
+        cancelLabel={confirm.cancelLabel}
+        onSubmit={() => sendFromDialog(confirming)}
       >
-        <p className="text-[14px]/6 text-neutral-800">{CANCEL_CONFIRM.body}</p>
+        <p className="text-[14px]/6 text-neutral-800">{confirm.body}</p>
       </FormDialog>
     </>
   );

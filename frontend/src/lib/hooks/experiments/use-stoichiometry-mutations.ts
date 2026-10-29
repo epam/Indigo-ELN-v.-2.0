@@ -2,8 +2,9 @@ import { useCallback, useState } from 'react';
 
 import { useModelPatch, useMutateExperimentModel } from '@/lib/api/experiments';
 
-import type { ExperimentDetails, ModelPatch } from '@/lib/types/experiments.ts';
+import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
+import type { ExperimentModel } from '@/lib/types/reactions.ts';
 
 /** Addresses one cell for the purposes of its spinner: the row's anchor plus the column id. */
 export function cellId(anchor: string, column: string): string {
@@ -19,10 +20,15 @@ export interface StoichiometryMutations {
   /** Which cells are mid-save — what each cell's `SavingOverlay` reads. */
   savingCells: ReadonlySet<string>;
   /**
-   * The last patch to this experiment, whoever sent it — undo, the scheme, another table — so
-   * every table flashes what it moved. Drives the recalculation flash.
+   * The model before the last patch to this experiment, whoever sent it — undo, the scheme,
+   * another table — so every table flashes what it moved. The current model when no patch has
+   * landed since mount, so every value equals itself and nothing flashes.
    */
-  patch: ModelPatch;
+  previousModel: ExperimentModel;
+  /** Cells whose user-entered value the last patch overwrote — see `ModelPatch.conflicts`. */
+  conflicts: ReadonlySet<string>;
+  /** Counts patches — see `ModelPatch.generation`. */
+  generation: number;
 }
 
 /**
@@ -74,5 +80,11 @@ export function useStoichiometryMutations(experiment: ExperimentDetails): Stoich
     [run],
   );
 
-  return { save, savingCells, patch };
+  return {
+    save,
+    savingCells,
+    previousModel: patch.previous ?? experiment.model,
+    conflicts: patch.conflicts,
+    generation: patch.generation,
+  };
 }

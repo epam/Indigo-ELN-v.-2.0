@@ -220,12 +220,6 @@
     font-style: italic;
     background-color: white;
   }
-  .audit-log .warning {
-    font-weight: bold;
-    font-style: italic;
-    color: white;
-    background-color: darkred;
-  }
   .audit-log .ev-fixed {
     color: purple;
   }
@@ -309,6 +303,10 @@ function makeEntry(rev) {
   const body = d.querySelector('.entry-body');
   if (rev.messages.length > 0) {
     body.appendChild(makeSection('Messages', '<pre class="code-block">' + rev.messages.join('\n') + '</pre>', true));
+  }
+  if (Object.keys(rev.conflicts).length > 0) {
+    const conflicts = Object.entries(rev.conflicts).map(([field, reason]) => field + '\n\t' + reason).join('\n');
+    body.appendChild(makeSection('Conflicts', '<pre class="code-block">' + conflicts + '</pre>', true));
   }
   body.appendChild(makeSection('Mutation',     '<pre class="code-block">' + renderJson(rev.mutation) + '</pre>', false));
   body.appendChild(makeSection('JSON Diff',    '<pre class="code-block">' + renderJson(rev.jsonDiff) + '</pre>', false));

@@ -3,6 +3,7 @@ package com.epam.indigoeln.reaction.service.mutation.experiment;
 import com.epam.indigoeln.common.exception.InvalidRequestException;
 import com.epam.indigoeln.eln.entity.ExperimentEntity;
 import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
+import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.eln.mapper.SnapshotMapper;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
 import com.epam.indigoeln.eln.repository.ExperimentRepository;
@@ -10,7 +11,6 @@ import com.epam.indigoeln.eln.service.ACLService;
 import com.epam.indigoeln.eln.service.ExperimentService;
 import com.epam.indigoeln.eln.service.RevisionService;
 import com.epam.indigoeln.eln.service.UserService;
-import com.epam.indigoeln.eln.indigowrapper.IndigoAPI;
 import com.epam.indigoeln.reaction.model.ExperimentModel;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
@@ -19,6 +19,7 @@ import com.epam.indigoeln.reaction.service.ExperimentModelService;
 import com.epam.indigoeln.reaction.service.calculator.ReactionCalculator;
 import com.epam.indigoeln.reaction.service.mutation.ExperimentMutationListener;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandler;
+import com.epam.indigoeln.reaction.util.CalculationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.arc.All;
 import jakarta.enterprise.inject.Instance;
@@ -32,11 +33,11 @@ import one.util.streamex.StreamEx;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
 import static com.epam.indigoeln.eln.util.ModelUtil.updateDates;
-import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.runWithSignificantFigures;
 
 @Slf4j
 public abstract class AbstractExperimentMutationHandler<T extends ExperimentMutation> extends MutationHandler<T, ExperimentEntity, ExperimentSnapshot, ExperimentRevisionEntity, ExperimentMutationContext, ExperimentMutationListener> {
@@ -80,13 +81,13 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
 
     @Override
     protected final JsonNode doUpdateEntity(ExperimentEntity experiment, ExperimentSnapshot snapshotBefore, ExperimentSnapshot snapshotAfter, ExperimentMutationContext context) {
-        return runWithSignificantFigures(experiment.getModel().getSignificantFigures(), () -> {
+        return CalculationContext.call(experiment.getModel(), () -> {
             JsonNode patch;
             doNotifyBeforeRecalculate(experiment, context);
             ReactionCalculator calculator = reactionCalculatorFactory.get();
             try {
                 calculator.recalculate(experiment.getModel());
-                context.getResponse().getDebugMessages().addAll(calculator.getDebugMessages());
+                context.getResponse().getConflicts().putAll(calculator.getConflicts());
                 updateDates(experiment, userService.getCurrentUserEntity());
                 doNotifyAfterRecalculate(experiment, context);
                 doValidateModel(experiment.getModel());
@@ -115,7 +116,7 @@ public abstract class AbstractExperimentMutationHandler<T extends ExperimentMuta
     protected ExperimentRevisionEntity doCreateRevision(ExperimentEntity experiment, T mutation, String summary, Integer revisionNo, JsonNode patch, ExperimentMutationContext context, ExperimentSnapshot snapshotAfter) {
         ExperimentRevisionEntity revision = revisionService.addRevision(experiment, revisionNo, experiment.getModifiedAt(), summary, mutation, patch);
         revision.setMessages(new ArrayList<>(context.getResponse().getMessages()));
-        revision.setDebugMessages(new ArrayList<>(context.getResponse().getDebugMessages()));
+        revision.setConflicts(new LinkedHashMap<>(context.getResponse().getConflicts()));
         return revision;
     }
 

@@ -129,6 +129,12 @@
       "SUBMIT_EXPERIMENTS"
     ],
     "model": {
+      "unitSource": {
+        "weightUnit": "G",
+        "volumeUnit": "ML",
+        "molUnit": "MOL",
+        "molarityUnit": "M"
+      },
       "reactions": [
         {
           "anchor": "c21f4231-34ad-4489-ae86-25c4440fa505",
@@ -149,23 +155,20 @@
                 "compoundKey": "STR-00000018-00",
                 "formula": "C<sub>7</sub>H<sub>6</sub>O<sub>4</sub>",
                 "molWeight": {
-                  "value": "154.12",
-                  "exactValue": 154.12099623680115,
-                  "unit": "G_PER_MOL",
-                  "source": "fixed"
+                  "source": "F",
+                  "exact": 154.12099623680115,
+                  "value": "154.12"
                 },
                 "exactMass": {
-                  "value": "154.03",
-                  "exactValue": 154.0266101360321,
-                  "unit": "NO_UNIT",
-                  "source": "fixed"
+                  "source": "F",
+                  "exact": 154.0266101360321,
+                  "value": "154.03"
                 },
                 "calculatedBatchMF": "C<sub>7</sub>H<sub>6</sub>O<sub>4</sub>"
               },
               "eq": {
-                "value": "1",
-                "unit": "NO_UNIT",
-                "source": "default"
+                "source": "D",
+                "value": "1"
               },
               "rxnPosition": 0,
               "role": "REACTANT",
@@ -174,19 +177,18 @@
                 {
                   "anchor": "e7ae494e-0d76-4c99-a17e-d29c11098814",
                   "density": {
-                    "value": "12",
-                    "unit": "G_ML",
-                    "source": 110
+                    "source": "U",
+                    "revision": 110,
+                    "value": "12"
                   },
                   "volume": {
-                    "value": "6.6670",
-                    "unit": "ML",
-                    "source": "calculated"
+                    "source": "C",
+                    "value": "6.6670"
                   },
                   "purity": {
-                    "value": "50",
-                    "unit": "NO_UNIT",
-                    "source": 103
+                    "source": "U",
+                    "revision": 103,
+                    "value": "50"
                   },
                   "sampleSource": "SRS",
                   "sampleKey": "STR-00000018-00-001",
@@ -205,32 +207,30 @@
                     }
                   ],
                   "mol": {
-                    "value": "0.25955",
-                    "unit": "MOL",
-                    "source": 101
+                    "source": "U",
+                    "revision": 101,
+                    "value": "0.25955"
                   },
                   "weight": {
-                    "value": "80.004",
-                    "unit": "G",
-                    "source": "calculated"
+                    "source": "C",
+                    "value": "80.004"
                   }
                 },
                 {
                   "anchor": "e52da743-f355-4ff9-a34d-81e30f0a3a54",
                   "density": {
-                    "value": "1",
-                    "unit": "G_ML",
-                    "source": 52
+                    "source": "U",
+                    "revision": 52,
+                    "value": "1"
                   },
                   "molarity": {
-                    "value": "15",
-                    "unit": "M",
-                    "source": 84
+                    "source": "U",
+                    "revision": 84,
+                    "value": "15"
                   },
                   "purity": {
-                    "value": "100",
-                    "unit": "NO_UNIT",
-                    "source": "default"
+                    "source": "D",
+                    "value": "100"
                   },
                   "sampleSource": "SRS",
                   "sampleKey": "STR-00000018-00-003",
@@ -257,19 +257,17 @@
                 {
                   "anchor": "8d3a6ff9-64bb-4ae4-ab1f-3dd0555afc93",
                   "density": {
-                    "value": "27",
-                    "unit": "G_ML",
-                    "source": 118
+                    "source": "U",
+                    "revision": 118,
+                    "value": "27"
                   },
                   "volume": {
-                    "value": "2.2833",
-                    "unit": "ML",
-                    "source": "calculated"
+                    "source": "C",
+                    "value": "2.2833"
                   },
                   "purity": {
-                    "value": "100",
-                    "unit": "NO_UNIT",
-                    "source": "default"
+                    "source": "D",
+                    "value": "100"
                   },
                   "sampleSource": "SRS",
                   "sampleKey": "STR-00000018-00-002",
@@ -281,14 +279,13 @@
                   ],
                   "nbkBatchNumber": "88888888-0003-018",
                   "mol": {
-                    "value": "0.4",
-                    "unit": "MOL",
-                    "source": 117
+                    "source": "U",
+                    "revision": 117,
+                    "value": "0.4"
                   },
                   "weight": {
-                    "value": "61.648",
-                    "unit": "G",
-                    "source": "calculated"
+                    "source": "C",
+                    "value": "61.648"
                   },
                   "comment": "loing long long loing long long loing long comment"
                 }
@@ -309,23 +306,21 @@
                 },
                 "formula": "C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>",
                 "molWeight": {
-                  "value": "102.09",
-                  "exactValue": 102.08899760246277,
-                  "unit": "G_PER_MOL",
-                  "source": "fixed"
+                  "source": "F",
+                  "exact": 102.08899760246277,
+                  "value": "102.09"
                 },
                 "exactMass": {
-                  "value": "102.03",
-                  "exactValue": 102.03169512748718,
-                  "unit": "NO_UNIT",
-                  "source": "fixed"
+                  "source": "F",
+                  "exact": 102.03169512748718,
+                  "value": "102.03"
                 },
                 "calculatedBatchMF": "C<sub>4</sub>H<sub>6</sub>O<sub>3</sub>"
               },
               "eq": {
-                "value": "0.5",
-                "unit": "NO_UNIT",
-                "source": 81
+                "source": "U",
+                "revision": 81,
+                "value": "0.5"
               },
               "rxnPosition": 1,
               "role": "REACTANT",
@@ -333,9 +328,8 @@
                 {
                   "anchor": "395eeeae-b854-4d8a-ac14-d3808afa33e5",
                   "purity": {
-                    "value": "100",
-                    "unit": "NO_UNIT",
-                    "source": "default"
+                    "source": "D",
+                    "value": "100"
                   },
                   "sampleSource": "VIRTUAL",
                   "healthHazards": []
@@ -357,23 +351,20 @@
                 "compoundKey": "1140",
                 "formula": "C<sub>7</sub>H<sub>8</sub>",
                 "molWeight": {
-                  "value": "92.14",
-                  "exactValue": 92.14099788665771,
-                  "unit": "G_PER_MOL",
-                  "source": "fixed"
+                  "source": "F",
+                  "exact": 92.14099788665771,
+                  "value": "92.14"
                 },
                 "exactMass": {
-                  "value": "92.06",
-                  "exactValue": 92.06260013580322,
-                  "unit": "NO_UNIT",
-                  "source": "fixed"
+                  "source": "F",
+                  "exact": 92.06260013580322,
+                  "value": "92.06"
                 },
                 "calculatedBatchMF": "C<sub>7</sub>H<sub>8</sub>"
               },
               "eq": {
-                "value": "1",
-                "unit": "NO_UNIT",
-                "source": "default"
+                "source": "D",
+                "value": "1"
               },
               "rxnPosition": 2,
               "role": "REACTANT",
@@ -382,9 +373,8 @@
                 {
                   "anchor": "2117d6e1-e438-4bc7-9b2d-2a17ef7675c5",
                   "purity": {
-                    "value": "100",
-                    "unit": "NO_UNIT",
-                    "source": "default"
+                    "source": "D",
+                    "value": "100"
                   },
                   "sampleSource": "PUBCHEM",
                   "sampleKey": "1140",
@@ -410,23 +400,20 @@
                 "saltEQ": 0.5,
                 "formula": "C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>",
                 "molWeight": {
-                  "value": "396.78",
-                  "exactValue": 396.77799125671385,
-                  "unit": "G_PER_MOL",
-                  "source": "fixed"
+                  "source": "F",
+                  "exact": 396.77799125671385,
+                  "value": "396.78"
                 },
                 "exactMass": {
-                  "value": "180.04",
-                  "exactValue": 180.0422601699829,
-                  "unit": "NO_UNIT",
-                  "source": "fixed"
+                  "source": "F",
+                  "exact": 180.0422601699829,
+                  "value": "180.04"
                 },
                 "calculatedBatchMF": "C<sub>9</sub>H<sub>8</sub>O<sub>4</sub>&nbsp;*&nbsp;0.5 (HCl)"
               },
               "eq": {
-                "value": "1",
-                "unit": "NO_UNIT",
-                "source": "default"
+                "source": "D",
+                "value": "1"
               },
               "rxnPosition": 0,
               "outputName": "P1",
@@ -449,23 +436,20 @@
                 "compoundKey": "STR-00000101-00",
                 "formula": "C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>",
                 "molWeight": {
-                  "value": "60.05",
-                  "exactValue": 60.05199861526489,
-                  "unit": "G_PER_MOL",
-                  "source": "fixed"
+                  "source": "F",
+                  "exact": 60.05199861526489,
+                  "value": "60.05"
                 },
                 "exactMass": {
-                  "value": "60.02",
-                  "exactValue": 60.021130084991455,
-                  "unit": "NO_UNIT",
-                  "source": "fixed"
+                  "source": "F",
+                  "exact": 60.021130084991455,
+                  "value": "60.02"
                 },
                 "calculatedBatchMF": "C<sub>2</sub>H<sub>4</sub>O<sub>2</sub>"
               },
               "eq": {
-                "value": "1",
-                "unit": "NO_UNIT",
-                "source": "default"
+                "source": "D",
+                "value": "1"
               },
               "rxnPosition": 1,
               "outputName": "P0",
@@ -476,9 +460,9 @@
                   "anchor": "baebf11e-4b84-4019-9688-fc9c58817963",
                   "nbkBatchNumber": "88888888-0001-001",
                   "purity": {
-                    "value": "0.5",
-                    "unit": "NO_UNIT",
-                    "source": 12
+                    "source": "U",
+                    "revision": 12,
+                    "value": "0.5"
                   },
                   "sampleSource": "SRS",
                   "sampleKey": "STR-00000101-00-001",
@@ -493,14 +477,13 @@
                     }
                   ],
                   "actualMol": {
-                    "value": "0.00084094",
-                    "unit": "MOL",
-                    "source": "calculated"
+                    "source": "C",
+                    "value": "0.00084094"
                   },
                   "actualWeight": {
-                    "value": "10.10",
-                    "unit": "G",
-                    "source": 107
+                    "source": "U",
+                    "revision": 107,
+                    "value": "10.10"
                   },
                   "registrationStatus": "REGISTERED",
                   "handlingPrecautions": [
@@ -593,9 +576,8 @@
                   "anchor": "dfb7d0f2-5e4d-4cc1-a16d-3b989d543799",
                   "nbkBatchNumber": "88888888-0001-002",
                   "purity": {
-                    "value": "100",
-                    "unit": "NO_UNIT",
-                    "source": "default"
+                    "source": "D",
+                    "value": "100"
                   },
                   "sampleSource": "SRS",
                   "sampleKey": "STR-00000101-00-002",
@@ -612,9 +594,8 @@
                   "anchor": "0388a5a3-734f-4d0a-ace8-38e24654ebc2",
                   "nbkBatchNumber": "88888888-0001-003",
                   "purity": {
-                    "value": "100",
-                    "unit": "NO_UNIT",
-                    "source": "default"
+                    "source": "D",
+                    "value": "100"
                   },
                   "sampleSource": "VIRTUAL",
                   "healthHazards": [

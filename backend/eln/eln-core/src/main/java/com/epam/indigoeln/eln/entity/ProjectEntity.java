@@ -1,6 +1,5 @@
 package com.epam.indigoeln.eln.entity;
 
-import com.epam.indigoeln.eln.config.hibernate.ACLEntryArrayType;
 import com.epam.indigoeln.eln.config.hibernate.ExperimentCountArrayType;
 import com.epam.indigoeln.eln.common.config.SearchVectorType;
 import com.epam.indigoeln.eln.model.AccessLevel;
@@ -33,10 +32,8 @@ import java.util.*;
         attributeNodes = {
                 @NamedAttributeNode("createdBy"),
                 @NamedAttributeNode("modifiedBy"),
-                @NamedAttributeNode("shortACL"),
                 @NamedAttributeNode("notebookCount"),
-                @NamedAttributeNode("experimentCount"),
-                @NamedAttributeNode("aclCount")
+                @NamedAttributeNode("experimentCount")
         }
 )
 @NamedEntityGraph(
@@ -44,18 +41,16 @@ import java.util.*;
         attributeNodes = {
                 @NamedAttributeNode("createdBy"),
                 @NamedAttributeNode("modifiedBy"),
-                @NamedAttributeNode("keywords"),
-                @NamedAttributeNode("fullACL"),
                 @NamedAttributeNode("notebookCount"),
                 @NamedAttributeNode("experimentCount"),
-                @NamedAttributeNode("currentAccessOrNull"),
-                @NamedAttributeNode("attachments")
+                @NamedAttributeNode("currentAccessOrNull")
         }
 )
 @NamedEntityGraph(
         name = "Project.withACL",
         attributeNodes = {
                 @NamedAttributeNode("aclEntities"),
+                @NamedAttributeNode("implicitUsers"),
                 @NamedAttributeNode("notebooks")
         }
 )
@@ -86,19 +81,14 @@ public class ProjectEntity extends BaseEntity implements WithAttachments<Project
     private SearchVector searchVector;
 
     @NotNull
-    @Basic(fetch = FetchType.LAZY)
-    @Type(ACLEntryArrayType.class)
-    private List<ACLEntry> shortACL = List.of();
-
-    @NotNull
-    @Basic(fetch = FetchType.LAZY)
-    @Type(ACLEntryArrayType.class)
-    private List<ACLEntry> fullACL = List.of();
-
-    @NotNull
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKeyJoinColumn(name = "user_id")
     private Map<UserEntity, ProjectACLEntity> aclEntities = HashMap.newHashMap(0);
+
+    @NotNull
+    @ManyToMany
+    @JoinTable(name = "Project_Implicit_Access", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<UserEntity> implicitUsers = HashSet.newHashSet(0);
 
     @NotNull
     @ElementCollection
@@ -136,13 +126,6 @@ public class ProjectEntity extends BaseEntity implements WithAttachments<Project
     @Fetch(FetchMode.SELECT)
     @LazyGroup("access_view")
     private AccessLevel currentAccessOrNull;
-
-    @Nullable
-    @Basic(fetch = FetchType.LAZY)
-    @Column(table = "Project_Access_View", insertable = false, updatable = false)
-    @Fetch(FetchMode.SELECT)
-    @LazyGroup("access_view")
-    private Integer aclCount;
 
     @Override
     public void insertACL(UserEntity user, AccessLevel access) {

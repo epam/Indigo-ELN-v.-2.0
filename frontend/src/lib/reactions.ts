@@ -29,6 +29,17 @@ export function getPrecursorReactantIds(reaction: Reaction): string[] {
     .flatMap((sample) => sample.sampleKey ?? []);
 }
 
+/**
+ * The node with this anchor, or undefined when there is none — how a row finds its counterpart in
+ * the model before the last patch. Undefined for a list that is itself absent there.
+ */
+export function findByAnchor<T extends { anchor: string }>(
+  items: readonly T[] | undefined,
+  anchor: string,
+): T | undefined {
+  return items?.find((item) => item.anchor === anchor);
+}
+
 /** Why the reaction scheme refuses a drawing with no arrow: `SetScheme` takes a rxnfile. */
 export const NOT_A_REACTION = 'Draw a reaction, not a single molecule';
 

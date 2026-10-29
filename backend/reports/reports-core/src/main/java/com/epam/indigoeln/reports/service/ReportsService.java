@@ -1,7 +1,7 @@
 package com.epam.indigoeln.reports.service;
 
 import com.epam.indigoeln.common.util.ModelUtil;
-import com.epam.indigoeln.reaction.model.ExperimentModel;
+import com.epam.indigoeln.reaction.util.CalculationContext;
 import com.epam.indigoeln.reports.api.ReportsAPI;
 import io.quarkiverse.jasperreports.repository.ReadOnlyStreamingService;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -11,7 +11,11 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -26,7 +30,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.generateContentDisposition;
-import static com.epam.indigoeln.reaction.util.SignificantFiguresUtil.callWithSignificantFigures;
 
 @Slf4j
 @ApplicationScoped
@@ -51,7 +54,7 @@ public class ReportsService {
     }
 
     public Response generateExperimentReport(ReportsAPI.ExperimentReportDataDTO data) {
-        byte[] bytes = doGenerateExperimentReport(List.of(data));
+        byte[] bytes = doGenerateExperimentReport(data);
         return Response.ok(bytes)
                 .header(HttpHeaders.CONTENT_DISPOSITION, generateContentDisposition(true, "Experiment " + data.getExperiment().getName() + ".pdf"))
                 .header(HttpHeaders.CONTENT_TYPE, "application/pdf")
@@ -60,11 +63,9 @@ public class ReportsService {
 
     @SneakyThrows
     @Transactional(Transactional.TxType.NOT_SUPPORTED)
-    byte[] doGenerateExperimentReport(List<ReportsAPI.ExperimentReportDataDTO> experiments) {
-        int significantFigures = !experiments.isEmpty() ? experiments.getFirst().getExperiment().getModel().getSignificantFigures() : ExperimentModel.DEFAULT_SIGNIFICANT_FIGURES;
-        //noinspection DataFlowIssue
-        return callWithSignificantFigures(significantFigures, () -> {
-            JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(experiments);
+    byte[] doGenerateExperimentReport(ReportsAPI.ExperimentReportDataDTO experiment) {
+        return CalculationContext.call(experiment.getExperiment().getModel(), () -> {
+            JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(List.of(experiment));
             Map<String, Object> params = new HashMap<>();
             params.put("dateFormat", dateTimeFormatter);
             params.put("reportDate", Instant.now());

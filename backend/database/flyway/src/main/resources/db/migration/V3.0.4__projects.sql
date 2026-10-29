@@ -9,8 +9,6 @@ CREATE TABLE Project (
     literature TEXT,
     description TEXT,
     search_vector TSVECTOR NOT NULL,
-    full_acl ACL_Entry[] NOT NULL,
-    short_acl ACL_Entry[] NOT NULL,
     notebook_count INT NOT NULL DEFAULT 0,
     experiment_count Experiment_Count[] NOT NULL DEFAULT '{}',
     CONSTRAINT project_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES User_Account (id),
@@ -19,7 +17,6 @@ CREATE TABLE Project (
 );
 CREATE INDEX ix_project_search_vector ON Project USING GIN(search_vector);
 CREATE INDEX ix_project_name ON Project USING GIN (name gin_trgm_ops);
-CREATE INDEX ix_project_acl_gin ON Project USING GIN (acl_user_ids(full_acl));
 CREATE INDEX ix_project_created_by_id ON Project (created_by_id);
 
 CREATE TABLE Project_Keyword (
@@ -37,6 +34,14 @@ CREATE TABLE Project_ACL (
     CONSTRAINT project_acl_pk PRIMARY KEY (project_id, user_id),
     CONSTRAINT project_acl_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id) ON DELETE CASCADE,
     CONSTRAINT project_acl_user_id_fk FOREIGN KEY (user_id) REFERENCES User_Account (id) ON DELETE CASCADE
+);
+
+CREATE TABLE Project_Implicit_Access (
+    project_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    CONSTRAINT project_implicit_access_pk PRIMARY KEY (project_id, user_id),
+    CONSTRAINT project_implicit_access_project_id_fk FOREIGN KEY (project_id) REFERENCES Project (id) ON DELETE CASCADE,
+    CONSTRAINT project_implicit_access_user_id_fk FOREIGN KEY (user_id) REFERENCES User_Account (id) ON DELETE CASCADE
 );
 
 CREATE TABLE Project_Revision (

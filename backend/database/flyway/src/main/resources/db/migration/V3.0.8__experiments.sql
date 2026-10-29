@@ -20,10 +20,6 @@ CREATE TABLE Experiment (
     model JSONB NOT NULL,
     picture BYTEA,
     search_vector TSVECTOR NOT NULL,
-    full_acl ACL_Entry[] NOT NULL,
-    short_acl ACL_Entry[] NOT NULL,
-    signature_number VARCHAR(1024),
-    signature_attachment_id UUID,
     version INT,
     linked_experiments UUID[] NOT NULL,
     continued_from UUID[] NOT NULL,
@@ -39,7 +35,6 @@ CREATE TABLE Experiment (
 );
 CREATE INDEX ix_experiment_search_vector ON Experiment USING GIN(search_vector);
 CREATE INDEX ix_experiment_name ON Experiment USING GIN (name gin_trgm_ops);
-CREATE INDEX ix_experiment_acl_gin ON Experiment USING GIN (acl_user_ids(full_acl));
 CREATE INDEX ix_experiment_notebook_id ON Experiment (notebook_id);
 CREATE INDEX ix_experiment_project_id ON Experiment (project_id);
 CREATE INDEX ix_experiment_created_by_id ON Experiment (created_by_id);
@@ -103,7 +98,7 @@ CREATE TABLE Experiment_Revision (
     version INT,
     snapshot JSONB,
     messages VARCHAR(1024)[] NOT NULL DEFAULT '{}',
-    debug_messages VARCHAR(1024)[] NOT NULL DEFAULT '{}',
+    conflicts JSONB NOT NULL DEFAULT '{}',
     CONSTRAINT experiment_revision_pk PRIMARY KEY (experiment_id, revision),
     CONSTRAINT experiment_revision_experiment_id_fk FOREIGN KEY (experiment_id) REFERENCES Experiment (id),
     CONSTRAINT experiment_revision_experiment_id_version_uq UNIQUE (experiment_id, version)
@@ -127,5 +122,3 @@ CREATE TABLE Experiment_Attachment (
     CONSTRAINT experiment_attachment_experiment_id_fk FOREIGN KEY (experiment_id) REFERENCES Experiment (id) ON DELETE CASCADE
 );
 CREATE INDEX ix_experiment_attachment_experiment_id ON Experiment_Attachment (experiment_id);
-
-ALTER TABLE Experiment ADD CONSTRAINT experiment_signature_attachment_id_fk FOREIGN KEY (signature_attachment_id) REFERENCES Experiment_Attachment (id) ON DELETE SET NULL;

@@ -1,11 +1,11 @@
 import { asEnteredValue } from '@/components/experiments/stoichiometry/columns';
 
-import type { NumericCellValue } from '@/components/experiments/stoichiometry/numeric-cell';
+import type { HideableColumn } from '@/lib/hooks/experiments/use-hidden-columns';
 import type { DictionaryItemRef } from '@/lib/types/dictionaries.ts';
 import { newAnchor } from '@/lib/utils';
 import type { ModelMutation } from '@/lib/types/mutations.ts';
-import type { EnteredValue, ReactionOutput, ReactionOutputType } from '@/lib/types/reactions.ts';
-import { isKnownCompound, MOL_UNITS, MOL_WEIGHT_UNITS, NO_UNITS, WEIGHT_UNITS } from '@/lib/types/reactions.ts';
+import type { ColumnUnit, EnteredValue, ReactionOutput, ReactionOutputType } from '@/lib/types/reactions.ts';
+import { isKnownCompound } from '@/lib/types/reactions.ts';
 
 /**
  * The Reaction Products table's columns, as data — the same shape `columns.ts` uses for the
@@ -40,10 +40,17 @@ interface ColumnBase {
   id: string;
   header: string;
   /**
-   * A floor in pixels, stated only where the cell edits a number with a unit — see the note on
+   * What the column's values are measured in, written after the header — `Weight, g`. Read off
+   * the experiment, since every value of a quantity is in its one unit; no cell shows a unit.
+   */
+  unit?: ColumnUnit;
+  /**
+   * A floor in pixels, stated only where the cell edits a number — see the note on
    * the inputs table's own `minWidth`. Every other column is as wide as its content or header.
    */
   minWidth?: number;
+  /** Offered by the Column Selector — every column but #, Output Name and Add Batch. */
+  hideable?: true;
 }
 
 type Cell =
@@ -66,19 +73,13 @@ type Cell =
    */
   | {
       kind: 'readonlyNumeric';
-      value: (row: ProductRow) => EnteredValue<string> | undefined;
-      units: readonly string[];
-      /** The fixed unit's text on a single-unit column, when `unitLabel` is not what to show. */
-      suffix?: string;
+      value: (row: ProductRow) => EnteredValue | undefined;
     }
-  /** An editable number with a unit, or a unitless one when `units` has a single member. */
+  /** An editable number, in the unit the column's header names. */
   | {
       kind: 'numeric';
-      value: (row: ProductRow) => EnteredValue<string> | undefined;
-      units: readonly string[];
-      /** The fixed unit's text on a single-unit column, when `unitLabel` is not what to show. */
-      suffix?: string;
-      mutation: (row: ProductRow, next: NumericCellValue) => ModelMutation;
+      value: (row: ProductRow) => EnteredValue | undefined;
+      mutation: (row: ProductRow, next: string | null) => ModelMutation;
       editable?: (row: ProductRow) => boolean;
     }
   /** One item from a built-in dictionary. */
@@ -115,6 +116,7 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'reactionStep',
     header: 'Reaction Step',
+    hideable: true,
     kind: 'readonly',
     // Derived from the position in `model.reactions`, not hardcoded. There is only ever one step today; this
     // keeps being right once `AddReaction` exists.
@@ -123,6 +125,7 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'type',
     header: 'Product Type',
+    hideable: true,
     kind: 'outputType',
     value: (row) => row.output.type,
     // Note `outputType`, not `type` — that name is the mutation union's own discriminator.
@@ -131,49 +134,52 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'formula',
     header: 'Formula',
+    hideable: true,
     kind: 'html',
     value: (row) => row.output.compound.formula,
   },
   {
     id: 'molWeight',
     header: 'Mol. Weight',
+    hideable: true,
     // Read-only, unlike the inputs table's column of the same name. `SetOutputCompoundMolWeight`
     // only accepts an unknown compound, and every row here came from the drawn scheme, so it is
     // known by construction.
     kind: 'readonlyNumeric',
     value: (row) => row.output.compound.molWeight,
-    units: MOL_WEIGHT_UNITS,
-    // Implied by the column — every molecular weight is g/mol.
-    suffix: '',
+    unit: 'molWeight',
   },
   {
     id: 'exactMass',
     header: 'Exact Mass',
+    hideable: true,
     kind: 'readonlyNumeric',
     value: (row) => row.output.compound.exactMass,
-    units: NO_UNITS,
   },
   {
     id: 'theoWeight',
     header: 'Theo. Weight',
-    minWidth: 130,
+    hideable: true,
+    minWidth: 100,
     kind: 'readonlyNumeric',
     // Calculated: `theoWeight = theoMol * molWeight`. No limiting reagent means no `theoMol`,
     // which means no `theoWeight` — both cells then show an em-dash rather than a zero.
     value: (row) => row.output.theoWeight,
-    units: WEIGHT_UNITS,
+    unit: 'weight',
   },
   {
     id: 'theoMol',
     header: 'Theo. Moles',
-    minWidth: 130,
+    hideable: true,
+    minWidth: 100,
     kind: 'readonlyNumeric',
     value: (row) => row.output.theoMol,
-    units: MOL_UNITS,
+    unit: 'mol',
   },
   {
     id: 'saltCode',
     header: 'Salt Code',
+    hideable: true,
     kind: 'dictionary',
     dictionary: 'SALT_CODE',
     value: (row) => row.output.compound.saltCode,
@@ -184,17 +190,18 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'saltEQ',
     header: 'Salt EQ',
+    hideable: true,
     kind: 'numeric',
     value: (row) => asEnteredValue(row.output.compound.saltEQ),
-    units: NO_UNITS,
     // Both gates, matching the inputs table: a registered compound's salt EQ is fixed even when
     // it has a code. No salt EQ means the default "00 - Parent Structure".
     editable: (row) => saltEditable(row.output) && row.output.compound.saltEQ != null,
-    mutation: (row, next) => ({ type: 'SetOutputRowSaltEQ', anchor: row.output.anchor, saltEQ: next.value }),
+    mutation: (row, next) => ({ type: 'SetOutputRowSaltEQ', anchor: row.output.anchor, saltEQ: next }),
   },
   {
     id: 'stereoisomerCode',
     header: 'Stereoisomer Code',
+    hideable: true,
     kind: 'dictionary',
     dictionary: 'STEREOISOMER_CODE',
     value: (row) => row.output.compound.stereoisomerCode,
@@ -209,12 +216,12 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
   {
     id: 'eq',
     header: 'EQ',
+    hideable: true,
     kind: 'numeric',
     // The one editable number on the row, and what the two theoretical columns are computed
     // from: `theoMol = limiting.mol / limiting.eq * eq`.
     value: (row) => row.output.eq,
-    units: NO_UNITS,
-    mutation: (row, next) => ({ type: 'SetOutputRowEQ', anchor: row.output.anchor, eq: next.value }),
+    mutation: (row, next) => ({ type: 'SetOutputRowEQ', anchor: row.output.anchor, eq: next }),
   },
   {
     id: 'addBatch',
@@ -242,3 +249,8 @@ export function productHaystack(row: ProductRow): string {
     .join(' ')
     .toLowerCase();
 }
+
+/** What the Column Selector offers, in table order — the columns marked `hideable`. */
+export const HIDEABLE_PRODUCT_COLUMNS: readonly HideableColumn[] = PRODUCT_COLUMNS.filter(
+  (column) => column.hideable,
+).map(({ id, header }) => ({ id, header }));

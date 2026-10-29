@@ -145,15 +145,6 @@ public class ExperimentRepository extends BaseRepository<ExperimentEntity> {
         return doFindByIDs(ids, em.getEntityGraph("Experiment.withACL"));
     }
 
-    public boolean hasAccessibleExperiments(NotebookEntity notebook) {
-        CriteriaDefinition<Integer> criteria = new CriteriaDefinition<>(em, Integer.class) {{
-            JpaRoot<ExperimentEntity> root = from(ExperimentEntity.class);
-            select(literal(1));
-            where(root.get(ExperimentEntity_.notebook).equalTo(notebook));
-        }};
-        return doExists(criteria);
-    }
-
     @Nullable
     public String getLastExperimentName(NotebookEntity notebook) {
         List<@Nullable String> found = em.createQuery("select max(e.name) from Experiment e where e.notebook.id = ?1", String.class)

@@ -1,4 +1,4 @@
-package com.epam.indigoeln.flyway.migrations;
+package com.epam.indigoeln.flyway.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -12,7 +12,7 @@ import java.sql.Statement;
 import java.util.UUID;
 
 @Slf4j
-public class R__300_migrate_experiment_models extends BaseJavaMigration {
+public abstract class AbstractModelMigration extends BaseJavaMigration {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -49,7 +49,5 @@ public class R__300_migrate_experiment_models extends BaseJavaMigration {
         }
     }
 
-    void updateModel(ObjectNode model) {
-        // no effective updates
-    }
+    protected abstract void updateModel(ObjectNode model);
 }

@@ -1,10 +1,5 @@
 package com.epam.indigoeln.reaction.model.mutation;
 
-import com.epam.indigoeln.common.model.units.DensityUnit;
-import com.epam.indigoeln.common.model.units.MolUnit;
-import com.epam.indigoeln.common.model.units.MolarityUnit;
-import com.epam.indigoeln.common.model.units.VolumeUnit;
-import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.eln.model.HealthHazardRef;
 import com.epam.indigoeln.reaction.model.InputSampleAnchor;
 import jakarta.validation.constraints.NotNull;
@@ -23,22 +18,19 @@ public interface ReactionInputSampleMutation extends ExperimentMutation {
 
     record SetInputDensity (
             @NotNull InputSampleAnchor anchor,
-            @Nullable String density,
-            @Nullable DensityUnit unit
+            @Nullable String density
     ) implements ReactionInputSampleMutation {
     }
 
     record SetInputMolarity (
             @NotNull InputSampleAnchor anchor,
-            @Nullable String molarity,
-            @Nullable MolarityUnit unit
+            @Nullable String molarity
     ) implements ReactionInputSampleMutation {
     }
 
     record SetInputVolume (
             @NotNull InputSampleAnchor anchor,
-            @Nullable String volume,
-            @Nullable VolumeUnit unit
+            @Nullable String volume
     ) implements ReactionInputSampleMutation {
     }
 
@@ -56,15 +48,13 @@ public interface ReactionInputSampleMutation extends ExperimentMutation {
 
     record SetInputMol (
             @NotNull InputSampleAnchor anchor,
-            @Nullable String mol,
-            @Nullable MolUnit unit
+            @Nullable String mol
     ) implements ReactionInputSampleMutation {
     }
 
     record SetInputWeight (
             @NotNull InputSampleAnchor anchor,
-            @Nullable String weight,
-            @Nullable WeightUnit unit
+            @Nullable String weight
     ) implements ReactionInputSampleMutation {
     }
 

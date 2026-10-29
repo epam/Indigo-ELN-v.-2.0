@@ -3,11 +3,6 @@ package com.epam.indigoeln.reaction.util;
 import com.epam.indigoeln.common.model.Page;
 import com.epam.indigoeln.common.model.Paging;
 import com.epam.indigoeln.common.model.search.StructuralSearch;
-import com.epam.indigoeln.common.model.units.DensityUnit;
-import com.epam.indigoeln.common.model.units.MolUnit;
-import com.epam.indigoeln.common.model.units.MolarityUnit;
-import com.epam.indigoeln.common.model.units.VolumeUnit;
-import com.epam.indigoeln.common.model.units.WeightUnit;
 import com.epam.indigoeln.common.util.ModelUtil;
 import com.epam.indigoeln.compound.model.SampleDTO;
 import com.epam.indigoeln.compound.model.search.FindSamplesRequest;
@@ -94,6 +89,11 @@ public class ExperimentObject {
         return response;
     }
 
+    /** {@code lastMutationResponse().getConflicts()}: field ids of user-entered values the last mutation overwrote, to why. */
+    public Map<String, String> lastConflicts() {
+        return lastMutationResponse().getConflicts();
+    }
+
     public ExperimentDetailsDTO experiment() {
         if (experiment == null) {
             experiment = experimentClient.getExperiment(id);
@@ -162,20 +162,20 @@ public class ExperimentObject {
         mutate(new ReactionMutation.ResolveInputs(reaction().getAnchor(), resolved));
     }
 
-    public void mutateSetInputMol(int inputNo, int sampleNo, @Nullable String mol, @Nullable MolUnit unit) {
-        mutate(new ReactionInputSampleMutation.SetInputMol(inputSample(inputNo, sampleNo).getAnchor(), mol, unit));
+    public void mutateSetInputMol(int inputNo, int sampleNo, @Nullable String mol) {
+        mutate(new ReactionInputSampleMutation.SetInputMol(inputSample(inputNo, sampleNo).getAnchor(), mol));
     }
 
-    public void mutateSetInputWeight(int inputNo, int sampleNo, @Nullable String weight, @Nullable WeightUnit unit) {
-        mutate(new ReactionInputSampleMutation.SetInputWeight(inputSample(inputNo, sampleNo).getAnchor(), weight, unit));
+    public void mutateSetInputWeight(int inputNo, int sampleNo, @Nullable String weight) {
+        mutate(new ReactionInputSampleMutation.SetInputWeight(inputSample(inputNo, sampleNo).getAnchor(), weight));
     }
 
-    public void mutateSetInputVolume(int inputNo, int sampleNo, @Nullable String volume, @Nullable VolumeUnit unit) {
-        mutate(new ReactionInputSampleMutation.SetInputVolume(inputSample(inputNo, sampleNo).getAnchor(), volume, unit));
+    public void mutateSetInputVolume(int inputNo, int sampleNo, @Nullable String volume) {
+        mutate(new ReactionInputSampleMutation.SetInputVolume(inputSample(inputNo, sampleNo).getAnchor(), volume));
     }
 
-    public void mutateSetInputDensity(int inputNo, int sampleNo, @Nullable String density, @Nullable DensityUnit unit) {
-        mutate(new ReactionInputSampleMutation.SetInputDensity(inputSample(inputNo, sampleNo).getAnchor(), density, unit));
+    public void mutateSetInputDensity(int inputNo, int sampleNo, @Nullable String density) {
+        mutate(new ReactionInputSampleMutation.SetInputDensity(inputSample(inputNo, sampleNo).getAnchor(), density));
     }
 
     public void mutateAddEmptyInput() {
@@ -205,10 +205,13 @@ public class ExperimentObject {
 
     @SneakyThrows
     public void generateDetailsReport(File destinationFile) {
+        System.err.println("Experiment details report is available at file://" + destinationFile.getAbsolutePath());
+        Files.write(destinationFile.toPath(), detailsReport());
+    }
+
+    public byte[] detailsReport() {
         try (Response response = miscClient.generateExperimentDetailsReport(id)) {
-            System.err.println("Experiment details report is available at file://" + destinationFile.getAbsolutePath());
-            byte[] bytes = (byte[]) response.getEntity();
-            Files.write(destinationFile.toPath(), bytes);
+            return (byte[]) response.getEntity();
         }
     }
 
@@ -217,12 +220,12 @@ public class ExperimentObject {
         return collection.get(index - 1);
     }
 
-    public void mutateSetInputRowMol(int inputNo, @Nullable String mol, @Nullable MolUnit unit) {
-        mutate(new ReactionInputMutation.SetInputRowMol(input(inputNo).getAnchor(), mol, unit));
+    public void mutateSetInputRowMol(int inputNo, @Nullable String mol) {
+        mutate(new ReactionInputMutation.SetInputRowMol(input(inputNo).getAnchor(), mol));
     }
 
-    public void mutateSetInputMolarity(int inputNo, int sampleNo, @Nullable String molarity, @Nullable MolarityUnit unit) {
-        mutate(new ReactionInputSampleMutation.SetInputMolarity(inputSample(inputNo, sampleNo).getAnchor(), molarity, unit));
+    public void mutateSetInputMolarity(int inputNo, int sampleNo, @Nullable String molarity) {
+        mutate(new ReactionInputSampleMutation.SetInputMolarity(inputSample(inputNo, sampleNo).getAnchor(), molarity));
     }
 
     public void mutateSetInputPurity(int inputNo, int sampleNo, @Nullable String purity) {

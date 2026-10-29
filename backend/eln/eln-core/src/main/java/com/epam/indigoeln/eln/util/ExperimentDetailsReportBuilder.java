@@ -23,6 +23,7 @@ import java.io.Writer;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class ExperimentDetailsReportBuilder {
@@ -54,7 +55,6 @@ public class ExperimentDetailsReportBuilder {
             JsonNode snapshotBefore = jsonPatcher.reverse(snapshotAfter, r.getDiff());
             String formattedDiff = experimentModelService.formatDiff(snapshotBefore, r);
             List<String> messages = new ArrayList<>(r.getMessages());
-            messages.addAll(r.getDebugMessages());
             Category category = null;
             if (r.getMutation() instanceof ExperimentMutation.Undo) {
                 category = Category.UNDO;
@@ -72,6 +72,7 @@ public class ExperimentDetailsReportBuilder {
                     r.getDiff(),
                     formattedDiff,
                     messages,
+                    r.getConflicts(),
                     snapshotAfter
             );
             revisionsData.add(data);
@@ -107,6 +108,7 @@ public class ExperimentDetailsReportBuilder {
             JsonNode jsonDiff,
             String diff,
             List<String> messages,
+            Map<String, String> conflicts,
             JsonNode entityState
     ) {}
 

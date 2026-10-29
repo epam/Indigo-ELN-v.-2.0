@@ -15,17 +15,26 @@ import {
   HEADER_CELL_CLASS,
   alignOf,
 } from '@/components/experiments/stoichiometry/columns';
+import { ColumnSelector } from '@/components/experiments/stoichiometry/column-selector';
+import { ColumnHeader } from '@/components/experiments/stoichiometry/column-header';
 import { NumericCell } from '@/components/experiments/stoichiometry/numeric-cell';
 import { AddBatchCell, OutputTypeCell } from '@/components/experiments/stoichiometry/products/cells';
 import type { ProductColumn, ProductRow } from '@/components/experiments/stoichiometry/products/columns';
-import { PRODUCT_COLUMNS, productHaystack } from '@/components/experiments/stoichiometry/products/columns';
+import {
+  HIDEABLE_PRODUCT_COLUMNS,
+  PRODUCT_COLUMNS,
+  productHaystack,
+} from '@/components/experiments/stoichiometry/products/columns';
 import type { StoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { cellId, useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
+import { useHiddenColumns } from '@/lib/hooks/experiments/use-hidden-columns';
+import { findByAnchor } from '@/lib/reactions';
 import { cn } from '@/lib/utils';
 import { SearchInput } from '@/components/ui/search-input';
 import { Switch } from '@/components/ui/switch';
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
+import type { ExperimentModel } from '@/lib/types/reactions.ts';
 import { OUTPUT_TYPES } from '@/lib/types/reactions.ts';
 
 /**
@@ -57,6 +66,12 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
   const mutations = useStoichiometryMutations(experiment);
   const canEdit = canEditExperiment(experiment);
   const reactions = experiment.model.reactions;
+
+  const columnChoice = useHiddenColumns('stoichiometryProducts', HIDEABLE_PRODUCT_COLUMNS);
+  const columns = useMemo(
+    () => PRODUCT_COLUMNS.filter((column) => !columnChoice.hidden.has(column.id)),
+    [columnChoice.hidden],
+  );
 
   const products = useMemo(() => {
     const steps = showAllSteps
@@ -95,6 +110,12 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
             <Switch checked={showAllSteps} onCheckedChange={setShowAllSteps} />
             Show All Steps
           </label>
+          <ColumnSelector
+            columns={HIDEABLE_PRODUCT_COLUMNS}
+            hidden={columnChoice.hidden}
+            onToggle={columnChoice.toggle}
+            onReset={columnChoice.reset}
+          />
         </div>
       </div>
 
@@ -107,7 +128,7 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
           <caption className="sr-only">Reaction products</caption>
           <thead>
             <tr>
-              {PRODUCT_COLUMNS.map((column) => (
+              {columns.map((column) => (
                 <th
                   key={column.id}
                   scope="col"
@@ -118,7 +139,7 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
                   )}
                   style={{ minWidth: column.minWidth }}
                 >
-                  {column.header}
+                  <ColumnHeader header={column.header} unit={column.unit} model={experiment.model} />
                 </th>
               ))}
             </tr>
@@ -128,7 +149,7 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
                 inherit the row's hover and follows it explicitly. */}
             {rows.map((row, index) => (
               <tr key={row.output.anchor} className="group/row hover:bg-neutral-100">
-                {PRODUCT_COLUMNS.map((column) => (
+                {columns.map((column) => (
                   <td
                     key={column.id}
                     className={cn(
@@ -137,7 +158,14 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
                       column.kind === 'addBatch' && ACTIONS_CELL_CLASS,
                     )}
                   >
-                    <ProductCell column={column} row={row} index={index} canEdit={canEdit} mutations={mutations} />
+                    <ProductCell
+                      column={column}
+                      row={row}
+                      previousRow={previousProductRow(experiment.model, mutations.previousModel, row)}
+                      index={index}
+                      canEdit={canEdit}
+                      mutations={mutations}
+                    />
                   </td>
                 ))}
               </tr>
@@ -155,15 +183,27 @@ export function ReactionProductsTable({ experiment, step }: { experiment: Experi
   );
 }
 
+/**
+ * The same row in the model before the last patch, found by anchor; undefined when the patch
+ * added it.
+ */
+function previousProductRow(model: ExperimentModel, previousModel: ExperimentModel, row: ProductRow) {
+  const previousReaction = findByAnchor(previousModel.reactions, model.reactions[row.step].anchor);
+  const output = findByAnchor(previousReaction?.outputs, row.output.anchor);
+  return output && { output, step: row.step };
+}
+
 function ProductCell({
   column,
   row,
+  previousRow,
   index,
   canEdit,
   mutations,
 }: {
   column: ProductColumn;
   row: ProductRow;
+  previousRow: ProductRow | undefined;
   index: number;
   canEdit: boolean;
   mutations: StoichiometryMutations;
@@ -199,9 +239,9 @@ function ProductCell({
       return (
         <NumericCell
           value={column.value(row)}
-          units={column.units}
-          suffix={column.suffix}
-          patch={mutations.patch}
+          previous={previousRow && column.value(previousRow)}
+          conflicted={mutations.conflicts.has(cell)}
+          generation={mutations.generation}
           editable={false}
           pending={false}
           label={label}
@@ -213,9 +253,9 @@ function ProductCell({
       return (
         <NumericCell
           value={column.value(row)}
-          units={column.units}
-          suffix={column.suffix}
-          patch={mutations.patch}
+          previous={previousRow && column.value(previousRow)}
+          conflicted={mutations.conflicts.has(cell)}
+          generation={mutations.generation}
           editable={canEdit && (column.editable?.(row) ?? true)}
           pending={pending}
           label={label}

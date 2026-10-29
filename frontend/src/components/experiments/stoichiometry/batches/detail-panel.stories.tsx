@@ -41,7 +41,9 @@ const FAILED = rowAt(2, 0);
 const IDLE: StoichiometryMutations = {
   save: async () => true,
   savingCells: new Set(),
-  patch: { nodes: new Map(), generation: 0 },
+  previousModel: EXPERIMENT.model,
+  conflicts: new Set(),
+  generation: 0,
 };
 
 /** Records the mutations that actually reached the wire, so a story can assert the payload. */
@@ -52,7 +54,7 @@ const spyHandlers = [
     sent.push(await request.json());
     // A whole `MutationResponse`: one without `messages` rejects in `applyMutationResponse`,
     // which a dialog waiting on its save reads as a failure and stays open for.
-    return HttpResponse.json({ patch: {}, unresolvedInputs: {}, messages: [], debugMessages: [] });
+    return HttpResponse.json({ patch: {}, unresolvedInputs: {}, messages: [], conflicts: {} });
   }),
   ...handlers,
 ];
@@ -74,6 +76,7 @@ function PanelFromCache({ outputIndex = 0, sampleIndex = 0 }: { outputIndex?: nu
   return (
     <BatchDetailPanel
       row={{ output, sample: output.samples[sampleIndex], step: 0 }}
+      model={data.model}
       reaction={reaction}
       canEdit={canEditExperiment(data)}
       mutations={mutations}
@@ -84,7 +87,7 @@ function PanelFromCache({ outputIndex = 0, sampleIndex = 0 }: { outputIndex?: nu
 const meta = {
   title: 'Experiments/Stoichiometry/Batches/BatchDetailPanel',
   component: BatchDetailPanel,
-  args: { row: POPULATED, reaction: REACTION, canEdit: true, mutations: IDLE },
+  args: { row: POPULATED, model: EXPERIMENT.model, reaction: REACTION, canEdit: true, mutations: IDLE },
   parameters: { layout: 'padded' },
   // Ketcher is mocked: Save hands back `mock-molfile`, read as a molecule unless a story says not.
   beforeEach: () => {

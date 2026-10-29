@@ -37,12 +37,19 @@ import type { ModelMutation } from '@/lib/types/mutations.ts';
 import type {
   CompoundRef,
   EnteredValue,
+  ExperimentModel,
   MeltingPoint,
   Reaction,
   ResidualSolvent,
   SolubidityInSolvent,
 } from '@/lib/types/reactions.ts';
-import { isKnownCompound, shortNbkBatchNumber, unitLabel } from '@/lib/types/reactions.ts';
+import { columnUnitLabel, isKnownCompound, shortNbkBatchNumber } from '@/lib/types/reactions.ts';
+
+/**
+ * The panel sits inside the batch table, so its controls take the table's metrics — 13px text in
+ * a 30px box, the height of an `sm` `Select` — rather than the 40px form default.
+ */
+const SM_INPUT = 'h-7.5 px-2 text-[13px]/5';
 
 /**
  * What one batch of the Product Batch Summary holds, behind its chevron: the compound's structure
@@ -70,11 +77,14 @@ import { isKnownCompound, shortNbkBatchNumber, unitLabel } from '@/lib/types/rea
  */
 export function BatchDetailPanel({
   row,
+  model,
   reaction,
   canEdit,
   mutations,
 }: {
   row: BatchRow;
+  /** For the units of the derived quantities, which are experiment-wide. */
+  model: ExperimentModel;
   /** For the precursors, which are derived from the reaction's inputs rather than from the batch. */
   reaction: Reaction;
   canEdit: boolean;
@@ -108,7 +118,7 @@ export function BatchDetailPanel({
   const commit = (name: string, mutation: ModelMutation) => mutations.save(cellId(anchor, name), mutation);
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
       <Structure
         compound={output.compound}
         batch={shortNbkBatchNumber(sample.nbkBatchNumber)}
@@ -127,12 +137,12 @@ export function BatchDetailPanel({
         }}
       />
 
-      <div className="flex min-w-0 flex-col gap-4">
-        <h3 className="text-[16px]/6 font-semibold text-neutral-1000">
+      <div className="flex min-w-0 flex-col gap-3">
+        <h3 className="text-[14px]/5 font-semibold text-neutral-1000">
           Notebook Batch #: <span className="font-normal">{sample.nbkBatchNumber}</span>
         </h3>
 
-        <div className="grid gap-x-6 gap-y-4 md:grid-cols-2">
+        <div className="grid gap-x-4 gap-y-3 md:grid-cols-2">
           <Fact label="Calculated Batch MW" value={compound?.molWeight?.value} />
           {/*
             `MolFormula` serialises through `@JsonValue toHTMLString()`, so this arrives as
@@ -235,8 +245,16 @@ export function BatchDetailPanel({
           */}
           <ReadonlyField id={id('sampleKey')} label="Conversational Batch number" value={sample.sampleKey} />
 
-          <ReadonlyField id={id('theoWeight')} label="Theo. Weight" value={quantity(output.theoWeight)} />
-          <ReadonlyField id={id('theoMol')} label="Theo. Moles" value={quantity(output.theoMol)} />
+          <ReadonlyField
+            id={id('theoWeight')}
+            label="Theo. Weight"
+            value={quantity(output.theoWeight, columnUnitLabel(model, 'weight'))}
+          />
+          <ReadonlyField
+            id={id('theoMol')}
+            label="Theo. Moles"
+            value={quantity(output.theoMol, columnUnitLabel(model, 'mol'))}
+          />
 
           <div className="md:col-span-2">
             <TextField
@@ -355,9 +373,8 @@ export function BatchDetailPanel({
 }
 
 /** `0.0137 mg` — a derived quantity and its unit, as one read-only string. */
-function quantity(value: EnteredValue<string> | undefined): string | undefined {
+function quantity(value: EnteredValue | undefined, unit: string): string | undefined {
   if (value?.value == null) return undefined;
-  const unit = unitLabel(value.unit);
   return unit ? `${value.value} ${unit}` : value.value;
 }
 
@@ -420,12 +437,12 @@ function AdditionalInformation({ children }: { children: ReactNode }) {
       <CollapsibleTrigger className="rounded-2 py-1">
         <ChevronDown
           aria-hidden
-          className={cn('size-5 shrink-0 text-neutral-700 transition-transform duration-150', open && 'rotate-180')}
+          className={cn('size-4 shrink-0 text-neutral-700 transition-transform duration-150', open && 'rotate-180')}
         />
-        <h4 className="text-[14px]/6 font-semibold text-neutral-1000">Additional Information</h4>
+        <h4 className="text-[13px]/5 font-semibold text-neutral-1000">Additional Information</h4>
       </CollapsibleTrigger>
       <CollapsiblePanel>
-        <div className="grid gap-x-6 gap-y-4 pt-4 md:grid-cols-2">{children}</div>
+        <div className="grid gap-x-4 gap-y-3 pt-3 md:grid-cols-2">{children}</div>
       </CollapsiblePanel>
     </Collapsible>
   );
@@ -435,14 +452,14 @@ function AdditionalInformation({ children }: { children: ReactNode }) {
 function Fact({ label, value, html }: { label: string; value?: string; html?: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <h4 className="text-[14px]/6 font-semibold text-neutral-800">{label}</h4>
+      <h4 className="text-[12px]/5 font-semibold text-neutral-800">{label}</h4>
       {html != null && html !== '' ? (
         <p
-          className="text-[14px]/6 text-neutral-1000 [&_sub]:align-sub [&_sub]:text-[0.75em] [&_sub]:leading-none"
+          className="text-[13px]/5 text-neutral-1000 [&_sub]:align-sub [&_sub]:text-[0.75em] [&_sub]:leading-none"
           dangerouslySetInnerHTML={{ __html: html }}
         />
       ) : (
-        <p className="text-[14px]/6 text-neutral-1000">{value || '—'}</p>
+        <p className="text-[13px]/5 text-neutral-1000">{value || '—'}</p>
       )}
     </div>
   );
@@ -457,13 +474,13 @@ function Fact({ label, value, html }: { label: string; value?: string; html?: st
  */
 function ReadonlyField({ id, label, value }: { id: string; label: string; value: string | undefined }) {
   return (
-    <Field id={id} label={label}>
+    <Field id={id} label={label} size="sm">
       <Input
         id={id}
         readOnly
         value={value ?? ''}
         placeholder="—"
-        className="cursor-default bg-neutral-100 text-neutral-800"
+        className={cn(SM_INPUT, 'cursor-default bg-neutral-100 text-neutral-800')}
       />
     </Field>
   );
@@ -472,14 +489,14 @@ function ReadonlyField({ id, label, value }: { id: string; label: string; value:
 /** Read-only list values, as chips. What each chip says is `batch-detail.ts`'s business. */
 function ChipsField({ label, values }: { label: string; values: string[] }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <h4 className="text-[14px]/6 text-neutral-800">{label}</h4>
+    <div className="flex flex-col gap-1">
+      <h4 className="text-[12px]/5 text-neutral-800">{label}</h4>
       {values.length === 0 ? (
-        <p className="flex h-10 items-center text-[14px]/6 text-neutral-700">—</p>
+        <p className="flex h-7.5 items-center text-[13px]/5 text-neutral-700">—</p>
       ) : (
-        <ul className="flex min-h-10 flex-wrap items-center gap-1.5">
+        <ul className="flex min-h-7.5 flex-wrap items-center gap-1">
           {values.map((value) => (
-            <li key={value} className="rounded-2 bg-neutral-200 px-2 py-1 text-[13px]/5 text-neutral-1000">
+            <li key={value} className="rounded-2 bg-neutral-200 px-2 py-0.5 text-[12px]/5 text-neutral-1000">
               {value}
             </li>
           ))}
@@ -516,9 +533,9 @@ function CompositeField({
         aria-label={`Edit ${label}`}
         loading={pending}
         onClick={onEdit}
-        className="size-10 shrink-0"
+        className="size-7.5 shrink-0"
       >
-        <Pencil className="text-blue-400" />
+        <Pencil className="size-3.5 text-blue-400" />
       </Button>
     </div>
   );
@@ -616,12 +633,13 @@ function TextField({
   if (!editable) return <ReadonlyField id={id} label={label} value={value} />;
 
   return (
-    <Field id={id} label={label}>
+    <Field id={id} label={label} size="sm">
       <SavingOverlay pending={pending}>
         <Input
           id={id}
           value={draft}
           placeholder="Text"
+          className={SM_INPUT}
           onChange={(event) => setDraft(event.target.value)}
           onBlur={() => {
             const next = draft.trim() === '' ? null : draft.trim();
@@ -659,12 +677,13 @@ function NumberField({
   if (!editable) return <ReadonlyField id={id} label={label} value={saved || undefined} />;
 
   return (
-    <Field id={id} label={label}>
+    <Field id={id} label={label} size="sm">
       <SavingOverlay pending={pending}>
         <Input
           id={id}
           type="number"
           value={draft}
+          className={SM_INPUT}
           placeholder="—"
           onChange={(event) => setDraft(event.target.value)}
           onBlur={() => {
@@ -701,12 +720,13 @@ function DictionaryField(
   if (!editable) return <ReadonlyField id={id} label={label} value={value?.name} />;
 
   return (
-    <Field id={id} label={label}>
+    <Field id={id} label={label} size="sm">
       <SavingOverlay pending={pending}>
         <DictionaryCombobox
           id={id}
           dictionary={dictionary}
           value={value ?? null}
+          size="sm"
           clearable={!props.required}
           // Picking is the commit; there is no separate confirmation step to wait for.
           onValueChange={(next) => {
@@ -746,13 +766,14 @@ function MultiDictionaryField({
   }
 
   return (
-    <Field id={id} label={label}>
+    <Field id={id} label={label} size="sm">
       <SavingOverlay pending={pending}>
         <MultiDictionaryCombobox
           id={id}
           dictionary={dictionary}
           value={value}
           pending={pending}
+          size="sm"
           onValueChange={onCommit}
         />
       </SavingOverlay>

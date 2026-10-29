@@ -127,13 +127,13 @@ function suggestedUsers(search: string): UserRef[] {
 
 /**
  * What `POST /access` answers with: the recomputed ACL for the whole entity — existing
- * entries re-levelled, new ones appended.
+ * entries re-levelled (or dropped, for NONE), new ones appended.
  */
 function recomputedAcl(existing: ACLEntry[], updates: AccessForm[]): ACLEntry[] {
   const changed = new Map(updates.map((update) => [update.username, update.level]));
-  const relevelled = existing.map((entry) =>
-    changed.has(entry.username) ? { ...entry, level: changed.get(entry.username)! } : entry,
-  );
+  const relevelled = existing
+    .filter((entry) => changed.get(entry.username) !== 'NONE')
+    .map((entry) => (changed.has(entry.username) ? { ...entry, level: changed.get(entry.username)! } : entry));
   const known = new Set(existing.map((entry) => entry.username));
   const added = updates
     .filter((update) => !known.has(update.username))
@@ -156,7 +156,7 @@ export const TAKEN_NOTEBOOK_NAME = '00000002';
 export const NEXT_NOTEBOOK_NAME = '00000004';
 
 /** The members of a `MutationResponse` that are empty unless a handler has something to say. */
-const EMPTY_RESPONSE = { unresolvedInputs: {}, messages: [], debugMessages: [] };
+const EMPTY_RESPONSE = { unresolvedInputs: {}, messages: [], conflicts: {} };
 
 /**
  * What `/mutate` answers for a `SetScheme`: a diff, not a document. The real backend re-reads
@@ -708,18 +708,21 @@ export const slowMutateHandlers = [
  * The model-mutation endpoint answering with a **recalculation**: whatever was asked for, the
  * reply also rewrites a value the user did not touch. That is the normal case on the real
  * backend — changing one weight moves every mol, EQ and yield derived from it — and it is what
- * the stoichiometry table's green flash exists to point out.
+ * the stoichiometry table's green flash exists to point out. It also replaces a user-entered
+ * volume with a calculated one, which is what the red flash is for.
  *
  * The path spells out how the diff dialect addresses a nested row. `/model/reactions` and the
  * `inputs`/`samples` arrays under it are **list** paths in `JSON_PATCHER`, whose keys are
  * indices (`"0"`, or `"2>5"` for something that moved), while a leaf carrying `$old`/`$new`
- * replaces the node outright. Replacing the `mol` node is what puts it in `updatedNodes`,
- * which is what `determineCellClasses` compares against.
+ * replaces the node outright. The `mol` value then differs from the one in the model before
+ * the patch, which is what `determineCellClasses` compares against.
  */
 export const recalculatingMutateHandlers = [
   http.post(`${ELN}/experiments/:id/mutate`, () =>
     HttpResponse.json({
       ...EMPTY_RESPONSE,
+      // The user's volume below was replaced to resolve a conflict.
+      conflicts: { 'ins0000d:volume': 'reactions.0.inputs.0.samples.0.volume: seed value conflict' },
       patch: {
         model: {
           reactions: {
@@ -729,8 +732,14 @@ export const recalculatingMutateHandlers = [
                   samples: {
                     '0': {
                       mol: {
-                        $old: { value: '0.0049', unit: 'MMOL', source: 'calculated' },
-                        $new: { value: '0.0075', unit: 'MMOL', source: 'calculated' },
+                        $old: { value: '0.0049', source: 'C' },
+                        $new: { value: '0.0075', source: 'C' },
+                      },
+                    },
+                    '2': {
+                      volume: {
+                        $old: { value: '0.75', source: 'U', revision: 3 },
+                        $new: { value: '0.8', source: 'C' },
                       },
                     },
                   },

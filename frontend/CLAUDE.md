@@ -175,6 +175,15 @@ Two orderings matter, both pinned by `query-persistence.test.tsx`:
 signed-in user still looks restored, and signed out it is trivially false — a stored
 boolean left true would hold every query in the app pending forever.
 
+**View preferences are a second, separate use of localStorage.** `useStoredState`
+(`src/lib/hooks/use-stored-state.ts`) keeps one value under one key — today only the stoichiometry
+Column Selector's hidden columns, via `useHiddenColumns`, keyed `indigo.<userId>.<table>.hiddenColumns`
+with the backend user id. Unlike the persisted query cache it is **not** cleared on sign-out: it is
+a layout choice, scoped per user so two users on one browser keep their own, and it carries no data
+anyone could not see anyway. Whatever is read back is validated, since an older build or a hand
+edit may have written it. Store what was turned *off*, not what is on, so that something added
+later shows up by default.
+
 **Every custom hook lives under `src/lib/`, none under `src/components/`.** Three tiers, and
 which one a hook belongs in is decided by what it knows, not by who calls it:
 
@@ -266,7 +275,7 @@ to queue behind the on-blur saves rather than race them.
 | `notebooks.ts` | `BaseNotebook`, `Notebook`, `NOTEBOOK_NAME_LENGTH` |
 | `user.ts` | `CurrentUser`, `ApplicationPermission` |
 | `reactions.ts` | the `reaction/model` tree: `ExperimentModel`, `Reaction`, `ReactionInput`/`Output` and their samples, `CompoundRef`, `EnteredValue`, the unit unions, and the companion table of every enum in it — `REACTION_ROLE_LABELS`, `OUTPUT_TYPE_LABELS`, `unitLabel()`, the unit option arrays |
-| `mutations.ts` | `Mutation` (all 94 members of the backend's `@JsonSubTypes` list), `ModelMutation` (the subset `/mutate` accepts), `MutationResponse` |
+| `mutations.ts` | `Mutation` (all 98 members of the backend's `@JsonSubTypes` list), `ModelMutation` (the subset `/mutate` accepts), `MutationResponse` |
 
 `reactions.ts` is ported from the **Java**. The wire shapes that are easy to get wrong are commented at
 the type they affect: `STRCode*`/`NbkBatchNumber` are strings because of `@JsonValue`,
@@ -296,7 +305,7 @@ port of the backend's `JSONPatcher.java`, pinned by `json-patcher.test.ts` again
 own cases). It joins `experimentWrite`'s scope, so it queues behind the on-blur field saves
 rather than racing them.
 
-`mutations.ts` mirrors the backend's `@JsonSubTypes` list **in full** — all 94 members, in its
+`mutations.ts` mirrors the backend's `@JsonSubTypes` list **in full** — all 98 members, in its
 order, grouped into unions that follow the Java interface hierarchy. Most of them never travel
 over `/mutate`: the backend gates that with `isMutateMethodAllowed()`, and the rest answer
 through their own endpoints (a project is created by `POST /projects`, an experiment completed
@@ -315,16 +324,21 @@ Three properties of the diff, all easier to know than to rediscover:
 - **It is computed between two `ExperimentSnapshot`s**, not two `ExperimentDetailsDTO`s. They
   overlap on names, which is why applying it to the cached detail works, but it never touches
   `currentPermissions`, `marked`, the ancestor ids and names, or the `BaseDTO` audit fields.
-- **`apply` also returns a `newNode → oldNode` map**, which drives the stoichiometry flash.
-  `applyMutationResponse` publishes it to the query cache under `experimentKeys.modelPatch(id)`
-  whoever sent the mutation — a cell, undo/redo, the scheme, an SDF import — and every table
-  reads it through `useModelPatch`, so a recalculation flashes in every table it moved. The
-  hook reports only patches newer than its own mount — the cached one outlives the tables, and
-  a reopened page or reselected tab would otherwise replay the last flash. Two more things keep
-  it honest: `useExperiment` sets `structuralSharing: false`, or `replaceEqualDeep`
-  would store copies of the rebuilt nodes and no cell would find itself in the map; and a cell
-  flashes only if it is a **key** of the map, since `apply` clones the whole detail and an
-  untouched node is a fresh object too.
+- **The model the diff replaced drives the stoichiometry flash.** `applyMutationResponse`
+  publishes it to the query cache under `experimentKeys.modelPatch(id)` whoever sent the
+  mutation — a cell, undo/redo, the scheme, an SDF import — and every table reads it through
+  `useModelPatch`, so a recalculation flashes in every table it moved. The hook reports only
+  patches newer than its own mount — the cached one outlives the tables, and a reopened page or
+  reselected tab would otherwise replay the last flash. Each table pairs every row with its
+  counterpart in that previous model **by anchor** (`findByAnchor`), down to each `NumericCell`,
+  which compares its `EnteredValue` with the previous one field by field (`hasChanged`). With no
+  patch since mount the current model stands in for the previous one, so nothing differs.
+  That comparison drives the green flash only. The red one is the backend's call:
+  `MutationResponse.conflicts` maps the user-entered values the recalculation replaced, keyed
+  `<anchor>:<field>`, which is exactly `cellId` because the numeric column ids are the model's field
+  names, to the backend's reason (for the revision history; not read here). Its keys are published
+  as `ModelPatch.conflicts`, and a cell flashes red if its id is in it. A
+  user clearing or undoing their own value is not a conflict, so it never flashes red.
 
 `response.messages` become toasts via `notifyInfo`. `unresolvedInputs` is **not** read by 
 `applyMutationResponse` either, but it is not ignored: it belongs to whoever sent the mutation 

@@ -1,17 +1,21 @@
 DROP VIEW IF EXISTS Notebook_View_2;
 
--- Postgres tend to fall back to full table scan on OR conditions, so using UNION ALL for viewAll vs normal
 CREATE OR REPLACE VIEW Notebook_Access_View AS
-SELECT n.id notebook_id, na.level current_access_or_null, array_length(n.full_acl, 1) acl_count
-FROM Notebook n
-LEFT JOIN LATERAL unnest(n.full_acl) na ON na.user_id = current_setting('eln.currentUserId')::UUID
-WHERE current_setting('eln.viewAllNotebooks')::BOOLEAN
-UNION ALL
-SELECT n.id notebook_id, na.level current_access_or_null, array_length(n.full_acl, 1) acl_count
-FROM Notebook n
-LEFT JOIN LATERAL unnest(n.full_acl) na ON na.user_id = current_setting('eln.currentUserId')::UUID
-WHERE NOT current_setting('eln.viewAllNotebooks')::BOOLEAN
-  AND acl_user_ids(n.full_acl) @> ARRAY[current_setting('eln.currentUserId')::UUID];
+SELECT notebook_id, current_access_or_null
+FROM (
+    SELECT n.id notebook_id,
+           COALESCE(
+               CASE WHEN n.created_by_id = current_setting('eln.currentUserId')::UUID THEN 'AUTHOR'::Access_Level END,
+               na.level,
+               pa.level,
+               CASE WHEN ni.user_id IS NOT NULL THEN 'IMPLICIT_VIEW'::Access_Level END
+           ) current_access_or_null
+    FROM Notebook n
+    LEFT JOIN Notebook_ACL na ON na.notebook_id = n.id AND na.user_id = current_setting('eln.currentUserId')::UUID
+    LEFT JOIN Project_ACL pa ON pa.project_id = n.project_id AND pa.user_id = current_setting('eln.currentUserId')::UUID
+    LEFT JOIN Notebook_Implicit_Access ni ON ni.notebook_id = n.id AND ni.user_id = current_setting('eln.currentUserId')::UUID
+) t
+WHERE current_setting('eln.viewAllNotebooks')::BOOLEAN OR current_access_or_null IS NOT NULL;
 
 
 CREATE OR REPLACE FUNCTION update_Notebook_counters(

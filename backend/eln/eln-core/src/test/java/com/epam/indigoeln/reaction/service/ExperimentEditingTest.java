@@ -9,23 +9,25 @@ import com.epam.indigoeln.reaction.model.OutputSampleAnchor;
 import com.epam.indigoeln.reaction.model.ReactionRole;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputMutation;
 import com.epam.indigoeln.reaction.model.mutation.ReactionOutputSampleMutation;
-import com.epam.indigoeln.common.model.units.MolUnit;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import java.io.File;
 
-import static com.epam.indigoeln.eln.test.ReactionInputAssert.assertThat;
-import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
-import static com.epam.indigoeln.eln.test.ReactionOutputAssert.assertThat;
-import static com.epam.indigoeln.common.model.units.DensityUnit.G_ML;
 import static com.epam.indigoeln.common.model.units.MolUnit.MMOL;
 import static com.epam.indigoeln.common.model.units.MolUnit.MOL;
-import static com.epam.indigoeln.common.model.units.MolarityUnit.M;
 import static com.epam.indigoeln.common.model.units.VolumeUnit.ML;
 import static com.epam.indigoeln.common.model.units.WeightUnit.G;
 import static com.epam.indigoeln.common.model.units.WeightUnit.MG;
+import static com.epam.indigoeln.eln.test.ReactionInputAssert.assertThat;
+import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
+import static com.epam.indigoeln.eln.test.ReactionOutputAssert.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
@@ -60,39 +62,39 @@ public class ExperimentEditingTest extends MutationsTestBase {
         assertThat(experiment.output(1)).compound().hasMolWeight(88.106);
         assertThat(experiment.output(2)).compound().hasMolWeight(18.0150);
 
-        experiment.mutateSetInputMol(1, 1, "100", MolUnit.MMOL);
-        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
-        experiment.mutateSetInputDensity(2, 1, "1.05", G_ML);
+        experiment.mutateSetInputMol(1, 1, "0.100");
+        experiment.mutateSetInputDensity(1, 1, "0.789");
+        experiment.mutateSetInputDensity(2, 1, "1.05");
 
-        assertThat(experiment.inputSample(1, 1)).hasWeight(4606.9, MG).hasVolume(5.8389, ML);
-        assertThat(experiment.inputSample(2, 1)).hasMol(100, MMOL).hasWeight(6005.2, MG).hasVolume(5.7192, ML);
-        assertThat(experiment.output(1)).hasTheoMol(100, MMOL).hasTheoWeight(8810.6, MG);
-        assertThat(experiment.output(2)).hasTheoMol(100, MMOL).hasTheoWeight(1801.5, MG);
+        assertThat(experiment.inputSample(1, 1)).hasWeight(4.6069, G).hasVolume(5.8389, ML);
+        assertThat(experiment.inputSample(2, 1)).hasMol(0.1, MOL).hasWeight(6.0052, G).hasVolume(5.7192, ML);
+        assertThat(experiment.output(1)).hasTheoMol(0.1, MOL).hasTheoWeight(8.8106, G);
+        assertThat(experiment.output(2)).hasTheoMol(0.1, MOL).hasTheoWeight(1.8015, G);
     }
 
     @Test
     void testCase2() {
         experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
 
-        experiment.mutateSetInputMol(2, 1, "100", MolUnit.MMOL);
+        experiment.mutateSetInputMol(2, 1, "0.1");
         experiment.mutateSetInputRowLimiting(2);
-        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
-        experiment.mutateSetInputDensity(2, 1, "1.05", G_ML);
+        experiment.mutateSetInputDensity(1, 1, "0.789");
+        experiment.mutateSetInputDensity(2, 1, "1.05");
 
-        assertThat(experiment.inputSample(1, 1)).hasWeight(4606.9, MG).hasVolume(5.8389, ML);
-        assertThat(experiment.inputSample(2, 1)).hasMol(100, MMOL).hasWeight(6005.2, MG).hasVolume(5.7192, ML);
-        assertThat(experiment.output(1)).hasTheoMol(100, MMOL).hasTheoWeight(8810.6, MG);
-        assertThat(experiment.output(2)).hasTheoMol(100, MMOL).hasTheoWeight(1801.5, MG);
+        assertThat(experiment.inputSample(1, 1)).hasWeight(4.6069, G).hasVolume(5.8389, ML);
+        assertThat(experiment.inputSample(2, 1)).hasMol(0.1, MOL).hasWeight(6.0052, G).hasVolume(5.7192, ML);
+        assertThat(experiment.output(1)).hasTheoMol(0.1, MOL).hasTheoWeight(8.8106, G);
+        assertThat(experiment.output(2)).hasTheoMol(0.1, MOL).hasTheoWeight(1.8015, G);
     }
 
     @Test
     void testCase3() {
         experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
 
-        experiment.mutateSetInputWeight(1, 1, "10", G);
+        experiment.mutateSetInputWeight(1, 1, "10");
         experiment.mutateSetInputRowEQ(2, "2");
-        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
-        experiment.mutateSetInputDensity(2, 1, "1.05", G_ML);
+        experiment.mutateSetInputDensity(1, 1, "0.789");
+        experiment.mutateSetInputDensity(2, 1, "1.05");
 
         assertThat(experiment.inputSample(1, 1)).hasMol(0.21707, MOL).hasVolume(12.674, ML);
         assertThat(experiment.inputSample(2, 1)).hasMol(0.43413, MOL).hasWeight(26.070, G).hasVolume(24.829, ML);
@@ -105,10 +107,10 @@ public class ExperimentEditingTest extends MutationsTestBase {
         experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
         experiment.mutateSetInputRowLimiting(2);
 
-        experiment.mutateSetInputVolume(2, 1, "10", ML);
-        experiment.mutateSetInputDensity(2, 1, "1.05", G_ML);
+        experiment.mutateSetInputVolume(2, 1, "10");
+        experiment.mutateSetInputDensity(2, 1, "1.05");
         experiment.mutateSetInputPurity(2, 1, "95");
-        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
+        experiment.mutateSetInputDensity(1, 1, "0.789");
 
         assertThat(experiment.inputSample(1, 1)).hasWeight(7.6523, G).hasVolume(9.6988, ML);
         assertThat(experiment.inputSample(2, 1)).hasMol(0.16611, MOL).hasWeight(10.5, G);
@@ -125,18 +127,18 @@ public class ExperimentEditingTest extends MutationsTestBase {
         assertThat(experiment.input(3)).compound().hasMolWeight(92.141);
 
         experiment.mutateSetInputRowEQ(2, "1.5");
-        experiment.mutateSetInputVolume(1, 1, "100", ML);
-        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
-        experiment.mutateSetInputMolarity(1, 1, "2", M);
-        experiment.mutateSetInputDensity(2, 1, "1.05", G_ML);
-        experiment.mutateSetInputVolume(3, 1, "50", ML);
-        experiment.mutateSetInputDensity(3, 1, "0.867", G_ML);
+        experiment.mutateSetInputVolume(1, 1, "100");
+        experiment.mutateSetInputDensity(1, 1, "0.789");
+        experiment.mutateSetInputMolarity(1, 1, "2");
+        experiment.mutateSetInputDensity(2, 1, "1.05");
+        experiment.mutateSetInputVolume(3, 1, "50");
+        experiment.mutateSetInputDensity(3, 1, "0.867");
 
-        assertThat(experiment.inputSample(1, 1)).hasMol(200, MMOL).hasWeight(9.2138, G);
-        assertThat(experiment.inputSample(2, 1)).hasMol(300, MMOL).hasWeight(18.016, G).hasVolume(17.158, ML);
+        assertThat(experiment.inputSample(1, 1)).hasMol(0.2, MOL).hasWeight(9.2138, G);
+        assertThat(experiment.inputSample(2, 1)).hasMol(0.3, MOL).hasWeight(18.016, G).hasVolume(17.158, ML);
         assertThat(experiment.inputSample(3, 1)).hasWeight(43.350, G);
-        assertThat(experiment.output(1)).hasTheoMol(200, MMOL).hasTheoWeight(17.621, G);
-        assertThat(experiment.output(2)).hasTheoMol(200, MMOL).hasTheoWeight(3.6030, G);
+        assertThat(experiment.output(1)).hasTheoMol(0.2, MOL).hasTheoWeight(17.621, G);
+        assertThat(experiment.output(2)).hasTheoMol(0.2, MOL).hasTheoWeight(3.6030, G);
     }
 
     @Test
@@ -146,14 +148,14 @@ public class ExperimentEditingTest extends MutationsTestBase {
 
         assertThat(experiment.input(3)).compound().hasMolWeight(98.072);
 
-        experiment.mutateSetInputWeight(1, 1, "5", G);
-        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
+        experiment.mutateSetInputWeight(1, 1, "5");
+        experiment.mutateSetInputDensity(1, 1, "0.789");
         experiment.mutateSetInputPurity(1, 1, "0.98");
         experiment.mutateSetInputRowEQ(2, "1.2");
-        experiment.mutateSetInputDensity(2, 1, "1.04", G_ML);
+        experiment.mutateSetInputDensity(2, 1, "1.04");
         experiment.mutateSetInputPurity(2, 1, "0.99");
         experiment.mutateSetInputRowEQ(3, "0.05");
-        experiment.mutateSetInputDensity(3, 1, "1.84", G_ML);
+        experiment.mutateSetInputDensity(3, 1, "1.84");
         experiment.mutateSetInputPurity(3, 1, "0.98");
 
         assertThat(experiment.inputSample(1, 1)).hasMol(0.0010636, MOL).hasVolume(6.3371, ML);
@@ -164,14 +166,14 @@ public class ExperimentEditingTest extends MutationsTestBase {
     }
 
     @Test
-    @Disabled // waiting answer from BA
     void testCase7() {
         experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
-        experiment.mutateSetInputWeight(1, 1, "0.5", G);
-        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
-        experiment.mutateSetInputWeight(2, 1, "2", G);
-        experiment.mutateSetInputVolume(2, 1, "1.05", ML);
-        experiment.mutateSetInputMolarity(2, 1, "100", M);
+        experiment.mutateSetInputWeight(1, 1, "0.5");
+        experiment.mutateSetInputDensity(1, 1, "0.789");
+        experiment.mutateSetInputWeight(2, 1, "2");
+        experiment.mutateSetInputVolume(2, 1, "1.05");
+        experiment.mutateSetInputMolarity(2, 1, "100");
+        assertThat(experiment.lastConflicts()).containsOnlyKeys(experiment.inputSample(2, 1).getAnchor() + ":weight");
         experiment.mutateSetInputPurity(2, 1, "1");
 
         assertThat(experiment.inputSample(1, 1)).hasMol(0.010853, MOL).hasVolume(0.63371, ML);
@@ -185,9 +187,9 @@ public class ExperimentEditingTest extends MutationsTestBase {
         experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
         experiment.mutateSetInputRowLimiting(2);
         experiment.mutateSetInputRowEQ(1, "1.5");
-        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
-        experiment.mutateSetInputVolume(2, 1, "5", ML);
-        experiment.mutateSetInputDensity(2, 1, "1.05", G_ML);
+        experiment.mutateSetInputDensity(1, 1, "0.789");
+        experiment.mutateSetInputVolume(2, 1, "5");
+        experiment.mutateSetInputDensity(2, 1, "1.05");
 
         assertThat(experiment.inputSample(1, 1)).hasMol(0.13114, MOL).hasWeight(6.0413, G).hasVolume(7.6569, ML);
         assertThat(experiment.inputSample(2, 1)).hasMol(0.087424, MOL).hasWeight(5.25, G);
@@ -200,10 +202,10 @@ public class ExperimentEditingTest extends MutationsTestBase {
     void testCase9() {
         experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
         experiment.mutateSetInputRowEQ(2, "1.1");
-        experiment.mutateSetInputVolume(1, 1, "50", ML);
-        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
-        experiment.mutateSetInputMolarity(1, 1, "1.5", M);
-        experiment.mutateSetInputDensity(2, 1, "1.05", G_ML);
+        experiment.mutateSetInputVolume(1, 1, "50");
+        experiment.mutateSetInputDensity(1, 1, "0.789");
+        experiment.mutateSetInputMolarity(1, 1, "1.5");
+        experiment.mutateSetInputDensity(2, 1, "1.05");
 
         assertThat(experiment.inputSample(1, 1)).hasMol(75, MMOL).hasWeight(3.4553, G);
         assertThat(experiment.inputSample(2, 1)).hasMol(82.5, MMOL).hasWeight(4.9541, G);
@@ -214,12 +216,12 @@ public class ExperimentEditingTest extends MutationsTestBase {
     @Test
     void testCase10() {
         experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
-        experiment.mutateSetInputWeight(1, 1, "7.5", G);
-        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
+        experiment.mutateSetInputWeight(1, 1, "7.5");
+        experiment.mutateSetInputDensity(1, 1, "0.789");
         experiment.mutateSetInputPurity(1, 1, "85");
 
         experiment.mutateSetInputRowEQ(2, "1.3");
-        experiment.mutateSetInputDensity(2, 1, "1.05", G_ML);
+        experiment.mutateSetInputDensity(2, 1, "1.05");
         experiment.mutateSetInputPurity(2, 1, "92");
 
         assertThat(experiment.inputSample(1, 1)).hasMol(0.13838, MOL).hasVolume(9.50570, ML);
@@ -233,23 +235,23 @@ public class ExperimentEditingTest extends MutationsTestBase {
         experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
         experiment.mutateSetInputRowLimiting(2);
         experiment.mutateSetInputRowEQ(1, "2.5");
-        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
-        experiment.mutateSetInputRowMol(2, "50", MMOL);
-        experiment.mutateSetInputDensity(2, 1, "1.05", G_ML);
+        experiment.mutateSetInputDensity(1, 1, "0.789");
+        experiment.mutateSetInputRowMol(2, "0.05");
+        experiment.mutateSetInputDensity(2, 1, "1.05");
 
-        assertThat(experiment.inputSample(1, 1)).hasMol(125, MMOL).hasWeight(5758.6, MG).hasVolume(7.2986, ML);
-        assertThat(experiment.inputSample(2, 1)).hasWeight(3002.6, MG).hasVolume(2.8596, ML);
-        assertThat(experiment.output(1)).hasTheoMol(50, MMOL).hasTheoWeight(4405.3, MG);
-        assertThat(experiment.output(2)).hasTheoMol(50, MMOL).hasTheoWeight(900.75, MG);
+        assertThat(experiment.inputSample(1, 1)).hasMol(0.125, MOL).hasWeight(5.7586, G).hasVolume(7.2986, ML);
+        assertThat(experiment.inputSample(2, 1)).hasWeight(3.0026, G).hasVolume(2.8596, ML);
+        assertThat(experiment.output(1)).hasTheoMol(0.05, MOL).hasTheoWeight(4.4053, G);
+        assertThat(experiment.output(2)).hasTheoMol(0.05, MOL).hasTheoWeight(0.90075, G);
     }
 
     @Test
     void testCase12() {
         experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
-        experiment.mutateSetInputVolume(1, 1, "25", ML);
-        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
+        experiment.mutateSetInputVolume(1, 1, "25");
+        experiment.mutateSetInputDensity(1, 1, "0.789");
         experiment.mutateSetInputPurity(1, 1, "75");
-        experiment.mutateSetInputDensity(2, 1, "1.05", G_ML);
+        experiment.mutateSetInputDensity(2, 1, "1.05");
 
         assertThat(experiment.inputSample(1, 1)).hasMol(0.32112, MOL).hasWeight(19.725, G);
         assertThat(experiment.inputSample(2, 1)).hasMol(0.32112, MOL).hasWeight(19.284, G).hasVolume(18.366, ML);
@@ -260,32 +262,32 @@ public class ExperimentEditingTest extends MutationsTestBase {
     @Test
     void testCase13() {
         experiment.mutateSetSchemeFromResource("/reaction-testCase6.rxn");
-        experiment.mutateSetInputRowMol(1, "250", MMOL);
-        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
+        experiment.mutateSetInputRowMol(1, "0.25");
+        experiment.mutateSetInputDensity(1, 1, "0.789");
         experiment.mutateSetInputRowEQ(2, "0.95");
-        experiment.mutateSetInputDensity(2, 1, "1.05", G_ML);
+        experiment.mutateSetInputDensity(2, 1, "1.05");
         experiment.mutateSetInputRowEQ(3, "0.1");
-        experiment.mutateSetInputDensity(3, 1, "1.84", G_ML);
+        experiment.mutateSetInputDensity(3, 1, "1.84");
         experiment.mutateSetInputPurity(3, 1, "98");
 
-        assertThat(experiment.inputSample(1, 1)).hasWeight(11517, MG).hasVolume(14.597, ML);
-        assertThat(experiment.inputSample(2, 1)).hasMol(237.50, MMOL).hasWeight(14262, MG).hasVolume(13.583, ML);
-        assertThat(experiment.inputSample(3, 1)).hasMol(25, MMOL).hasWeight(2501.8, MG).hasVolume(1.3597, ML);
-        assertThat(experiment.output(1)).hasTheoMol(250, MMOL).hasTheoWeight(22026, MG);
-        assertThat(experiment.output(2)).hasTheoMol(250, MMOL).hasTheoWeight(4503.7, MG);
+        assertThat(experiment.inputSample(1, 1)).hasWeight(11.517, G).hasVolume(14.597, ML);
+        assertThat(experiment.inputSample(2, 1)).hasMol(0.2375, MOL).hasWeight(14.262, G).hasVolume(13.583, ML);
+        assertThat(experiment.inputSample(3, 1)).hasMol(0.025, MOL).hasWeight(2.5018, G).hasVolume(1.3597, ML);
+        assertThat(experiment.output(1)).hasTheoMol(0.25, MOL).hasTheoWeight(22.026, G);
+        assertThat(experiment.output(2)).hasTheoMol(0.25, MOL).hasTheoWeight(4.5037, G);
     }
 
     @Test
     @Disabled // conflict, waiting answer from BA
     void testCase14() {
         experiment.mutateSetSchemeFromResource("/reaction-testCase14.rxn");
-        experiment.mutateSetInputVolume(1, 1, "200", ML);
-        experiment.mutateSetInputDensity(1, 1, "0.789", G_ML);
-        experiment.mutateSetInputMolarity(1, 1, "0.5", M);
+        experiment.mutateSetInputVolume(1, 1, "200");
+        experiment.mutateSetInputDensity(1, 1, "0.789");
+        experiment.mutateSetInputMolarity(1, 1, "0.5");
         experiment.mutateSetInputRowEQ(2, "3");
-        experiment.mutateSetInputDensity(2, 1, "1.05", G_ML);
-        experiment.mutateSetInputVolume(3, 1, "100", ML);
-        experiment.mutateSetInputDensity(3, 1, "1.33", G_ML);
+        experiment.mutateSetInputDensity(2, 1, "1.05");
+        experiment.mutateSetInputVolume(3, 1, "100");
+        experiment.mutateSetInputDensity(3, 1, "1.33");
 
         assertThat(experiment.inputSample(1, 1)).hasMol(100, MMOL).hasWeight(4.6069, G);
         assertThat(experiment.inputSample(2, 1)).hasMol(300, MMOL).hasWeight(18.016, G).hasVolume(17.158, ML);
@@ -298,67 +300,74 @@ public class ExperimentEditingTest extends MutationsTestBase {
     void testEnterAllValues() {
         experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
 
-        experiment.mutateSetInputRowMol(1, "1000", MMOL);
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutateSetInputRowMol(1, "1");
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutateSetInputRowEQ(1, "2");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
-        experiment.mutateSetInputMol(1, 1, "1000", MMOL);
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
+        experiment.mutateSetInputMol(1, 1, "1");
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutateSetInputPurity(1, 1, "90");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
-        experiment.mutateSetInputWeight(1, 1, "51187.777", MG); // exact value 51187.776724497475
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
-        experiment.mutateSetInputMolarity(1, 1, "1.5", M);
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
-        experiment.mutateSetInputVolume(1, 1, "666.66667", ML); // exact value 666.6666702547958
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
-        experiment.mutateSetInputDensity(1, 1, "0.076781665", G_ML); // exact value 0.0767816650867462
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
+        // exact value 51.187776724497475
+        experiment.mutateSetInputWeight(1, 1, "51.187777");
+        assertThat(experiment.lastConflicts()).isEmpty();
+        experiment.mutateSetInputMolarity(1, 1, "1.5");
+        assertThat(experiment.lastConflicts()).isEmpty();
+        // exact value 666.6666702547958
+        experiment.mutateSetInputVolume(1, 1, "666.66667");
+        assertThat(experiment.lastConflicts()).isEmpty();
+        // exact value 0.0767816650867462
+        experiment.mutateSetInputDensity(1, 1, "0.076781665");
+        assertThat(experiment.lastConflicts()).isEmpty();
 
-        experiment.mutateSetInputRowMol(2, "3000", MMOL);
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutateSetInputRowMol(2, "3");
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutateSetInputRowEQ(2, "6");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
-        experiment.mutateSetInputMol(2, 1, "3000", MMOL);
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
+        experiment.mutateSetInputMol(2, 1, "3");
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutateSetInputPurity(2, 1, "75");
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
-        experiment.mutateSetInputWeight(2, 1, "240207.99", MG); // exact value 240207.99446105957
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
-        experiment.mutateSetInputMolarity(2, 1, "2", M);
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
-        experiment.mutateSetInputVolume(2, 1, "1500", ML);
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
-        experiment.mutateSetInputDensity(2, 1, "0.16013866", G_ML); // exact value 0.1601386629740397
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
+        // exact value 240.20799446105957
+        experiment.mutateSetInputWeight(2, 1, "240.20799");
+        assertThat(experiment.lastConflicts()).isEmpty();
+        experiment.mutateSetInputMolarity(2, 1, "2");
+        assertThat(experiment.lastConflicts()).isEmpty();
+        experiment.mutateSetInputVolume(2, 1, "1500");
+        assertThat(experiment.lastConflicts()).isEmpty();
+        // exact value 0.1601386629740397
+        experiment.mutateSetInputDensity(2, 1, "0.16013866");
+        assertThat(experiment.lastConflicts()).isEmpty();
 
         experiment.mutateAddProductSample(1);
         OutputAnchor output = experiment.output(1).getAnchor();
         experiment.mutate(new ReactionOutputMutation.SetOutputRowEQ(output, "4"));
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
 
         OutputSampleAnchor outputSample = experiment.outputSample(1, 1).getAnchor();
-        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualMol(outputSample, "1500", MMOL));
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualMol(outputSample, "1.5"));
+        assertThat(experiment.lastConflicts()).isEmpty();
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputPurity(outputSample, "60"));
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
-        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(outputSample, "220265.0", MG)); // exact value 220264.995098114
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
-        experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolarity(outputSample, "0.5", M));
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
-        experiment.mutate(new ReactionOutputSampleMutation.SetOutputVolume(outputSample, "3000.0001", ML)); // exact value 3000.0000667634818
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
-        experiment.mutate(new ReactionOutputSampleMutation.SetOutputDensity(outputSample, "0.073421665", G_ML)); // exact value 0.07342166503270467
-        assertThat(experiment.lastMutationResponse().getDebugMessages()).isEmpty();
+        assertThat(experiment.lastConflicts()).isEmpty();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputActualWeight(outputSample, "220.2650")); // exact value 220.264995098114
+        assertThat(experiment.lastConflicts()).isEmpty();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolarity(outputSample, "0.5"));
+        assertThat(experiment.lastConflicts()).isEmpty();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputVolume(outputSample, "3000.0001")); // exact value 3000.0000667634818
+        assertThat(experiment.lastConflicts()).isEmpty();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputDensity(outputSample, "0.073421665")); // exact value 0.07342166503270467
+        assertThat(experiment.lastConflicts()).isEmpty();
     }
 
     @Test
     void testDontUpdateLimitingEQ() {
         experiment.mutateSetSchemeFromResource("/reaction-testCase1.rxn");
-        experiment.mutateSetInputWeight(1, 1, "100", G);
-        experiment.mutateSetInputRowMol(2, "2", MOL);
-        experiment.mutateSetInputWeight(2, 1, "200", G);
+        experiment.mutateSetInputWeight(1, 1, "100");
+        experiment.mutateSetInputRowMol(2, "2");
+        experiment.mutateSetInputWeight(2, 1, "200");
+        assertThat(experiment.lastConflicts()).containsOnlyKeys(experiment.input(2).getAnchor() + ":mol");
         experiment.mutateSetInputRowEQ(2, "2");
-        assertThat(experiment.input(1).getEq().isOverwritten()).isFalse();
+        assertThat(experiment.lastConflicts()).containsOnlyKeys(experiment.inputSample(2, 1).getAnchor() + ":weight");
+        assertThat(experiment.input(1).getEq().isDefault()).isTrue();
     }
 }

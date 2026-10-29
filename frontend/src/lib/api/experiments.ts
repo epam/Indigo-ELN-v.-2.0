@@ -31,6 +31,7 @@ import type {
   WorkflowAction,
 } from '@/lib/types/experiments.ts';
 import type { ModelMutation, MutationResponse } from '@/lib/types/mutations.ts';
+import type { ExperimentModel } from '@/lib/types/reactions.ts';
 import type { RevisionSummary } from '@/lib/types/revisions.ts';
 
 /**
@@ -116,18 +117,10 @@ function fetchExperiment(id: string, signal?: AbortSignal): Promise<ExperimentDe
   return apiFetch<ExperimentDetails>(`/api/eln/experiments/${id}`, { signal });
 }
 
-/**
- * `structuralSharing: false` is load-bearing for the stoichiometry flash. With sharing on, every
- * write to the detail goes through `replaceEqualDeep`, which stores a *copy* of each node the
- * write changed — so the objects `JSON_PATCHER.apply` rebuilt, and that `useModelPatch` reports,
- * would never be the ones a cell reads back out of the cache. The patcher already hands over a
- * whole new tree, so sharing would buy nothing there anyway.
- */
 export function useExperiment(id: string) {
   return useQuery({
     queryKey: experimentKeys.detail(id),
     queryFn: ({ signal }) => fetchExperiment(id, signal),
-    structuralSharing: false,
   });
 }
 
@@ -224,7 +217,7 @@ function mutateExperimentModel(id: string, revision: number, mutation: ModelMuta
  * Takes the experiment rather than its id because it needs the revision, and the caller
  * always has one in hand — a panel is rendering it. Nothing here refetches.
  *
- * The nodes the diff rebuilt are published through `useModelPatch`, whoever sent the mutation.
+ * The model the diff replaced is published through `useModelPatch`, whoever sent the mutation.
  */
 export function useMutateExperimentModel(experiment: ExperimentDetails) {
   const queryClient = useQueryClient();
@@ -244,19 +237,13 @@ export function useMutateExperimentModel(experiment: ExperimentDetails) {
   });
 }
 
-const NO_PATCH: ModelPatch = { nodes: new Map(), generation: 0 };
+const NO_PATCH: ModelPatch = { previous: undefined, conflicts: new Set(), generation: 0 };
 
 /**
  * The last diff applied to this experiment's cached detail, from any sender — a cell edit, undo
  * and redo, the scheme, an added sample, an SDF import. That is how every stoichiometry table
- * tells a cell the backend recalculated from one it left alone: a patch says which *nodes*
- * changed, never which cells, so the comparison happens against the node that was replaced.
- *
- * `nodes` maps each rebuilt object to the one it replaced. Its **keys** are the objects written
- * into the query cache, so a later render reading `sample.weight` back out gets an identity hit.
- * Its **values** are clones of the previous state (`apply` starts from a `structuredClone`), so
- * they are good for comparing fields and useless for comparing identity — and for the same
- * reason a node the diff did not touch is a fresh object that is simply absent from the map.
+ * tells a cell the backend recalculated from one it left alone: each cell finds its own value in
+ * `previous`, the model before the diff, by row anchor, and compares the two field by field.
  *
  * Held in the query cache rather than a module variable, so each `QueryClient` — one per story
  * and test — has its own, and signing out clears it with everything else. `skipToken`: written
@@ -278,7 +265,7 @@ export function useModelPatch(id: string): ModelPatch {
 
 /**
  * What every endpoint answering with a `MutationResponse` has to do with it: apply the diff to the
- * cached detail, publish the nodes it rebuilt, toast whatever the backend said, and refresh the
+ * cached detail, publish the model it replaced, toast whatever the backend said, and refresh the
  * lists. Shared by `/mutate` and by the SDF import, which is a `MutationResponse` reached through
  * its own multipart endpoint.
  */
@@ -287,20 +274,21 @@ function applyMutationResponse(queryClient: QueryClient, id: string, response: M
   // ExperimentDetailsDTOs. They overlap on names, which is why applying it to the detail
   // works — but it never touches currentPermissions, marked, the ancestor ids and names,
   // or the BaseDTO audit fields, so those survive untouched by construction.
-  let updatedNodes: ReadonlyMap<unknown, unknown> = new Map();
+  let previous: ExperimentModel | undefined;
   patchExperimentDetails(queryClient, id, (experiment) => {
-    const [patched, nodes] = JSON_PATCHER.apply(experiment, response.patch);
-    updatedNodes = nodes;
-    return patched as ExperimentDetails;
+    // `apply` works on a clone, so the cached model is left as it was and can be kept as is.
+    previous = experiment.model;
+    return JSON_PATCHER.apply(experiment, response.patch) as ExperimentDetails;
   });
   // After the cache write, so a subscriber re-rendering on the new data already has it.
-  // Skipped entirely when the detail was not cached — `patchExperimentDetails` no-ops
-  // there, and publishing an empty map would read as "nothing changed".
-  if (updatedNodes.size > 0) {
-    const nodes = updatedNodes;
-    queryClient.setQueryData<ModelPatch>(experimentKeys.modelPatch(id), (previous) => ({
-      nodes,
-      generation: (previous?.generation ?? 0) + 1,
+  // Skipped entirely when the detail was not cached — `patchExperimentDetails` no-ops there,
+  // and there is no model to compare with.
+  if (previous != null) {
+    const model = previous;
+    queryClient.setQueryData<ModelPatch>(experimentKeys.modelPatch(id), (last) => ({
+      previous: model,
+      conflicts: new Set(Object.keys(response.conflicts)),
+      generation: (last?.generation ?? 0) + 1,
     }));
   }
   // `response.unresolvedInputs` is deliberately not read here: it belongs to whoever sent the

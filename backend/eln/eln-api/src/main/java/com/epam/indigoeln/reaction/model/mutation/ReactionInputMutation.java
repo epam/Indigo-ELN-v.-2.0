@@ -4,7 +4,6 @@ import com.epam.indigoeln.eln.model.SaltCodeRef;
 import com.epam.indigoeln.eln.model.StereoisomerCodeRef;
 import com.epam.indigoeln.reaction.model.InputAnchor;
 import com.epam.indigoeln.reaction.model.ReactionRole;
-import com.epam.indigoeln.common.model.units.MolUnit;
 import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
@@ -27,8 +26,7 @@ public interface ReactionInputMutation extends ExperimentMutation {
 
     record SetInputRowMol(
             @NotNull InputAnchor anchor,
-            @Nullable String mol,
-            @Nullable MolUnit molUnit
+            @Nullable String mol
     ) implements ReactionInputMutation {
     }
 

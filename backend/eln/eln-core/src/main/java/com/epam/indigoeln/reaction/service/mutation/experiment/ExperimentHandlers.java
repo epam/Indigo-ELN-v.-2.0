@@ -1,6 +1,16 @@
 package com.epam.indigoeln.reaction.service.mutation.experiment;
 
-import com.epam.indigoeln.eln.entity.*;
+import com.epam.indigoeln.common.model.units.MeasurementUnit;
+import com.epam.indigoeln.common.model.units.MolUnit;
+import com.epam.indigoeln.common.model.units.MolarityUnit;
+import com.epam.indigoeln.common.model.units.VolumeUnit;
+import com.epam.indigoeln.common.model.units.WeightUnit;
+import com.epam.indigoeln.eln.entity.DictionaryItemEntity;
+import com.epam.indigoeln.eln.entity.ExperimentAttachment;
+import com.epam.indigoeln.eln.entity.ExperimentEntity;
+import com.epam.indigoeln.eln.entity.ExperimentRevisionEntity;
+import com.epam.indigoeln.eln.entity.NotebookEntity;
+import com.epam.indigoeln.eln.entity.UserInfo;
 import com.epam.indigoeln.eln.model.ApplicationPermission;
 import com.epam.indigoeln.eln.model.ExperimentRef;
 import com.epam.indigoeln.eln.model.ExperimentStatus;
@@ -10,18 +20,29 @@ import com.epam.indigoeln.eln.repository.ProjectRepository;
 import com.epam.indigoeln.eln.repository.UserRepository;
 import com.epam.indigoeln.eln.service.AttachmentService;
 import com.epam.indigoeln.eln.service.DictionaryService;
+import com.epam.indigoeln.reaction.model.EnteredValue;
 import com.epam.indigoeln.reaction.model.ExperimentSnapshot;
 import com.epam.indigoeln.reaction.model.Reaction;
+import com.epam.indigoeln.reaction.model.ReactionInput;
+import com.epam.indigoeln.reaction.model.ReactionInputSample;
 import com.epam.indigoeln.reaction.model.ReactionOutput;
+import com.epam.indigoeln.reaction.model.ReactionOutputSample;
 import com.epam.indigoeln.reaction.model.mutation.ExperimentMutation;
 import com.epam.indigoeln.reaction.service.mutation.EntityMutationHelper;
 import com.epam.indigoeln.reaction.service.mutation.MutationHandlerFor;
+import com.epam.indigoeln.reaction.util.UnitUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import one.util.streamex.StreamEx;
 
-import java.util.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 import static com.epam.indigoeln.common.exception.InvalidRequestException.fail;
 import static com.epam.indigoeln.common.exception.InvalidRequestException.validate;
@@ -118,12 +139,12 @@ class EditExperimentAttributesHandler extends ExperimentEditMutationHandlerBase<
         updated |= editProperty(mutation.description()
                 , experiment::setDescription
                 , summaryList
-                , x -> "description"
+                , _ -> "description"
         );
         updated |= editProperty(mutation.literature()
                 , experiment::setLiterature
                 , summaryList
-                , x -> "literature"
+                , _ -> "literature"
         );
         updated |= editProperty(mutation.linkedExperiments()
                 , v -> experiment.setLinkedExperiments(idsFromRefs(v))
@@ -230,7 +251,7 @@ class EditExperimentAccessHandler extends AbstractExperimentMutationHandler<Expe
     public String doHandle(ExperimentEntity experiment, ExperimentMutation.EditExperimentAccess mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
         String summary = entityMutationHelper.formatEditAccessSummary(mutation.edits());
         projectRepository.lockProject(experiment.getProject());
-        aclService.updateExperimentACL(experiment.getNotebook().getProject(), experiment.getNotebook(), experiment, mutation.edits());
+        aclService.updateExperimentACL(experiment, mutation.edits());
         return summary;
     }
 }
@@ -288,28 +309,6 @@ class DeleteExperimentAttachmentHandler extends ExperimentEditMutationHandlerBas
     @Override
     public void doRestoreStateAfterUndo(ExperimentEntity experiment, ExperimentSnapshot snapshot, ExperimentMutation.DeleteExperimentAttachment mutation) {
         restoreAttachments(experiment, attachmentRepository.getReferences(checkNotNull(snapshot.getAttachments())));
-    }
-}
-
-@Dependent
-@MutationHandlerFor(ExperimentMutation.ExperimentAccessUpdated.class)
-class ExperimentAccessUpdatedHandler extends AbstractExperimentMutationHandler<ExperimentMutation.ExperimentAccessUpdated> {
-
-    @Override
-    protected void doValidateAccess(ExperimentEntity experiment) {
-        // nothing
-    }
-
-    @Override
-    protected void doValidateStatus(ExperimentEntity experiment) {
-        // nothing
-    }
-
-    @Override
-    public String doHandle(ExperimentEntity experiment, ExperimentMutation.ExperimentAccessUpdated mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
-        aclService.recalculateACL(experiment);
-        String reason = mutation.projectName() != null ? "project " + mutation.projectName() : "notebook " + mutation.notebookName();
-        return "Access updated because of the changes in " + reason;
     }
 }
 
@@ -393,5 +392,127 @@ class ExperimentRedoHandler extends ExperimentEditMutationHandlerBase<Experiment
         ExperimentRevisionEntity revision = super.doCreateRevision(experiment, mutation, summary, revisionNo, patch, context, snapshotAfter);
         revision.setRedoFor(checkNotNull(context.getUndoInfo()).getRevision().getRevisionNo());
         return revision;
+    }
+}
+
+abstract class AbstractSetExperimentUnitHandler<T extends ExperimentMutation> extends ExperimentEditMutationHandlerBase<T> {
+
+    @Override
+    public boolean isUndoable() {
+        return true;
+    }
+
+    protected <U extends MeasurementUnit> void convert(EnteredValue<U> value, U from, U to, Consumer<EnteredValue<U>> setter) {
+        switch (value) {
+            case EnteredValue.UserEntered<U> v -> setter.accept(EnteredValue.userEntered(convertValue(v, from, to).toPlainString(), to, v.getRevision()));
+            case EnteredValue.Default<U> v -> setter.accept(EnteredValue.defaultValue(convertValue(v, from, to), to));
+            default -> {} // calculated values get recalculated, the rest have no value
+        }
+    }
+
+    private static <U extends MeasurementUnit> BigDecimal convertValue(EnteredValue<U> value, U from, U to) {
+        return UnitUtils.convert(value.toBigDecimal(), from, to).stripTrailingZeros();
+    }
+}
+
+@Dependent
+@MutationHandlerFor(ExperimentMutation.SetExperimentWeightUnit.class)
+class SetExperimentWeightUnitHandler extends AbstractSetExperimentUnitHandler<ExperimentMutation.SetExperimentWeightUnit> {
+
+    @Override
+    public String doHandle(ExperimentEntity entity, ExperimentMutation.SetExperimentWeightUnit mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+        WeightUnit from = entity.getModel().getUnitSource().getWeightUnit(), to = mutation.weightUnit();
+        for (Reaction reaction : entity.getModel().getReactions()) {
+            for (ReactionInput input : reaction.getInputs()) {
+                convert(input.getWeight(), from, to, input::setWeight);
+                for (ReactionInputSample sample : input.getSamples()) {
+                    convert(sample.getWeight(), from, to, sample::setWeight);
+                }
+            }
+            for (ReactionOutput output : reaction.getOutputs()) {
+                for (ReactionOutputSample sample : output.getSamples()) {
+                    convert(sample.getActualWeight(), from, to, sample::setActualWeight);
+                }
+            }
+        }
+
+        entity.getModel().setUnitSource(entity.getModel().getUnitSource().withWeightUnit(to));
+        return formatSetterSummary("weight unit", to.getDisplayName());
+    }
+}
+
+@Dependent
+@MutationHandlerFor(ExperimentMutation.SetExperimentVolumeUnit.class)
+class SetExperimentVolumeUnitHandler extends AbstractSetExperimentUnitHandler<ExperimentMutation.SetExperimentVolumeUnit> {
+
+    @Override
+    public String doHandle(ExperimentEntity entity, ExperimentMutation.SetExperimentVolumeUnit mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+        VolumeUnit from = entity.getModel().getUnitSource().getVolumeUnit(), to = mutation.volumeUnit();
+        for (Reaction reaction : entity.getModel().getReactions()) {
+            for (ReactionInput input : reaction.getInputs()) {
+                convert(input.getVolume(), from, to, input::setVolume);
+                for (ReactionInputSample sample : input.getSamples()) {
+                    convert(sample.getVolume(), from, to, sample::setVolume);
+                }
+            }
+            for (ReactionOutput output : reaction.getOutputs()) {
+                for (ReactionOutputSample sample : output.getSamples()) {
+                    convert(sample.getVolume(), from, to, sample::setVolume);
+                }
+            }
+        }
+
+        entity.getModel().setUnitSource(entity.getModel().getUnitSource().withVolumeUnit(mutation.volumeUnit()));
+        return formatSetterSummary("volume unit", mutation.volumeUnit().getDisplayName());
+    }
+}
+
+@Dependent
+@MutationHandlerFor(ExperimentMutation.SetExperimentMolUnit.class)
+class SetExperimentMolUnitHandler extends AbstractSetExperimentUnitHandler<ExperimentMutation.SetExperimentMolUnit> {
+
+    @Override
+    public String doHandle(ExperimentEntity entity, ExperimentMutation.SetExperimentMolUnit mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+        MolUnit from = entity.getModel().getUnitSource().getMolUnit(), to = mutation.molUnit();
+        for (Reaction reaction : entity.getModel().getReactions()) {
+            for (ReactionInput input : reaction.getInputs()) {
+                convert(input.getMol(), from, to, input::setMol);
+                for (ReactionInputSample sample : input.getSamples()) {
+                    convert(sample.getMol(), from, to, sample::setMol);
+                }
+            }
+            for (ReactionOutput output : reaction.getOutputs()) {
+                for (ReactionOutputSample sample : output.getSamples()) {
+                    convert(sample.getActualMol(), from, to, sample::setActualMol);
+                }
+            }
+        }
+
+        entity.getModel().setUnitSource(entity.getModel().getUnitSource().withMolUnit(mutation.molUnit()));
+        return formatSetterSummary("mol unit", mutation.molUnit().getDisplayName());
+    }
+}
+
+@Dependent
+@MutationHandlerFor(ExperimentMutation.SetExperimentMolarityUnit.class)
+class SetExperimentMolarityUnitHandler extends AbstractSetExperimentUnitHandler<ExperimentMutation.SetExperimentMolarityUnit> {
+
+    @Override
+    public String doHandle(ExperimentEntity entity, ExperimentMutation.SetExperimentMolarityUnit mutation, ExperimentMutationContext context, ExperimentSnapshot snapshotBefore) {
+        MolarityUnit from = entity.getModel().getUnitSource().getMolarityUnit(), to = mutation.molarityUnit();
+        for (Reaction reaction : entity.getModel().getReactions()) {
+            for (ReactionInput input : reaction.getInputs()) {
+                for (ReactionInputSample sample : input.getSamples()) {
+                    convert(sample.getMolarity(), from, to, sample::setMolarity);
+                }
+            }
+            for (ReactionOutput output : reaction.getOutputs()) {
+                for (ReactionOutputSample sample : output.getSamples()) {
+                    convert(sample.getMolarity(), from, to, sample::setMolarity);
+                }
+            }
+        }
+        entity.getModel().setUnitSource(entity.getModel().getUnitSource().withMolarityUnit(mutation.molarityUnit()));
+        return formatSetterSummary("molarity unit", mutation.molarityUnit().getDisplayName());
     }
 }

@@ -3,7 +3,8 @@ import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
 import { ReactionProductsTable } from '@/components/experiments/stoichiometry/products/products-table';
 import { useExperiment } from '@/lib/api/experiments';
-import { makeExperimentDetails, makeReaction, makeReactionOutput } from '@/mocks/fixtures';
+import { clearColumnChoices } from '@/mocks/column-choices';
+import { makeExperimentDetails, makeReaction, makeReactionOutput, MODEL_UNITS } from '@/mocks/fixtures';
 import { failingMutateHandlers, handlers, slowMutateHandlers } from '@/mocks/handlers';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -27,6 +28,7 @@ const spyHandlers = [
  */
 const TWO_STEPS = makeExperimentDetails({
   model: {
+    ...MODEL_UNITS,
     significantFigures: 5,
     reactions: [
       makeReaction(),
@@ -65,7 +67,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole('columnheader', { name: 'Theo. Weight' })).toBeInTheDocument();
+    await expect(canvas.getByRole('columnheader', { name: 'Theo. Weight, mg' })).toBeInTheDocument();
     await expect(canvas.getByRole('textbox', { name: 'Output Name, P0' })).toHaveValue('P0');
     await expect(canvas.getAllByRole('row')).toHaveLength(4); // header + three products
     await expect(canvas.queryByDisplayValue('P3')).not.toBeInTheDocument();
@@ -231,7 +233,7 @@ export const ShowAllSteps: Story = {
 export const Empty: Story = {
   args: {
     experiment: makeExperimentDetails({
-      model: { significantFigures: 5, reactions: [makeReaction({ outputs: [] })] },
+      model: { ...MODEL_UNITS, significantFigures: 5, reactions: [makeReaction({ outputs: [] })] },
     }),
   },
   play: async ({ canvasElement }) => {
@@ -294,5 +296,26 @@ export const Failure: Story = {
 
     await waitFor(async () => expect(await canvas.findByLabelText('Product Type, P0')).toBeEnabled());
     await expect(canvas.getByLabelText('Product Type, P0')).toHaveTextContent('Final');
+  },
+};
+
+/** The issue's own steps: switch Exact Mass and Salt EQ off, and the table drops them at once. */
+export const HidesColumns: Story = {
+  beforeEach: () => {
+    clearColumnChoices();
+    return clearColumnChoices;
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByRole('columnheader', { name: 'Exact Mass' })).toBeInTheDocument();
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Choose columns' }));
+    await userEvent.click(await screen.findByRole('menuitemcheckbox', { name: 'Exact Mass' }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: 'Salt EQ' }));
+
+    await waitFor(() => expect(canvas.queryByRole('columnheader', { name: 'Exact Mass' })).not.toBeInTheDocument());
+    await expect(canvas.queryByRole('columnheader', { name: 'Salt EQ' })).not.toBeInTheDocument();
+    // The columns the table is built on are not on offer at all.
+    await expect(screen.queryByRole('menuitemcheckbox', { name: 'Output Name' })).not.toBeInTheDocument();
   },
 };

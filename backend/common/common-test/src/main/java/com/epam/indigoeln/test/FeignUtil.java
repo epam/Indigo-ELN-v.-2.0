@@ -40,6 +40,7 @@ public class FeignUtil {
             .registerModule(new Jdk8Module())
             .registerModule(new ParameterNamesModule())
             .registerModule(new JsonNullableModule())
+            .findAndRegisterModules()
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     public static final ObjectMapper OBJECT_MAPPER_FORMATTED = OBJECT_MAPPER.copy()
