@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   BATCH_COLUMNS,
   batchHaystack,
+  isCompoundFrozen,
   isSampleProtected,
 } from '@/components/experiments/stoichiometry/batches/columns';
 import { makeReactionOutput, makeReactionOutputSample, unknownCompound } from '@/mocks/fixtures';
@@ -109,5 +110,15 @@ describe('batchHaystack', () => {
   it('skips the registry fields of an unknown compound', () => {
     const haystack = batchHaystack(row({}, { compound: unknownCompound() }));
     expect(haystack).not.toContain('str-');
+  });
+});
+
+describe('isCompoundFrozen', () => {
+  /** Stricter than `isSampleProtected`: `CompoundHandlers` wants no registration status at all. */
+  it('freezes the compound of any batch sent to the registry, a failed one included', () => {
+    expect(isCompoundFrozen(makeReactionOutputSample('a'))).toBe(false);
+    expect(isCompoundFrozen(makeReactionOutputSample('a', { registrationStatus: 'FAILED' }))).toBe(true);
+    expect(isCompoundFrozen(makeReactionOutputSample('a', { registrationStatus: 'IN_PROGRESS' }))).toBe(true);
+    expect(isCompoundFrozen(makeReactionOutputSample('a', { registrationStatus: 'REGISTERED' }))).toBe(true);
   });
 });

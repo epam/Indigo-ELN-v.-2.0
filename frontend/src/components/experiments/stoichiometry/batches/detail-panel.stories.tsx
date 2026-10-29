@@ -1,9 +1,11 @@
 import { http, HttpResponse } from 'msw';
 import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
+import { __setKetcherBehavior } from '../../../../../.storybook/mocks/ketcher-editor';
 import { BatchDetailPanel } from '@/components/experiments/stoichiometry/batches/detail-panel';
 import { useStoichiometryMutations } from '@/lib/hooks/experiments/use-stoichiometry-mutations';
 import { useExperiment } from '@/lib/api/experiments';
+import { NOT_A_MOLECULE } from '@/lib/reactions';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
 import {
   DICTIONARIES,
@@ -32,6 +34,8 @@ const POPULATED = rowAt(0, 0);
 const EMPTY = rowAt(0, 1);
 /** Batch 003 — `REGISTERED`, on a compound that carries a salt code and a salt EQ. */
 const REGISTERED = rowAt(1, 0);
+/** Batch 004 — `FAILED`: Register and Delete are live again, the compound is not. */
+const FAILED = rowAt(2, 0);
 
 /** Nothing in flight and nothing to send: what the display-only stories pass. */
 const IDLE: StoichiometryMutations = {
@@ -85,6 +89,10 @@ const meta = {
   component: BatchDetailPanel,
   args: { row: POPULATED, model: EXPERIMENT.model, reaction: REACTION, canEdit: true, mutations: IDLE },
   parameters: { layout: 'padded' },
+  // Ketcher is mocked: Save hands back `mock-molfile`, read as a molecule unless a story says not.
+  beforeEach: () => {
+    __setKetcherBehavior();
+  },
 } satisfies Meta<typeof BatchDetailPanel>;
 
 export default meta;
@@ -164,6 +172,41 @@ export const RegisteredBatchFreezesCompoundFields: Story = {
     await expect(canvas.getByLabelText('Stereoisomer Code')).toHaveAttribute('readonly');
     // The batch's own fields stay live.
     await expect(canvas.getByLabelText('Source')).not.toHaveAttribute('readonly');
+    // `SetOutputMolfile` is refused on a registered sample, like the three above.
+    await expect(canvas.queryByRole('button', { name: 'Edit structure' })).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * A failed registration still counts as sent: `CompoundHandlers` rejects compound edits on any
+ * sample with a registration status, so the structure and the compound fields stay frozen.
+ */
+export const FailedBatchFreezesCompound: Story = {
+  args: { row: FAILED },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByRole('button', { name: 'Edit structure' })).not.toBeInTheDocument();
+    await expect(canvas.getByLabelText('Stereoisomer Code')).toHaveAttribute('readonly');
+    await expect(canvas.getByLabelText('Source')).not.toHaveAttribute('readonly');
+  },
+};
+
+/**
+ * When the molfile the sketcher would be seeded with cannot be fetched, the pencil is disabled:
+ * opening blank, Save would replace the structure with a drawing started from nothing.
+ */
+export const StructureFetchFailed: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('/api/eln/compounds/:id/molfile', () => new HttpResponse(null, { status: 500 })),
+        ...handlers,
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const edit = await within(canvasElement).findByRole('button', { name: 'Edit structure' });
+    await waitFor(() => expect(edit).toBeDisabled());
   },
 };
 
@@ -173,6 +216,7 @@ export const ReadOnlyExperiment: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByLabelText('Source')).toHaveAttribute('readonly');
+    await expect(canvas.queryByRole('button', { name: 'Edit structure' })).not.toBeInTheDocument();
     await expect(canvas.getByLabelText('Batch Comment')).toHaveValue('Second attempt');
     // A multi-select becomes chips rather than an inert combobox.
     await userEvent.click(canvas.getByRole('button', { name: 'Additional Information' }));
@@ -195,6 +239,8 @@ export const NoStructure: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText('No structure available')).toBeInTheDocument();
+    // Drawing one is the way out: `SetOutputMolfile` builds the compound from it.
+    await expect(canvas.getByRole('button', { name: 'Draw Structure' })).toBeInTheDocument();
     // The compound fields have nothing behind them, so they offer no control either.
     await expect(canvas.getByLabelText('Salt Code & Name')).toHaveAttribute('readonly');
   },
@@ -344,6 +390,63 @@ export const ReadOnlyHasNoEditors: Story = {
 
     await expect(await canvas.findByLabelText('Melting Point')).toHaveValue('67 ~ 69 °C');
     await expect(canvas.queryByRole('button', { name: /^Edit / })).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * The pencil opens the sketcher seeded with the batch's molfile, and its Save sends
+ * `SetOutputMolfile` — with a fresh output anchor, since a new structure may be a new product row.
+ */
+export const EditsStructure: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <PanelFromCache />,
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const canvas = within(canvasElement);
+
+    const edit = await canvas.findByRole('button', { name: 'Edit structure' });
+    // Waits on the molfile the sketcher is seeded with.
+    await waitFor(() => expect(edit).toBeEnabled());
+    await userEvent.click(edit);
+
+    const save = await screen.findByRole('button', { name: 'Save' });
+    await waitFor(() => expect(save).toBeEnabled());
+    await userEvent.click(save);
+
+    await waitFor(() =>
+      expect(sent).toEqual([
+        {
+          type: 'SetOutputMolfile',
+          anchor: 'ous00001',
+          molfile: 'mock-molfile',
+          createdOutputAnchor: expect.any(String),
+        },
+      ]),
+    );
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Structure Editor' })).not.toBeInTheDocument());
+  },
+};
+
+/** A batch is one compound, so a drawn reaction is refused before any request, sketcher left open. */
+export const StructureRefusesAReaction: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  render: () => <PanelFromCache />,
+  beforeEach: () => {
+    __setKetcherBehavior({ isReaction: true });
+  },
+  play: async ({ canvasElement }) => {
+    sent.length = 0;
+    const edit = await within(canvasElement).findByRole('button', { name: 'Edit structure' });
+    await waitFor(() => expect(edit).toBeEnabled());
+    await userEvent.click(edit);
+
+    const save = await screen.findByRole('button', { name: 'Save' });
+    await waitFor(() => expect(save).toBeEnabled());
+    await userEvent.click(save);
+
+    await waitFor(() => expect(screen.getByText(NOT_A_MOLECULE)).toBeInTheDocument());
+    await expect(screen.getByRole('dialog', { name: 'Structure Editor' })).toBeInTheDocument();
+    await expect(sent).toEqual([]);
   },
 };
 

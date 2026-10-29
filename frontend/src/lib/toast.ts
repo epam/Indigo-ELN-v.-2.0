@@ -67,6 +67,17 @@ export function describeError(error: unknown, url?: string): [message: string, l
 }
 
 /**
+ * Refuses something the user did, out loud: toasts `message`, then throws it. For a handler whose
+ * caller reads a rejection as "already reported" and stays silent — `StructureEditorDialog`'s
+ * `onSave` holds the sketcher open on one, drawing intact, on exactly that assumption.
+ */
+export function notifyAndThrow(message: string): never {
+  const error = new Error(message);
+  notifyError(error);
+  throw error;
+}
+
+/**
  * Toasts a failed request. Called from `apiFetch` so every endpoint reports failures
  * the same way; `apiFetch` still throws, leaving callers free to handle the error as well.
  *

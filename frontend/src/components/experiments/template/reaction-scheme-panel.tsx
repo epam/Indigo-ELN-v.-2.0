@@ -5,7 +5,7 @@ import { SavingOverlay } from '@/components/common/saving-overlay';
 import { AnalyzeRxnDialog } from '@/components/experiments/analyze-rxn/analyze-rxn-dialog';
 import { useMutateExperimentModel } from '@/lib/api/experiments';
 import { NOT_A_REACTION } from '@/lib/reactions';
-import { notifyError } from '@/lib/toast';
+import { notifyAndThrow } from '@/lib/toast';
 import { canEditExperiment } from '@/lib/types/experiments.ts';
 
 import type { ExperimentDetails } from '@/lib/types/experiments.ts';
@@ -63,12 +63,8 @@ export function ReactionSchemePanel({
         onChange={async (next) => {
           if (!next) return;
           // A molecule is refused, not stored as a scheme. Throwing is what holds the sketcher
-          // open with the drawing intact; the dialog stays silent on a rejection, so toast first.
-          if (!next.isReaction) {
-            const error = new Error(NOT_A_REACTION);
-            notifyError(error);
-            throw error;
-          }
+          // open with the drawing intact; the dialog stays silent on a rejection, so it toasts too.
+          if (!next.isReaction) notifyAndThrow(NOT_A_REACTION);
           const response = await mutate.mutateAsync({
             type: 'SetScheme',
             anchor: reaction.anchor,

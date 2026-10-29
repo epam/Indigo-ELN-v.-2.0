@@ -1,12 +1,10 @@
-import { Pencil, PenLine } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { StructureEditorDialog, type StructureEditorResult } from '@/components/chemistry/structure-editor-dialog';
-import { Button } from '@/components/ui/button';
+import type { StructureEditorResult } from '@/components/chemistry/structure-editor-dialog';
+import { StructureFrame } from '@/components/chemistry/structure-frame';
 import { Skeleton } from '@/components/ui/skeleton';
 import { renderStructure } from '@/lib/ketcher';
 import { notifyError } from '@/lib/toast';
-import { cn } from '@/lib/utils';
 
 interface SchemeEditorProps {
   /** molfile or rxnfile; null or empty renders the empty state. */
@@ -22,12 +20,11 @@ interface SchemeEditorProps {
 }
 
 /**
- * Shows a chemical structure — molecule or reaction — and opens the Ketcher sketcher to
- * change it. Empty, it offers a single Draw Structure button; filled, it renders the
- * structure as an SVG with an edit button in the corner.
+ * Shows a chemical structure — molecule or reaction — that the caller holds as text, in a
+ * `StructureFrame`: empty, a single Draw Structure button; filled, the structure rendered as an
+ * SVG with an edit button in the corner.
  */
 function SchemeEditor({ value, onChange, className, disabled }: SchemeEditorProps) {
-  const [editorOpen, setEditorOpen] = useState(false);
   // Keyed by the structure it belongs to, so a render that lands late for a structure
   // the user has already replaced is ignored rather than shown. A null url means that
   // structure failed to render.
@@ -59,49 +56,15 @@ function SchemeEditor({ value, onChange, className, disabled }: SchemeEditorProp
   const isRendering = Boolean(value) && rendered?.structure !== value;
 
   return (
-    <>
-      <div
-        className={cn(
-          'relative flex h-30 items-center justify-center rounded-md border border-dashed border-neutral-300',
-          className,
-        )}
-      >
-        {imageUrl ? (
-          <>
-            {/*
-              **The structure is shown, not pressed.** The whole frame used to be a button, so a
-              click anywhere on a reaction scheme — including one meant to read it — opened the
-              sketcher over it. The pencil is the one way in now, and it is a real control rather
-              than the decorative copy of that button it used to be: it carries the label and the
-              tab stop the frame is giving up, so the keyboard path is unchanged.
-            */}
-            <div className="flex size-full items-center justify-center p-2">
-              <img src={imageUrl} alt="Chemical structure" className="max-h-full max-w-full object-contain" />
-            </div>
-            <Button
-              variant="secondary"
-              size="icon-lg"
-              aria-label="Edit structure"
-              title="Edit structure"
-              disabled={disabled}
-              onClick={() => setEditorOpen(true)}
-              className="absolute top-2 right-2 text-blue-400"
-            >
-              <Pencil />
-            </Button>
-          </>
-        ) : isRendering ? (
-          <Skeleton className="size-full" />
-        ) : (
-          <Button variant="secondary" size="lg" disabled={disabled} onClick={() => setEditorOpen(true)}>
-            <PenLine className="text-blue-400" />
-            Draw Structure
-          </Button>
-        )}
-      </div>
-
-      <StructureEditorDialog open={editorOpen} onOpenChange={setEditorOpen} value={value} onSave={onChange} />
-    </>
+    <StructureFrame value={value} onSave={onChange} disabled={disabled} editLoading={isRendering} className={className}>
+      {imageUrl ? (
+        <div className="flex size-full items-center justify-center p-2">
+          <img src={imageUrl} alt="Chemical structure" className="max-h-full max-w-full object-contain" />
+        </div>
+      ) : (
+        isRendering && <Skeleton className="size-full" />
+      )}
+    </StructureFrame>
   );
 }
 
