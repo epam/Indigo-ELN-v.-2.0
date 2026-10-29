@@ -416,6 +416,7 @@ function Structure({
       // Without the molfile the sketcher would open blank, and its Save would replace the
       // structure with whatever was drawn from scratch. The picture says the fetch failed too.
       disabled={molfile.isError}
+      size="sm"
       className="h-[260px]"
     >
       {/* `border-0`: the frame is the dashed box around it. */}

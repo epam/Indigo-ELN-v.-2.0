@@ -394,8 +394,8 @@ function BatchCell({
           previous={previousRow && column.value(previousRow)}
           conflicted={mutations.conflicts.has(cell)}
           generation={mutations.generation}
-          // Registration does not freeze these: the backend rejects a registered sample's
-          // *compound* mutations only — see `isSampleProtected`.
+          // Registration does not freeze these: the backend rejects a sent sample's *compound*
+          // mutations only — see `isCompoundFrozen`.
           editable={canEdit}
           pending={pending}
           label={label}

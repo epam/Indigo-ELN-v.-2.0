@@ -20,6 +20,8 @@ interface StructureFrameProps {
   disabled?: boolean;
   /** Spins the pencil — while the picture renders, or while the structure to seed is fetched. */
   editLoading?: boolean;
+  /** `sm` sets the empty state in a dense table's 13px, for a frame that sits beside one. */
+  size?: 'sm' | 'md';
   /** Sizes the frame; the height is the only thing call sites usually change. */
   className?: string;
 }
@@ -44,6 +46,7 @@ function StructureFrame({
   editable = true,
   disabled,
   editLoading,
+  size = 'md',
   className,
 }: StructureFrameProps) {
   const [editorOpen, setEditorOpen] = useState(false);
@@ -75,7 +78,12 @@ function StructureFrame({
             )}
           </>
         ) : (
-          <div className="flex flex-col items-center gap-3 p-4 text-center text-[14px]/6 text-neutral-700">
+          <div
+            className={cn(
+              'flex flex-col items-center gap-3 p-4 text-center text-neutral-700',
+              size === 'sm' ? 'text-[13px]/5' : 'text-[14px]/6',
+            )}
+          >
             {emptyLabel}
             {editable && (
               <Button variant="secondary" size="lg" disabled={disabled} onClick={() => setEditorOpen(true)}>

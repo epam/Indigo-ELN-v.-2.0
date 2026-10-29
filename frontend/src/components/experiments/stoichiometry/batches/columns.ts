@@ -99,9 +99,8 @@ export type BatchColumn = ColumnBase & Cell;
  * to be retried, and the batch is still the user's to delete.
  *
  * This gates the Register and Delete actions only. It does **not** freeze the numeric cells:
- * `CompoundHandlers.java` rejects a registered sample's *compound* mutations (salt code, salt EQ,
- * stereoisomer, molfile) and nothing rejects `SetOutputActualWeight` and its siblings, so
- * disabling them here would forbid an edit the backend accepts.
+ * nothing rejects `SetOutputActualWeight` and its siblings, so disabling them here would forbid
+ * an edit the backend accepts. Nor is it the compound's freeze — see `isCompoundFrozen`.
  */
 export function isSampleProtected(sample: ReactionOutputSample): boolean {
   return sample.registrationStatus != null && sample.registrationStatus !== 'FAILED';
