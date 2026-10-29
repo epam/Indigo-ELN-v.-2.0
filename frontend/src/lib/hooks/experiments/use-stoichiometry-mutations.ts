@@ -67,7 +67,7 @@ export function useStoichiometryMutations(experiment: ExperimentDetails): Stoich
         await run(mutation);
         return true;
       } catch {
-        // Deliberately silent: reported by the mutation cache (`createCaches`).
+        // Silent: see `createCaches`.
         return false;
       } finally {
         setSavingCells((cells) => {

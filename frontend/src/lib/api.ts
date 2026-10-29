@@ -85,8 +85,8 @@ async function parseErrorBody(response: Response): Promise<unknown> {
  *
  * **Nothing here toasts.** A failure is reported where TanStack sees it — the `QueryCache` and
  * `MutationCache` `onError` in `query-client.ts` — which also catches what never was a response:
- * a network failure, an unparseable body, an `onSuccess` that threw. A call made outside a query
- * or a mutation reports its own failure with `notifyError`.
+ * a network failure, an unparseable body, an `onSuccess` that threw. Every call goes through one
+ * or the other: a download and a name check run as queries that cache nothing.
  */
 async function apiRequest(path: string, init: ApiRequestInit = {}): Promise<Response> {
   const { responseType = 'json', json, formData, ...requestInit } = init;
@@ -116,6 +116,17 @@ async function apiRequest(path: string, init: ApiRequestInit = {}): Promise<Resp
 }
 
 /**
+ * A request that got no response at all. Its own class so `notifyError` can collapse the burst a
+ * screenful of failing queries produces into one toast, as it does for a 401.
+ */
+export class NetworkError extends Error {
+  constructor(cause: unknown) {
+    super('Could not reach the server', { cause });
+    this.name = 'NetworkError';
+  }
+}
+
+/**
  * `fetch`, with a rejection that reads as one: the browser's own is a bare `TypeError: Failed to
  * fetch` for a dropped connection, a CSP block and a proxy reset alike. An abort is passed through
  * untouched — TanStack Query aborts a query nobody is watching, and that is not a failure.
@@ -125,7 +136,7 @@ async function send(path: string, init: RequestInit): Promise<Response> {
     return await fetch(path, init);
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') throw error;
-    throw new Error('Could not reach the server', { cause: error });
+    throw new NetworkError(error);
   }
 }
 
@@ -188,7 +199,7 @@ export function filenameFromContentDisposition(header: string | null): string | 
  * `null`, and the fallback would carry the download — the other reason the fallback exists.
  *
  * Rethrows, like `apiFetch`: a transport function that quietly resolved on error would be the
- * odd one out here. Reporting and swallowing belong to the caller — `useDownload` does both.
+ * odd one out here. Swallowing belongs to the caller — `useDownload` does it.
  *
  * `init` is for the downloads that are not plain GETs — the experiment report is a `POST`. It is
  * spread *before* `responseType`, so a caller cannot ask for a parsed body from a function whose

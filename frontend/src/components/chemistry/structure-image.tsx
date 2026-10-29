@@ -54,7 +54,7 @@ export function StructureImage({
         if (!current) return;
         setRendered({ structure, url: null });
         // One toast for the lot: a list of structures that all fail to render is one problem.
-        notifyError(error, undefined, RENDER_FAILED);
+        notifyError(error, RENDER_FAILED);
       });
     return () => {
       current = false;

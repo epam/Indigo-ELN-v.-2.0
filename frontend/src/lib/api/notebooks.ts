@@ -1,10 +1,10 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 
 import { apiFetch } from '@/lib/api';
 import { collectionQueryParams, getNextPageParam, useSettledSearch } from '@/lib/api/collections';
 import { useEntityAttachments, useUpdateEntityAccess } from '@/lib/api/entity-writes';
 import { projectKeys } from '@/lib/api/projects';
-import { notifyError } from '@/lib/toast';
 import type { CollectionFilters, Page, UUID } from '@/lib/types/common.ts';
 import type { Notebook, NotebookDetails, NotebookEditRequest, NotebookRequest } from '@/lib/types/notebooks.ts';
 
@@ -40,6 +40,7 @@ export const notebookKeys = {
   // Its own root for the same reason the detail has one: creating a notebook consumes this
   // number, so it must not be swept up by — and refetched from — the list invalidation.
   nextNumber: () => ['notebookNextNumber'] as const,
+  nameExists: (name: string) => ['notebookNameExists', name] as const,
 };
 
 /** Attachments and ACL, which every detail entity handles the same way. */
@@ -69,16 +70,31 @@ export function useNotebook(id: UUID) {
   });
 }
 
-/** Pre-flight for the notebook_name_uq constraint, which has no friendly server message. */
-export async function checkNotebookNameExists(name: string): Promise<boolean> {
-  try {
-    const result = await apiFetch<{ exists: boolean }>(`/api/eln/notebooks/existence?name=${encodeURIComponent(name)}`);
-    return result.exists;
-  } catch (error) {
-    // A form validator, not a query, so no cache reports this for it.
-    notifyError(error);
-    throw error;
-  }
+function fetchNotebookNameExists(name: string): Promise<boolean> {
+  return apiFetch<{ exists: boolean }>(`/api/eln/notebooks/existence?name=${encodeURIComponent(name)}`).then(
+    (result) => result.exists,
+  );
+}
+
+/**
+ * Pre-flight for the notebook_name_uq constraint, which has no friendly server message. A form
+ * validator rather than a query, but run through `fetchQuery` so the cache reports a failure —
+ * and caches nothing: `staleTime: 0` asks the server on every call, `gcTime: 0` drops the answer
+ * once it is read, since a name free a moment ago may not be now.
+ */
+export function useNotebookNameExists(): (name: string) => Promise<boolean> {
+  const queryClient = useQueryClient();
+  return useCallback(
+    (name: string) =>
+      queryClient.fetchQuery({
+        queryKey: notebookKeys.nameExists(name),
+        queryFn: () => fetchNotebookNameExists(name),
+        staleTime: 0,
+        gcTime: 0,
+        retry: false,
+      }),
+    [queryClient],
+  );
 }
 
 function editNotebook(id: UUID, request: NotebookEditRequest): Promise<NotebookDetails> {

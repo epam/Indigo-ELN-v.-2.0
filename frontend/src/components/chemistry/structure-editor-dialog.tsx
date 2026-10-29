@@ -98,9 +98,8 @@ function StructureEditorDialog({ open, onOpenChange, value, onSave }: StructureE
       await onSave(result);
       onOpenChange(false);
     } catch {
-      // Deliberately silent: whoever rejected has reported it — the mutation cache
-      // (`createCaches`), or a caller's `notifyAndThrow`. Leave the dialog open with the
-      // drawing intact so the work is not lost.
+      // Silent: see `createCaches`. Leave the dialog open with the drawing intact so the work
+      // is not lost.
     } finally {
       setIsSaving(false);
     }

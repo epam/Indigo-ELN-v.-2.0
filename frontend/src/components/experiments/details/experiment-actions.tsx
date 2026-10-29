@@ -238,9 +238,10 @@ const OWNS_UNDO = 'input, textarea, select, [contenteditable="true"], [role="dia
  *
  * **There is no `canUndo`.** Neither the experiment payload nor `MutationResponse` carries one,
  * so an enabled button cannot promise there is anything to undo: pressing with an empty stack
- * answers 400 `Nothing to undo`. The enabled/disabled state therefore says only whether this experiment is writable at all — `canEditExperiment`, the same
- * gate every other editable surface asks, and the same one `ExperimentService.mutateModel`
- * enforces with `ensureAccess(EDIT_EXPERIMENTS)`.
+ * answers 400 `Nothing to undo`. The enabled/disabled state therefore says only whether this
+ * experiment is writable at all — `canEditExperiment`, the same gate every other editable surface
+ * asks, and the same one `ExperimentService.mutateModel` enforces with
+ * `ensureAccess(EDIT_EXPERIMENTS)`.
  *
  * Undo is also **per user** on the backend: `AbstractUndoHelper` skips revisions somebody else
  * made, so this never takes back a colleague's edit.

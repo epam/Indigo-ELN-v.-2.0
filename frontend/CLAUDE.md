@@ -131,12 +131,20 @@ user one click on Reload.
 **Errors are reported by the caches, not by `apiFetch`.** `createCaches()` gives the client a
 `QueryCache` and a `MutationCache` whose `onError` is `notifyError`, so every failed query and
 mutation is toasted once, whatever failed. That includes what never was an HTTP error: a dropped
-connection, a body that would not parse, and a mutation `onSuccess` that threw after the server had
-saved. `applyMutationResponse` turns a patch it cannot apply into `Saved, but the page could not
-be updated` and refetches the detail. A query reports after its last retry, not on each attempt.
-The story decorator uses the same `createCaches()`. An `apiFetch` outside any query or mutation
-has no cache to report it, and calls `notifyError` itself. Today that is `useDownload` and the two
-name validators (`checkProjectNameExists`, `checkNotebookNameExists`).
+connection (`NetworkError`, toasted under one id like a 401, so a screenful collapses to one), a
+body that would not parse, and a mutation `onSuccess` that threw after the server had saved. A
+query reports after its last retry, not on each attempt.
+
+The one exception is a patch `applyMutationResponse` cannot apply. The server has saved, so that is
+**not** a failed mutation: it toasts `Saved, but the page could not be updated` itself, still
+publishes the backend's messages, and resolves once the refetched detail lands. Rejecting would hold
+a sketcher open or re-enable an Add button over a write that already landed, inviting a duplicate.
+
+The story decorator uses the same `createCaches()`. Every `apiFetch` runs inside a query or a
+mutation, so none reports its own failure. What is not naturally one becomes a query that caches
+nothing (`fetchQuery` with `staleTime: 0, gcTime: 0, retry: false`): `useDownload`, keyed per hook
+instance so a second click joins the first, and the two name validators (`useProjectNameExists`,
+`useNotebookNameExists`), which must ask the server every time.
 
 Three rules follow, and they are stated **here only**. Code comments don't repeat "already
 reported"; a silent `catch` points to `createCaches` at most.
@@ -227,9 +235,8 @@ needs more.** Raw fetch functions, query-key factories and debounce constants st
 module-private — an exported `fetchProjects` is an invitation for a component to bypass the
 cache. Three narrow exceptions, each worth stating because they look like oversights:
 
-- Non-hook calls a component really makes: `experimentPicturePath`, `checkProjectNameExists`
-  (a form validator, not a query), and `COLLECTION_PAGE_SIZE`, which feeds `InfiniteLoader`'s
-  `firstLoadSkeletons`.
+- Non-hook calls a component really makes: `experimentPicturePath` and `COLLECTION_PAGE_SIZE`,
+  which feeds `InfiniteLoader`'s `firstLoadSkeletons`.
 - `experimentKeys` and `userKeys`, which `src/lib/query-client.ts` hashes to decide what gets
   persisted to localStorage.
 - What `collections.ts` shares between sibling api modules.

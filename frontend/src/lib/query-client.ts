@@ -15,8 +15,7 @@ import { BUILT_IN_DICTIONARIES } from '@/lib/types/dictionaries.ts';
  * request that never got one, a body that would not parse, a mutation's `onSuccess` that threw
  * after the server had already saved. A query reports after its last retry, not on each attempt.
  *
- * So a call site that catches a rejection has nothing left to say, and stays silent. A fresh
- * pair per client: the story decorator builds one per story, and they behave like the app.
+ * A fresh pair per client: the story decorator builds one per story, and they behave like the app.
  */
 export function createCaches() {
   return {

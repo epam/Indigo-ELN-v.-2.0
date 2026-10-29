@@ -29,8 +29,8 @@ export interface AddSample {
  * queue behind the stoichiometry table's cell saves instead of racing them, and their response
  * patches the cached detail, which is how the table behind the dialog fills itself in.
  *
- * On failure nothing local changes: the row keeps its enabled Add button. Nothing here is optimistic, which is why `run` reports the outcome rather
- * than the caller assuming one.
+ * On failure nothing local changes: the row keeps its enabled Add button. Nothing here is
+ * optimistic, which is why `run` reports the outcome rather than the caller assuming one.
  */
 export function useAddSample(experiment: ExperimentDetails): AddSample {
   const [addingRows, setAddingRows] = useState<ReadonlySet<string>>(() => new Set());
@@ -46,7 +46,7 @@ export function useAddSample(experiment: ExperimentDetails): AddSample {
         await runMutation(mutation);
         return true;
       } catch {
-        // Deliberately silent: reported by the mutation cache (`createCaches`).
+        // Silent: see `createCaches`.
         return false;
       } finally {
         setAddingRows((rows) => {

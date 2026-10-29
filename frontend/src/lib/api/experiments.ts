@@ -17,7 +17,7 @@ import { projectKeys } from '@/lib/api/projects';
 import { useDownload } from '@/lib/hooks/use-download';
 import { useSettled } from '@/lib/hooks/use-settled';
 import { JSON_PATCHER } from '@/lib/json-patcher';
-import { notifyInfo } from '@/lib/toast';
+import { notifyError, notifyInfo } from '@/lib/toast';
 import type { Page } from '@/lib/types/common.ts';
 import type {
   Experiment,
@@ -268,25 +268,35 @@ export function useModelPatch(id: string): ModelPatch {
  * cached detail, publish the model it replaced, toast whatever the backend said, and refresh the
  * lists. Shared by `/mutate` and by the SDF import, which is a `MutationResponse` reached through
  * its own multipart endpoint.
+ *
+ * A patch that will not apply is **not** a failed write: the server has saved. So the mutation
+ * still resolves — the caller gets its `unresolvedInputs`, a dialog closes, an Add button does not
+ * invite a second identical write — and the toast is raised here, since no cache sees a success.
+ * The returned promise is the detail's refetch, which `onSuccess` awaits: the mutation stays
+ * pending until the page shows what the server holds.
  */
-function applyMutationResponse(queryClient: QueryClient, id: string, response: MutationResponse): void {
+function applyMutationResponse(
+  queryClient: QueryClient,
+  id: string,
+  response: MutationResponse,
+): Promise<void> | undefined {
   // The diff is computed between two ExperimentSnapshots rather than two
   // ExperimentDetailsDTOs. They overlap on names, which is why applying it to the detail
   // works — but it never touches currentPermissions, marked, the ancestor ids and names,
   // or the BaseDTO audit fields, so those survive untouched by construction.
   let previous: ExperimentModel | undefined;
+  let reload: Promise<void> | undefined;
   try {
     patchExperimentDetails(queryClient, id, (experiment) => {
       // `apply` works on a clone, so the cached model is left as it was and can be kept as is.
+      // Read after it, so a throw leaves no `previous` to publish against an unchanged cache.
+      const patched = JSON_PATCHER.apply(experiment, response.patch) as ExperimentDetails;
       previous = experiment.model;
-      return JSON_PATCHER.apply(experiment, response.patch) as ExperimentDetails;
+      return patched;
     });
   } catch (error) {
-    // A patch `JSON_PATCHER` cannot read. The server has saved, but the throw left the cache as
-    // it was, so the page would go on showing the state before the write: fetch what it holds.
-    // Thrown still, so the caller reads a failure — the mutation cache toasts this message.
-    void queryClient.invalidateQueries({ queryKey: experimentKeys.detail(id) });
-    throw new Error('Saved, but the page could not be updated. Reloading the experiment.', { cause: error });
+    notifyError(new Error('Saved, but the page could not be updated. Reloading the experiment.', { cause: error }));
+    reload = queryClient.invalidateQueries({ queryKey: experimentKeys.detail(id) });
   }
   // After the cache write, so a subscriber re-rendering on the new data already has it.
   // Skipped entirely when the detail was not cached — `patchExperimentDetails` no-ops there,
@@ -306,6 +316,7 @@ function applyMutationResponse(queryClient: QueryClient, id: string, response: M
   // The write bumps modifiedAt, which every list card shows. `lists()` rather than `all()`:
   // the patch cannot move a name or a status, so the starred panel has nothing to refetch for.
   void queryClient.invalidateQueries({ queryKey: experimentKeys.lists() });
+  return reload;
 }
 
 function importSdf(id: string, reactionAnchor: string, file: File): Promise<MutationResponse> {
@@ -438,7 +449,7 @@ export function usePrintReport(id: string) {
  *
  * A plain GET, so it needs no revision and no cache handling — but it still has to go through
  * `apiDownload` rather than an `<a href download>`, since the endpoint wants the Cognito bearer
- * token. `useDownload` toasts and swallows the rejection.
+ * token. `useDownload` swallows the rejection.
  */
 export function useExportSdf(id: string) {
   const { download, downloading } = useDownload();

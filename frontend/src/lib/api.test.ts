@@ -4,9 +4,25 @@ vi.mock('@/lib/auth', () => ({
   auth: { getAccessToken: vi.fn().mockResolvedValue('test-token') },
 }));
 
-const { ApiError, apiDownload, apiFetch, filenameFromContentDisposition } = await import('@/lib/api');
+const { ApiError, apiDownload, apiFetch, filenameFromContentDisposition, NetworkError } = await import('@/lib/api');
 
 describe('apiFetch', () => {
+  it('turns a fetch that got no response into a NetworkError, keeping the cause', async () => {
+    const cause = new TypeError('Failed to fetch');
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(cause));
+
+    const error = await apiFetch('/api/eln/currentUser').catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(NetworkError);
+    expect(error).toMatchObject({ message: 'Could not reach the server', cause });
+  });
+
+  it('passes an abort through untouched', async () => {
+    const abort = new DOMException('The operation was aborted.', 'AbortError');
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(abort));
+
+    await expect(apiFetch('/api/eln/currentUser')).rejects.toBe(abort);
+  });
+
   it('sends the path untouched with the bearer token attached', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ username: 'alice' }), {

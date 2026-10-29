@@ -52,8 +52,8 @@ const sent: unknown[] = [];
 const spyHandlers = [
   http.post('/api/eln/experiments/:id/mutate', async ({ request }) => {
     sent.push(await request.json());
-    // A whole `MutationResponse`, as the backend's `@NotNull` fields guarantee: `applyMutationResponse`
-    // reads them unguarded, so a partial one would fail the save.
+    // A whole `MutationResponse`, as the backend's `@NotNull` fields guarantee:
+    // `applyMutationResponse` reads them unguarded, so a partial one would fail the save.
     return HttpResponse.json({ patch: {}, unresolvedInputs: {}, messages: [], conflicts: {} });
   }),
   ...handlers,
@@ -428,8 +428,8 @@ export const EditsStructure: Story = {
 };
 
 /**
- * The server saved, but its patch would not apply. No HTTP error, so nothing but the mutation cache
- * reports it: the toast says the write landed, and the sketcher stays open as for any failed save.
+ * The server saved, but its patch would not apply. Not a failed save, so the sketcher closes — left
+ * open, it would invite a second identical write — and the toast says the write landed.
  */
 export const StructureSaveNotApplied: Story = {
   parameters: {
@@ -457,7 +457,7 @@ export const StructureSaveNotApplied: Story = {
         screen.getByText('Saved, but the page could not be updated. Reloading the experiment.'),
       ).toBeInTheDocument(),
     );
-    await expect(screen.getByRole('dialog', { name: 'Structure Editor' })).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Structure Editor' })).not.toBeInTheDocument());
   },
 };
 

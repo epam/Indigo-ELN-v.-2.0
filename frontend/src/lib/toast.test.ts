@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ApiError } from '@/lib/api';
+import { ApiError, NetworkError } from '@/lib/api';
 import { INCIDENTS_PATH } from '@/lib/report-error';
 import { describeError, notifyError, toastManager } from '@/lib/toast';
 
@@ -71,6 +71,19 @@ describe('notifyError', () => {
       expect.objectContaining({ actionProps: expect.objectContaining({ children: 'Report Error' }) }),
     );
     expect(console.error).toHaveBeenCalledWith('Server error calling /api/eln/projects: 500', expect.any(ApiError));
+  });
+
+  /** One id for every network failure, so a screenful of failing queries is one toast. */
+  it('collapses network failures into one toast', () => {
+    const add = vi.spyOn(toastManager, 'add');
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    notifyError(new NetworkError(new TypeError('Failed to fetch')));
+    notifyError(new NetworkError(new TypeError('Failed to fetch')));
+
+    const [first, second] = add.mock.calls.map(([options]) => options.id);
+    expect(first).toBeDefined();
+    expect(second).toBe(first);
   });
 
   /** A failed report offering to report itself would loop. */

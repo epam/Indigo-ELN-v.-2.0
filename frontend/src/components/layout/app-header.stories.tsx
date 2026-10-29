@@ -2,7 +2,6 @@ import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
 
 import { AppHeader } from '@/components/layout/app-header';
 import { ApiError } from '@/lib/api';
-import { buildReportErrorContext } from '@/lib/report-error';
 import { notifyError } from '@/lib/toast';
 import { loadingHandlers } from '@/mocks/handlers';
 
@@ -66,8 +65,9 @@ export const ReportsError: Story = {
 /** An error toast's action opens the same dialog, seeded with the failure and the request behind it. */
 export const ReportsErrorFromToast: Story = {
   play: async () => {
-    const request = buildReportErrorContext('/api/eln/projects', 'POST', { name: 'x' }, 'Internal Server Error');
-    notifyError(new ApiError(500, 'Internal Server Error'), '/api/eln/projects', undefined, request);
+    notifyError(
+      new ApiError(500, 'Internal Server Error', { path: '/api/eln/projects', method: 'POST', json: { name: 'x' } }),
+    );
     // By text, not role: an unfocused toast's controls are outside the accessibility tree.
     await userEvent.click(await screen.findByText('Report Error'));
 
