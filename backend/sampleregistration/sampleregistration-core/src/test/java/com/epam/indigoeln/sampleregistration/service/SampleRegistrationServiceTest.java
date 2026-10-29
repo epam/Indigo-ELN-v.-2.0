@@ -32,6 +32,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Comparator;
@@ -41,6 +43,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.epam.indigoeln.test.ClientUtil.uploadForm;
+import static com.epam.indigoeln.test.MolfileTestUtil.atomCoordinates;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -209,6 +212,33 @@ class SampleRegistrationServiceTest extends BaseTest {
         assertThat(sampleRegistrationClient.registerSample(request).strCode()).hasToString("STR-00000001-05-1000");
         // 999 sorts after 1000 as a string, so this one fails unless the last code is found numerically
         assertThat(sampleRegistrationClient.registerSample(request).strCode()).hasToString("STR-00000001-05-1001");
+    }
+
+    @Test
+    @Order(500)
+    void testRegisterSampleLaysOutStructureWithoutCoordinates() throws SQLException {
+        STRCodeSample strCode = sampleRegistrationClient.registerSample(SampleRegistrationRequest.builder()
+                .molfile("OC(=O)c1ccc(I)cc1F")
+                .stereoisomerCode(stereoisomerCode)
+                .saltCode(saltCode)
+                .saltCodeNumeric(5)
+                .saltEQ(new BigDecimal("2"))
+                .nbkBatchNumber(NbkBatchNumber.parse("12345678-1234-007"))
+                .molWeight(100.0)
+                .exactMass(150.0)
+                .build()).strCode();
+        assertThat(atomCoordinates(compoundMolfile(strCode))).hasSize(11).doesNotHaveDuplicates();
+    }
+
+    private String compoundMolfile(STRCodeSample strCode) throws SQLException {
+        try (Connection connection = databasePool.get().getConnection();
+             PreparedStatement st = connection.prepareStatement("select c.mol_file from SRS_Compound c join SRS_Sample s on s.compound_id = c.id where s.str_code = ?")) {
+            st.setString(1, strCode.toString());
+            try (ResultSet rs = st.executeQuery()) {
+                assertThat(rs.next()).isTrue();
+                return rs.getString(1);
+            }
+        }
     }
 
     @SuppressWarnings("SqlWithoutWhere")
