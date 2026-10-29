@@ -33,7 +33,7 @@ function MeltingPointDialog({
     defaultValues: initialValues,
     onSubmit: async ({ value: values }) => {
       const next = toMeltingPoint(values);
-      // Whoever reported the failure has already toasted it; the throw only keeps the dialog open.
+      // The throw only keeps the dialog open.
       if (!isSameValue(next, toMeltingPoint(initialValues)) && !(await onSave(next))) throw new Error('Not saved');
       onOpenChange(false);
       form.reset(toMeltingPointForm(next ?? undefined));

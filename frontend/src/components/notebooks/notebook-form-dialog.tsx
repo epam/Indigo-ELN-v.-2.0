@@ -14,12 +14,7 @@ import { NOTEBOOK_NAME_LENGTH } from '@/lib/types/notebooks.ts';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
-import {
-  checkNotebookNameExists,
-  useCreateNotebook,
-  useEditNotebook,
-  useNextNotebookNumber,
-} from '@/lib/api/notebooks';
+import { useCreateNotebook, useEditNotebook, useNotebookNameExists, useNextNotebookNumber } from '@/lib/api/notebooks';
 
 import type { NotebookDetails } from '@/lib/types/notebooks.ts';
 
@@ -55,6 +50,7 @@ function NotebookFormDialog({
   const nextNumber = useNextNotebookNumber(open && isCreate);
   const createNotebook = useCreateNotebook(projectId);
   const editNotebook = useEditNotebook(notebook?.id ?? '');
+  const notebookNameExists = useNotebookNameExists();
 
   const initialValues = notebook ? toNotebookFormValues(notebook) : EMPTY_NOTEBOOK_FORM;
   // `isFetching` as well as `isPending`: reopening the dialog refetches a number that is already
@@ -115,7 +111,7 @@ function NotebookFormDialog({
                 if (!notebookNameSchema.safeParse(value).success) return undefined;
                 // The notebook's own name is not a duplicate of itself.
                 if (name === notebook?.name) return undefined;
-                return (await checkNotebookNameExists(name)) ? `Notebook '${name}' already exists` : undefined;
+                return (await notebookNameExists(name)) ? `Notebook '${name}' already exists` : undefined;
               },
             }}
           >

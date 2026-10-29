@@ -1,4 +1,5 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 
 import { apiFetch } from '@/lib/api';
 import { collectionQueryParams, getNextPageParam, SUGGEST_DEBOUNCE_MS, useSettledSearch } from '@/lib/api/collections';
@@ -30,10 +31,31 @@ function suggestKeywords(search: string, signal?: AbortSignal): Promise<string[]
   return apiFetch<string[]>(`/api/eln/projects/keywords/suggest?search=${encodeURIComponent(search)}`, { signal });
 }
 
-/** Pre-flight for the project_name_uq constraint, which has no friendly server message. */
-export async function checkProjectNameExists(name: string): Promise<boolean> {
-  const result = await apiFetch<{ exists: boolean }>(`/api/eln/projects/existence?name=${encodeURIComponent(name)}`);
-  return result.exists;
+function fetchProjectNameExists(name: string): Promise<boolean> {
+  return apiFetch<{ exists: boolean }>(`/api/eln/projects/existence?name=${encodeURIComponent(name)}`).then(
+    (result) => result.exists,
+  );
+}
+
+/**
+ * Pre-flight for the project_name_uq constraint, which has no friendly server message. A form
+ * validator rather than a query, but run through `fetchQuery` so the cache reports a failure —
+ * and caches nothing: `staleTime: 0` asks the server on every call, `gcTime: 0` drops the answer
+ * once it is read, since a name free a moment ago may not be now.
+ */
+export function useProjectNameExists(): (name: string) => Promise<boolean> {
+  const queryClient = useQueryClient();
+  return useCallback(
+    (name: string) =>
+      queryClient.fetchQuery({
+        queryKey: projectKeys.nameExists(name),
+        queryFn: () => fetchProjectNameExists(name),
+        staleTime: 0,
+        gcTime: 0,
+        retry: false,
+      }),
+    [queryClient],
+  );
 }
 
 /**
@@ -59,6 +81,7 @@ export const projectKeys = {
   detail: (id: UUID) => ['projectDetails', id] as const,
   totalCounts: () => ['totalCounts'] as const,
   keywordSuggestions: (search: string) => ['projectKeywords', search] as const,
+  nameExists: (name: string) => ['projectNameExists', name] as const,
 };
 
 /** Attachments and ACL, which every detail entity handles the same way. */

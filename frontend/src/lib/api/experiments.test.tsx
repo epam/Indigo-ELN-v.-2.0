@@ -15,6 +15,17 @@ vi.mock('@/lib/api', async () => {
   return { ...actual, apiFetch: (path: string) => apiFetch(path) };
 });
 
+const notifyError = vi.fn();
+const notifyInfo = vi.fn();
+vi.mock('@/lib/toast', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/toast')>('@/lib/toast');
+  return {
+    ...actual,
+    notifyError: (error: unknown) => notifyError(error),
+    notifyInfo: (message: string) => notifyInfo(message),
+  };
+});
+
 const {
   experimentKeys,
   useCreateExperiment,
@@ -402,6 +413,36 @@ describe('model patch', () => {
     expect(view.result.current.patch.previous).toEqual({ reactions: [] });
     // Nothing was fetched for it: the store is written, never requested.
     expect(apiFetch).toHaveBeenCalledTimes(2);
+  });
+
+  /**
+   * The server saved, but the patch would not apply: the cache keeps the state before the write,
+   * so the detail is invalidated to fetch what the server holds. Still a success — the caller gets
+   * the response, and the rest of it is acted on — with a toast saying the write did land.
+   */
+  it('refetches the detail when a saved patch cannot be applied, and still resolves', async () => {
+    notifyError.mockReset();
+    notifyInfo.mockReset();
+    const client = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+    const experiment = makeExperimentDetails({ id: ID });
+    client.setQueryData(experimentKeys.detail(ID), experiment);
+    // Not an object: `JSON_PATCHER` throws `patch expected to be an object`.
+    const response = { patch: 'x', unresolvedInputs: { r1: 'molfile' }, messages: ['Recalculated'], conflicts: {} };
+    apiFetch.mockResolvedValue(response);
+
+    const view = renderHook(() => useMutateExperimentModel(experiment), {
+      wrapper: ({ children }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>,
+    });
+
+    await expect(act(() => view.result.current.mutateAsync({ type: 'Undo' }))).resolves.toBe(response);
+    expect(notifyError).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ message: 'Saved, but the page could not be updated. Reloading the experiment.' }),
+    );
+    expect(notifyInfo).toHaveBeenCalledExactlyOnceWith('Recalculated');
+    expect(client.getQueryData(experimentKeys.detail(ID))).toBe(experiment);
+    expect(client.getQueryState(experimentKeys.detail(ID))?.isInvalidated).toBe(true);
+    // Nothing was applied, so there is no diff to flash.
+    expect(client.getQueryData(experimentKeys.modelPatch(ID))).toBeUndefined();
   });
 
   /**

@@ -12,11 +12,10 @@ import { cn } from '@/lib/utils';
  * requests for images most of which are never looked at. So the frame is
  * observed, the fetch starts on first entry, and the observer is done after that.
  *
- * Any failed fetch marks its own frame — 401, 403, 404, 500 alike. `apiFetch` has already
- * raised a toast saying why, but a toast in the corner cannot say *which* of twenty rows
- * came back empty, and a frame left blank is indistinguishable from one still loading. The
- * copy stays deliberately status-agnostic: the toast carries the reason, the frame only
- * says this picture is not coming.
+ * Any failed fetch marks its own frame — 401, 403, 404, 500 alike. A toast in the corner cannot
+ * say *which* of twenty rows came back empty, and a frame left blank is indistinguishable from
+ * one still loading. The copy stays deliberately status-agnostic: the toast carries the reason,
+ * the frame only says this picture is not coming.
  *
  * There is no retry: re-arming the observer after a failure would quietly re-request on
  * every scroll past.

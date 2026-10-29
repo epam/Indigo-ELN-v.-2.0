@@ -10,17 +10,13 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 function ToastHarness() {
   return (
     <div className="flex gap-3">
-      <Button onClick={() => notifyError(new ApiError(403, null), '/api/eln/projects')}>Forbidden</Button>
+      <Button onClick={() => notifyError(new ApiError(403, null))}>Forbidden</Button>
       <Button onClick={() => notifyError(new ApiError(400, [{ path: 'name', message: 'must not be empty' }]))}>
         Validation
       </Button>
       <Button onClick={() => notifyError(new ApiError(500, null))}>Server error</Button>
-      <Button onClick={() => notifyError(new ApiError(401, { message: 'Unauthorized' }), '/api/eln/projects')}>
-        Expired token
-      </Button>
-      <Button onClick={() => notifyError(new ApiError(401, 'Invalid API secret'), '/api/eln/projects')}>
-        Proxy misconfigured
-      </Button>
+      <Button onClick={() => notifyError(new ApiError(401, { message: 'Unauthorized' }))}>Expired token</Button>
+      <Button onClick={() => notifyError(new ApiError(401, 'Invalid API secret'))}>Proxy misconfigured</Button>
       <Button variant="secondary" onClick={() => toastManager.add({ title: 'Project created' })}>
         Plain
       </Button>

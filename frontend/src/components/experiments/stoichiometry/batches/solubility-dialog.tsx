@@ -50,7 +50,7 @@ function SolubilityDialog({
     defaultValues: initialValues,
     onSubmit: async ({ value: values }) => {
       const next = toSolubilityInSolvents(values.rows);
-      // Whoever reported the failure has already toasted it; the throw only keeps the dialog open.
+      // The throw only keeps the dialog open.
       if (!isSameValue(next, toSolubilityInSolvents(initialValues.rows)) && !(await onSave(next))) {
         throw new Error('Not saved');
       }

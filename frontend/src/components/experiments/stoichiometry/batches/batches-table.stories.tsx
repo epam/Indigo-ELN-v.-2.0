@@ -426,9 +426,8 @@ export const AddingABatch: Story = {
 };
 
 /**
- * Nothing is optimistic. A rejected save leaves the cell showing what the server last confirmed;
- * `apiFetch` has already raised the toast, so there is nothing to handle here beyond clearing
- * the spinner.
+ * Nothing is optimistic. A rejected save leaves the cell showing what the server last confirmed,
+ * and there is nothing to handle here beyond clearing the spinner.
  */
 export const Failure: Story = {
   parameters: { msw: { handlers: failingMutateHandlers } },

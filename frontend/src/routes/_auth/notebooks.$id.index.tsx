@@ -21,7 +21,6 @@ function NotebookInfoTab() {
   const changeLevel = useUpdateNotebookAccess(id);
 
   if (isPending) return <NotebookInfoSkeleton />;
-  // apiFetch has already toasted the failure; this is the page saying what it cannot show.
   if (isError || !notebook) {
     return <p className="text-[14px]/6 text-destructive">This notebook could not be loaded.</p>;
   }

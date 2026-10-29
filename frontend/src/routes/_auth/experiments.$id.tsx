@@ -45,7 +45,6 @@ function ExperimentPage() {
   usePageTitle(experiment && `Experiment ${experiment.name}`, index > 0 && tabs?.[index].name);
 
   if (isPending) return <ExperimentPageSkeleton />;
-  // apiFetch has already toasted the failure; this is the page saying what it cannot show.
   if (isError || !experiment) {
     return <p className="text-[14px]/6 text-destructive">This experiment could not be loaded.</p>;
   }

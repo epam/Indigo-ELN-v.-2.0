@@ -44,9 +44,8 @@ export function DictionaryList({
   }
 
   if (error) {
-    // Through describeError, not `error.message` — that is ApiError's constructor string. The
-    // toast apiFetch already raised says the same thing, but a toast is gone in five seconds and
-    // an empty list is not.
+    // Through describeError, not `error.message` — that is ApiError's constructor string. A toast
+    // is gone in five seconds and an empty list is not.
     return <p className="text-[14px]/6 text-destructive">Could not load dictionaries: {describeError(error)[0]}</p>;
   }
 

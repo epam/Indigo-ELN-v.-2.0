@@ -109,8 +109,8 @@ export const PRODUCT_COLUMNS: ProductColumn[] = [
     kind: 'text',
     value: (row) => row.output.outputName,
     // `@NotNull` on the record, so a cleared cell sends `''` rather than null. The backend then
-    // rejects it as a duplicate of any other blank name and `apiFetch` toasts; the cell keeps
-    // the draft, exactly as it does for every other rejected edit on this screen.
+    // rejects it as a duplicate of any other blank name; the cell keeps the draft, exactly as it
+    // does for every other rejected edit on this screen.
     mutation: (row, next) => ({ type: 'SetOutputRowName', anchor: row.output.anchor, name: next ?? '' }),
   },
   {

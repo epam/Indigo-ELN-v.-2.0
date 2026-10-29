@@ -14,8 +14,8 @@ import { cn } from '@/lib/utils';
  * the same frame and the same lazy start: nothing is fetched or rendered until the frame is
  * scrolled near.
  *
- * A failed render marks its own frame and toasts, since unlike `apiFetch` nothing else reports
- * it. A failed molfile fetch marks the frame too, and `apiFetch` has already toasted why.
+ * A failed render marks its own frame and toasts, since no cache sees a render and nothing else
+ * reports it. A failed molfile fetch marks the frame too.
  */
 /** The toast id every failed render shares, which is what collapses a burst of them into one. */
 const RENDER_FAILED = 'structure-render-failed';
@@ -54,7 +54,7 @@ export function StructureImage({
         if (!current) return;
         setRendered({ structure, url: null });
         // One toast for the lot: a list of structures that all fail to render is one problem.
-        notifyError(error, undefined, RENDER_FAILED);
+        notifyError(error, RENDER_FAILED);
       });
     return () => {
       current = false;

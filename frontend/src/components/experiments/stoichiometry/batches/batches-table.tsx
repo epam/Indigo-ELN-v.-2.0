@@ -47,7 +47,7 @@ import { isKnownCompound, shortNbkBatchNumber } from '@/lib/types/reactions.ts';
  *
  * Every edit is one mutation and there is no Save button, matching the rest of the screen.
  * Nothing is optimistic: a cell shows what the server last confirmed, and a failed save leaves
- * the draft alone (`apiFetch` has already raised the toast). The three editable numbers feed the
+ * the draft alone. The three editable numbers feed the
  * backend's calculator, so committing one weight comes back as a patch that also moves Total
  * Moles, Molarity and Yield — which is what the green flash on those cells is pointing out.
  */

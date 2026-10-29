@@ -16,7 +16,7 @@ import type { Attachment } from '@/lib/types/common.ts';
 export interface AttachmentActions {
   upload: UseMutationResult<Attachment[], Error, File[]>;
   remove: UseMutationResult<void, Error, string>;
-  /** Resolved by `useDownload`, which swallows the error apiFetch has already toasted. */
+  /** Run by `useDownload`, which swallows the error. */
   download: (attachment: Attachment) => Promise<void>;
 }
 

@@ -59,7 +59,7 @@ function AuthorCombobox({
           emptyMessage="No matching users"
           // An empty box is not pending anything; the query is disabled until something is typed.
           loading={query !== '' && isPending}
-          // apiFetch has already toasted the failure; this says why the list is empty.
+          // Says why the list is empty.
           error={isError}
         />
       </div>

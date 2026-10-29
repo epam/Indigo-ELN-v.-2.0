@@ -13,8 +13,7 @@ import { useState } from 'react';
  * session and refetched here would never reach the screen.
  *
  * A *failed* save moves nothing, so the draft survives it — which is what every field on these
- * screens promises: the user's input is not snapped back to the server's on an error `apiFetch`
- * has already toasted.
+ * screens promises: the user's input is not snapped back to the server's on an error.
  *
  * **Not for a control that only shows its draft while focused.** `NumericCell` renders the saved
  * value and swaps the editor in under `group-focus-within`, reseeding on entry, so a stale draft

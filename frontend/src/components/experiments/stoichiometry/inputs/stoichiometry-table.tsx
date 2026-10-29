@@ -117,7 +117,7 @@ function inputHaystack(input: ReactionInput): string {
  * `mutations.previousModel`, found by anchor, all the way down to each numeric cell.
  *
  * Nothing here is optimistic: a cell shows what the server last confirmed, and a failed save
- * leaves it alone (`apiFetch` has already raised the toast).
+ * leaves it alone.
  */
 export function StoichiometryTable({ experiment, reaction }: { experiment: ExperimentDetails; reaction: Reaction }) {
   const [search, setSearch] = useState('');

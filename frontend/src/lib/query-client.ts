@@ -1,5 +1,5 @@
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
-import { hashKey, QueryClient } from '@tanstack/react-query';
+import { hashKey, MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
 import type { PersistQueryClientOptions } from '@tanstack/react-query-persist-client';
 
 import { ApiError } from '@/lib/api';
@@ -7,9 +7,25 @@ import { dictionaryKeys } from '@/lib/api/dictionaries';
 import { experimentKeys } from '@/lib/api/experiments';
 import { templateKeys } from '@/lib/api/templates';
 import { userKeys } from '@/lib/api/user';
+import { notifyError } from '@/lib/toast';
 import { BUILT_IN_DICTIONARIES } from '@/lib/types/dictionaries.ts';
 
+/**
+ * Where every failed query and mutation is toasted — once, whatever failed: a non-2xx answer, a
+ * request that never got one, a body that would not parse, a mutation's `onSuccess` that threw
+ * after the server had already saved. A query reports after its last retry, not on each attempt.
+ *
+ * A fresh pair per client: the story decorator builds one per story, and they behave like the app.
+ */
+export function createCaches() {
+  return {
+    queryCache: new QueryCache({ onError: (error) => notifyError(error) }),
+    mutationCache: new MutationCache({ onError: (error) => notifyError(error) }),
+  };
+}
+
 export const queryClient = new QueryClient({
+  ...createCaches(),
   defaultOptions: {
     queries: {
       staleTime: 30_000,

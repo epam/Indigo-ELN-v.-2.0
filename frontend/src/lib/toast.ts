@@ -1,13 +1,11 @@
 import { Toast } from '@base-ui/react/toast';
 
-import { ApiError } from '@/lib/api';
-import { openReportError } from '@/lib/report-error';
-
-import type { ReportErrorContext } from '@/lib/report-error';
+import { ApiError, NetworkError } from '@/lib/api';
+import { buildReportErrorContext, INCIDENTS_PATH, openReportError } from '@/lib/report-error';
 
 /**
- * Created outside React so `apiFetch` can raise a toast without a hook. The provider
- * in `__root.tsx` binds it to the rendered viewport.
+ * Created outside React so the query and mutation caches can raise a toast without a hook. The
+ * provider in `__root.tsx` binds it to the rendered viewport.
  */
 export const toastManager = Toast.createToastManager();
 
@@ -23,6 +21,9 @@ function isBackendErrorArray(body: unknown): body is BackendError[] {
 
 /** Title of the 401 toast; also its id, since the id is what collapses a burst of them. */
 const AUTH_FAILED = 'Authorization failed';
+
+/** The toast id every `NetworkError` shares, for the same reason. */
+const NETWORK_FAILED = 'network-failed';
 
 /**
  * The readable part of an error body, if it has one. Worth surfacing for a 401 in
@@ -78,14 +79,22 @@ export function notifyAndThrow(message: string): never {
 }
 
 /**
- * Toasts a failed request. Called from `apiFetch` so every endpoint reports failures
- * the same way; `apiFetch` still throws, leaving callers free to handle the error as well.
+ * Toasts a failure. Every query and mutation reports through here from its cache's `onError`
+ * (`query-client.ts`), so a call site reaches for it only for what TanStack never sees — a Ketcher
+ * error, a render.
  *
- * `report` is the failed request, when there is one: it puts a Report Error action on the
- * toast, which opens the dialog with the request attached.
+ * An `ApiError` carries the request it answered, which names the log line and puts a Report Error
+ * action on the toast, opening the dialog with the request attached — except a failed report,
+ * whose action would loop. With an `id`, repeats update the one toast in place.
  */
-export function notifyError(error: unknown, url?: string, id?: string, report?: ReportErrorContext): void {
-  const [message, log] = describeError(error, url);
+export function notifyError(error: unknown, id?: string): void {
+  const request = error instanceof ApiError ? error.request : undefined;
+  const report =
+    request && request.path !== INCIDENTS_PATH
+      ? buildReportErrorContext(request.path, request.method, request.json, (error as ApiError).body)
+      : undefined;
+  if (error instanceof NetworkError) id ??= NETWORK_FAILED;
+  const [message, log] = describeError(error, request?.path);
   console.error(log, error);
 
   if (error instanceof ApiError && error.status === 401) {

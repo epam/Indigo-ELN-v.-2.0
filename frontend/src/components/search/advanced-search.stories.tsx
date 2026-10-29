@@ -144,7 +144,7 @@ export const SlowLookups: Story = {
   parameters: { msw: { handlers: slowLookupHandlers } },
 };
 
-/** apiFetch toasts the failure; the popups only explain why they are empty. */
+/** The popups explain why they are empty. */
 export const LookupsFailed: Story = {
   args: { defaultOpen: true },
   parameters: { msw: { handlers: lookupErrorHandlers } },

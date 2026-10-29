@@ -49,9 +49,9 @@ export interface StoichiometryMutations {
  * clicking Register down a column would leave every batch but the last spinning forever.
  *
  * No optimistic update, matching the rest of this screen — a cell
- * shows what the server last confirmed, and a failed save leaves it there. `apiFetch` has
- * already raised the error toast, so a rejection needs no handling beyond clearing the
- * spinner, which the `finally` does whichever way the mutation went.
+ * shows what the server last confirmed, and a failed save leaves it there. A rejection
+ * needs no handling beyond clearing the spinner, which the `finally` does whichever way the
+ * mutation went.
  */
 export function useStoichiometryMutations(experiment: ExperimentDetails): StoichiometryMutations {
   const [savingCells, setSavingCells] = useState<ReadonlySet<string>>(() => new Set());
@@ -67,7 +67,7 @@ export function useStoichiometryMutations(experiment: ExperimentDetails): Stoich
         await run(mutation);
         return true;
       } catch {
-        // Deliberately silent: apiFetch toasts every failed request.
+        // Silent: see `createCaches`.
         return false;
       } finally {
         setSavingCells((cells) => {

@@ -132,7 +132,7 @@ export function BatchDetailPanel({
             molfile,
             createdOutputAnchor: newAnchor(),
           });
-          // A rejection is what holds the sketcher open; `apiFetch` has already said why.
+          // A rejection is what holds the sketcher open.
           if (!saved) throw new Error('Structure not saved');
         }}
       />

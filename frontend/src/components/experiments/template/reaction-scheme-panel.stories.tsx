@@ -88,8 +88,8 @@ export const SavingHoldsTheDialogOpen: Story = {
 };
 
 /**
- * A failed save leaves the drawing where it is. `apiFetch` has already toasted the failure, so
- * the dialog says nothing itself — it just declines to close.
+ * A failed save leaves the drawing where it is: the dialog says nothing itself, it just declines
+ * to close.
  */
 export const FailedSaveKeepsTheDrawing: Story = {
   parameters: { msw: { handlers: failingMutateHandlers } },

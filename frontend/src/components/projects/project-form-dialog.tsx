@@ -14,7 +14,7 @@ import { PROJECT_NAME_MAX_LENGTH } from '@/lib/types/projects.ts';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
-import { checkProjectNameExists, useCreateProject, useEditProject } from '@/lib/api/projects';
+import { useCreateProject, useEditProject, useProjectNameExists } from '@/lib/api/projects';
 
 import type { ProjectDetails } from '@/lib/types/projects.ts';
 
@@ -39,6 +39,7 @@ function ProjectFormDialog({
   // Both hooks are called unconditionally — `project` may not be known on the first render,
   // and a conditional hook would break the order when it arrives.
   const editProject = useEditProject(project?.id ?? '');
+  const projectNameExists = useProjectNameExists();
 
   const initialValues = project ? toProjectFormValues(project) : EMPTY_PROJECT_FORM;
 
@@ -86,7 +87,7 @@ function ProjectFormDialog({
                 if (!projectNameSchema.safeParse(value).success) return undefined;
                 // The project's own name is not a duplicate of itself.
                 if (name === project?.name) return undefined;
-                return (await checkProjectNameExists(name)) ? `Project with name '${name}' already exists` : undefined;
+                return (await projectNameExists(name)) ? `Project with name '${name}' already exists` : undefined;
               },
             }}
           >

@@ -16,7 +16,7 @@ import type { SignatureTemplateRef } from '@/lib/types/experiments.ts';
  * It resolves the chosen id to the caller rather than posting anything itself: the same dialog
  * serves Submit and Complete and Sign, which are two different endpoints, and `FormDialog` already
  * gives the right behaviour around the caller's promise — the dialog stays open on a rejection
- * with the choice intact, and `apiFetch` has already toasted why.
+ * with the choice intact.
  */
 export function SignDialog({
   open,

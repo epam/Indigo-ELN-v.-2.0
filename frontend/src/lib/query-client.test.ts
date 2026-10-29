@@ -1,14 +1,18 @@
 import { QueryClient } from '@tanstack/react-query';
 import type { Query } from '@tanstack/react-query';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+const notifyError = vi.fn();
+vi.mock('@/lib/toast', () => ({ notifyError: (error: unknown) => notifyError(error) }));
+
+import { ApiError } from '@/lib/api';
 import { dictionaryKeys } from '@/lib/api/dictionaries';
 import { experimentKeys } from '@/lib/api/experiments';
 import { notebookKeys } from '@/lib/api/notebooks';
 import { projectKeys } from '@/lib/api/projects';
 import { templateKeys } from '@/lib/api/templates';
 import { userKeys } from '@/lib/api/user';
-import { PERSIST_OPTIONS } from '@/lib/query-client';
+import { createCaches, PERSIST_OPTIONS } from '@/lib/query-client';
 import { BUILT_IN_DICTIONARIES } from '@/lib/types/dictionaries.ts';
 
 const { shouldDehydrateQuery } = PERSIST_OPTIONS.dehydrateOptions;
@@ -63,5 +67,53 @@ describe('PERSIST_OPTIONS.shouldDehydrateQuery', () => {
 
     expect(query.state.status).toBe('pending');
     expect(shouldDehydrateQuery(query)).toBe(false);
+  });
+});
+
+describe('createCaches', () => {
+  beforeEach(() => notifyError.mockReset());
+
+  function clientWithCaches() {
+    return new QueryClient({
+      ...createCaches(),
+      defaultOptions: { queries: { retryDelay: 0 }, mutations: { retry: false } },
+    });
+  }
+
+  /** Once, after the last retry: not a toast per attempt. */
+  it('reports a failed query once its retries are spent', async () => {
+    const error = new ApiError(500, null);
+    const queryFn = vi.fn().mockRejectedValue(error);
+
+    await expect(clientWithCaches().fetchQuery({ queryKey: ['failing'], queryFn, retry: 2 })).rejects.toBe(error);
+    expect(queryFn).toHaveBeenCalledTimes(3);
+    expect(notifyError).toHaveBeenCalledTimes(1);
+    expect(notifyError).toHaveBeenCalledWith(error);
+  });
+
+  it('reports a failed request a mutation sent', async () => {
+    const error = new ApiError(400, null);
+    const client = clientWithCaches();
+    const mutation = client.getMutationCache().build(client, {
+      mutationFn: () => Promise.reject(error),
+    });
+
+    await expect(mutation.execute(undefined)).rejects.toBe(error);
+    expect(notifyError).toHaveBeenCalledExactlyOnceWith(error);
+  });
+
+  /** The response arrived and the server saved; applying it is what failed, and still says so. */
+  it('reports a mutation whose onSuccess threw', async () => {
+    const error = new Error('patch expected to be an object');
+    const client = clientWithCaches();
+    const mutation = client.getMutationCache().build(client, {
+      mutationFn: () => Promise.resolve('saved'),
+      onSuccess: () => {
+        throw error;
+      },
+    });
+
+    await expect(mutation.execute(undefined)).rejects.toBe(error);
+    expect(notifyError).toHaveBeenCalledExactlyOnceWith(error);
   });
 });

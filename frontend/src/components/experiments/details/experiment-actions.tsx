@@ -21,8 +21,7 @@ import { canEditExperiment, canRunWorkflow, workflowActionsFor } from '@/lib/typ
  * only the wording and the chrome.
  *
  * `done` is toasted on success. The backend answers with the experiment rather than a message, so
- * these are the client's own wording. Nothing here reports a
- * *failure*: `apiFetch` toasts every one centrally.
+ * these are the client's own wording.
  *
  * Every transition asks before it fires: the two submits through the template picker, the rest
  * through `confirm`. Neither confirm label is left to `FormDialog`'s defaults — "Cancel Experiment"
@@ -142,7 +141,7 @@ export function ExperimentActions({ experiment }: { experiment: ExperimentDetail
   /**
    * Runs the action a dialog was opened for — the dialog needs the promise. It closes itself only once the write has
    * landed; a rejection propagates into `FormDialog`, which keeps the dialog open with the choice
-   * intact and leaves the already-toasted error to speak for itself.
+   * intact.
    */
   async function sendFromDialog(action: WorkflowAction, signatureTemplateId?: string) {
     await workflow.mutateAsync({ action, signatureTemplateId });
@@ -239,17 +238,16 @@ const OWNS_UNDO = 'input, textarea, select, [contenteditable="true"], [role="dia
  *
  * **There is no `canUndo`.** Neither the experiment payload nor `MutationResponse` carries one,
  * so an enabled button cannot promise there is anything to undo: pressing with an empty stack
- * answers 400 `Nothing to undo`, which `apiFetch` toasts centrally. The enabled/disabled state
- * therefore says only whether this experiment is writable at all — `canEditExperiment`, the same
- * gate every other editable surface asks, and the same one `ExperimentService.mutateModel`
- * enforces with `ensureAccess(EDIT_EXPERIMENTS)`.
+ * answers 400 `Nothing to undo`. The enabled/disabled state therefore says only whether this
+ * experiment is writable at all — `canEditExperiment`, the same gate every other editable surface
+ * asks, and the same one `ExperimentService.mutateModel` enforces with
+ * `ensureAccess(EDIT_EXPERIMENTS)`.
  *
  * Undo is also **per user** on the backend: `AbstractUndoHelper` skips revisions somebody else
  * made, so this never takes back a colleague's edit.
  */
 export function UndoRedoButtons({ experiment, saving = false }: { experiment: ExperimentDetails; saving?: boolean }) {
-  // `mutate`, not `mutateAsync`: nothing here awaits the result, and a failure has already been
-  // reported by `apiFetch` before the promise settles.
+  // `mutate`, not `mutateAsync`: nothing here awaits the result.
   const { mutate: send } = useMutateExperimentModel(experiment);
   const canEdit = canEditExperiment(experiment);
 
