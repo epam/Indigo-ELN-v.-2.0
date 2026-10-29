@@ -26,8 +26,7 @@ interface FormDialogProps {
   initializing?: boolean;
   /**
    * Resolves once the work is done — the dialog is then the caller's to close (so it can
-   * navigate first). A rejection leaves the dialog open with its fields intact; the error
-   * itself has already been reported by `apiFetch`.
+   * navigate first). A rejection leaves the dialog open with its fields intact.
    */
   onSubmit: () => Promise<void>;
   /** For the popup — a form with a row of several controls wants more than the modal's 560px. */

@@ -90,8 +90,7 @@ export function AddMaterialDialog({
 
   /**
    * Takes the drawing, or refuses it. Throwing is what holds the sketcher open with the drawing
-   * intact — `StructureEditorDialog` swallows a rejection from `onSave` on the grounds that
-   * whoever rejected has already reported it, which `notifyAndThrow` does.
+   * intact. `StructureEditorDialog` does not report a rejection, so `notifyAndThrow` toasts first.
    */
   function handleStructure(next: StructureEditorResult | null) {
     if (next?.isReaction) notifyAndThrow(REACTION_NOT_SEARCHABLE);

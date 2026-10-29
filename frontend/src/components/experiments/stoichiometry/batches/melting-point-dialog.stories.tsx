@@ -77,7 +77,7 @@ export const UntouchedSaveSendsNothing: Story = {
   },
 };
 
-/** A failed save has been toasted by `apiFetch`; the dialog keeps what was typed. */
+/** A failed save keeps the dialog open with what was typed. */
 export const StaysOpenOnFailure: Story = {
   args: { onSave: fn(async () => false) },
   play: async ({ args }) => {

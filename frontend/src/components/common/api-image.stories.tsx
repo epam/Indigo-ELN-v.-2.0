@@ -80,7 +80,7 @@ export const LoadsOnlyWhenScrolledTo: Story = {
   },
 };
 
-/** A failed request marks the frame; `apiFetch` has already toasted the reason. */
+/** A failed request marks the frame. */
 export const FetchFailed: Story = {
   parameters: {
     msw: { handlers: [http.get('/api/eln/experiments/:id/picture', () => new HttpResponse(null, { status: 404 }))] },

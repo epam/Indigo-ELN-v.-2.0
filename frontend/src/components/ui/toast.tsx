@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * Wraps the app in the toast context and renders the viewport. Bound to the module-level
- * `toastManager` so non-React code — `apiFetch` in particular — can raise toasts too.
+ * `toastManager` so non-React code — the query and mutation caches in particular — can raise toasts too.
  */
 function ToastProvider({ children }: { children: React.ReactNode }) {
   return (

@@ -102,7 +102,7 @@ export const RemovingEveryRowSavesEmpty: Story = {
   },
 };
 
-/** A failed save has been toasted by `apiFetch`; the dialog keeps its rows. */
+/** A failed save keeps the dialog open with its rows. */
 export const StaysOpenOnFailure: Story = {
   args: { value: SAVED, onSave: fn(async () => false) },
   play: async ({ args }) => {

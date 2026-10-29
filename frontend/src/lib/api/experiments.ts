@@ -275,11 +275,19 @@ function applyMutationResponse(queryClient: QueryClient, id: string, response: M
   // works — but it never touches currentPermissions, marked, the ancestor ids and names,
   // or the BaseDTO audit fields, so those survive untouched by construction.
   let previous: ExperimentModel | undefined;
-  patchExperimentDetails(queryClient, id, (experiment) => {
-    // `apply` works on a clone, so the cached model is left as it was and can be kept as is.
-    previous = experiment.model;
-    return JSON_PATCHER.apply(experiment, response.patch) as ExperimentDetails;
-  });
+  try {
+    patchExperimentDetails(queryClient, id, (experiment) => {
+      // `apply` works on a clone, so the cached model is left as it was and can be kept as is.
+      previous = experiment.model;
+      return JSON_PATCHER.apply(experiment, response.patch) as ExperimentDetails;
+    });
+  } catch (error) {
+    // A patch `JSON_PATCHER` cannot read. The server has saved, but the throw left the cache as
+    // it was, so the page would go on showing the state before the write: fetch what it holds.
+    // Thrown still, so the caller reads a failure — the mutation cache toasts this message.
+    void queryClient.invalidateQueries({ queryKey: experimentKeys.detail(id) });
+    throw new Error('Saved, but the page could not be updated. Reloading the experiment.', { cause: error });
+  }
   // After the cache write, so a subscriber re-rendering on the new data already has it.
   // Skipped entirely when the detail was not cached — `patchExperimentDetails` no-ops there,
   // and there is no model to compare with.
@@ -430,7 +438,7 @@ export function usePrintReport(id: string) {
  *
  * A plain GET, so it needs no revision and no cache handling — but it still has to go through
  * `apiDownload` rather than an `<a href download>`, since the endpoint wants the Cognito bearer
- * token. `useDownload` swallows the rejection `apiFetch` has already toasted.
+ * token. `useDownload` toasts and swallows the rejection.
  */
 export function useExportSdf(id: string) {
   const { download, downloading } = useDownload();

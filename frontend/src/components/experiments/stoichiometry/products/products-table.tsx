@@ -57,7 +57,7 @@ import { OUTPUT_TYPES } from '@/lib/types/reactions.ts';
  *
  * Every edit is one mutation and there is no Save button, matching the rest of the screen.
  * Nothing is optimistic: a cell shows what the server last confirmed, and a failed save leaves
- * the draft alone (`apiFetch` has already raised the toast).
+ * the draft alone.
  */
 export function ReactionProductsTable({ experiment, step }: { experiment: ExperimentDetails; step: number }) {
   const [search, setSearch] = useState('');

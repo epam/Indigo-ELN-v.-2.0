@@ -76,8 +76,7 @@ export const CreatesAndCloses: Story = {
 
 /**
  * A failed /templates needs no special case: the dialog opens, the popup says why it is empty,
- * and Save stays disabled because there is nothing to pick. The failure itself is toasted by
- * `apiFetch`.
+ * and Save stays disabled because there is nothing to pick.
  */
 export const TemplatesFailToLoad: Story = {
   parameters: { msw: { handlers: templatesErrorHandlers } },

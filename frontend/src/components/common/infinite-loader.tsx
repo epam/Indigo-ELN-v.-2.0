@@ -72,8 +72,8 @@ export function InfiniteLoader<T extends { id: string }>({
   }
   // Through describeError, not `error.message`: that is ApiError's constructor string
   // ("Request failed with status 500"), which is a fact about the transport rather than
-  // anything a user can act on. The same call is what worded the toast apiFetch already
-  // raised — this repeats it because a toast is gone in five seconds and a failed list is not.
+  // anything a user can act on. It is the toast's wording too, repeated here because a toast is
+  // gone in five seconds and a failed list is not.
   const [failure] = error ? describeError(error) : [];
 
   /**

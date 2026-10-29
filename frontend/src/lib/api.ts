@@ -1,17 +1,25 @@
 import { auth } from '@/lib/auth';
-import { buildReportErrorContext, INCIDENTS_PATH } from '@/lib/report-error';
-import { notifyError } from '@/lib/toast';
+
+/** The request an `ApiError` answered — what its toast logs and its Report Error action attaches. */
+export interface FailedRequest {
+  path: string;
+  method: string;
+  json: unknown;
+}
 
 /** Thrown for any non-2xx response so TanStack Query can surface it. */
 export class ApiError extends Error {
   readonly status: number;
   readonly body: unknown;
+  /** Absent only for one built by hand, as the toast stories do. */
+  readonly request?: FailedRequest;
 
-  constructor(status: number, body: unknown) {
+  constructor(status: number, body: unknown, request?: FailedRequest) {
     super(`Request failed with status ${status}`);
     this.name = 'ApiError';
     this.status = status;
     this.body = body;
+    this.request = request;
   }
 }
 
@@ -74,10 +82,15 @@ async function parseErrorBody(response: Response): Promise<unknown> {
  * The request itself: headers, the call, and the non-2xx contract. Split out of `apiFetch` so
  * `apiDownload` can reach the `Response` — it names the saved file from a *header*, which a
  * parsed body cannot carry — without either of them duplicating auth or error handling.
+ *
+ * **Nothing here toasts.** A failure is reported where TanStack sees it — the `QueryCache` and
+ * `MutationCache` `onError` in `query-client.ts` — which also catches what never was a response:
+ * a network failure, an unparseable body, an `onSuccess` that threw. A call made outside a query
+ * or a mutation reports its own failure with `notifyError`.
  */
 async function apiRequest(path: string, init: ApiRequestInit = {}): Promise<Response> {
   const { responseType = 'json', json, formData, ...requestInit } = init;
-  const response = await fetch(path, {
+  const response = await send(path, {
     ...requestInit,
     body: json === undefined ? formData : JSON.stringify(json),
     headers: {
@@ -93,18 +106,27 @@ async function apiRequest(path: string, init: ApiRequestInit = {}): Promise<Resp
   });
 
   if (!response.ok) {
-    const error = new ApiError(response.status, await parseErrorBody(response));
-    // Toasted here rather than per-caller, so every failed request is reported once.
-    // Still thrown, so TanStack Query and the InfiniteLoader error branch keep working.
-    // The toast offers to report the failure — except a failed report, which would loop.
-    const report =
-      path === INCIDENTS_PATH
-        ? undefined
-        : buildReportErrorContext(path, requestInit.method ?? 'GET', json, error.body);
-    notifyError(error, path, undefined, report);
-    throw error;
+    throw new ApiError(response.status, await parseErrorBody(response), {
+      path,
+      method: requestInit.method ?? 'GET',
+      json,
+    });
   }
   return response;
+}
+
+/**
+ * `fetch`, with a rejection that reads as one: the browser's own is a bare `TypeError: Failed to
+ * fetch` for a dropped connection, a CSP block and a proxy reset alike. An abort is passed through
+ * untouched — TanStack Query aborts a query nobody is watching, and that is not a failure.
+ */
+async function send(path: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(path, init);
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') throw error;
+    throw new Error('Could not reach the server', { cause: error });
+  }
 }
 
 export function apiFetch<T>(path: string, init?: ApiRequestInit & { responseType?: 'json' }): Promise<T>;
@@ -165,9 +187,8 @@ export function filenameFromContentDisposition(header: string | null): string | 
  * same-origin (both the dev proxy and CloudFront). Were that to change it would silently read
  * `null`, and the fallback would carry the download — the other reason the fallback exists.
  *
- * Rethrows, like `apiFetch` and for the same reason: the failure is already toasted, but a
- * transport function that quietly resolved on error would be the odd one out here. Swallowing
- * belongs to the caller — `useDownload` does it.
+ * Rethrows, like `apiFetch`: a transport function that quietly resolved on error would be the
+ * odd one out here. Reporting and swallowing belong to the caller — `useDownload` does both.
  *
  * `init` is for the downloads that are not plain GETs — the experiment report is a `POST`. It is
  * spread *before* `responseType`, so a caller cannot ask for a parsed body from a function whose

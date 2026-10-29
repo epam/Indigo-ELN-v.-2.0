@@ -632,8 +632,7 @@ export interface SetOutputRowEQ {
  * The product's name — `P0`, `P1`, … by default, from `Reaction.generateNextProductName()`.
  *
  * `@NotNull` on the record, so `string` rather than `string | null`. The backend also rejects a
- * name already used by another output of the same reaction; `apiFetch` toasts that and the cell
- * keeps what was typed.
+ * name already used by another output of the same reaction, and the cell keeps what was typed.
  */
 export interface SetOutputRowName {
   type: 'SetOutputRowName';

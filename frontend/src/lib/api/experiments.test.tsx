@@ -405,6 +405,29 @@ describe('model patch', () => {
   });
 
   /**
+   * The server saved, but the patch would not apply: the cache keeps the state before the write,
+   * so the detail is invalidated to fetch what the server holds, and the caller reads a failure
+   * whose message says the write did land.
+   */
+  it('refetches the detail when a saved patch cannot be applied', async () => {
+    const client = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+    const experiment = makeExperimentDetails({ id: ID });
+    client.setQueryData(experimentKeys.detail(ID), experiment);
+    // Not an object: `JSON_PATCHER` throws `patch expected to be an object`.
+    apiFetch.mockResolvedValue({ patch: 'x', unresolvedInputs: {}, messages: [], conflicts: {} });
+
+    const view = renderHook(() => useMutateExperimentModel(experiment), {
+      wrapper: ({ children }) => <QueryClientProvider client={client}>{children}</QueryClientProvider>,
+    });
+
+    await expect(act(() => view.result.current.mutateAsync({ type: 'Undo' }))).rejects.toThrow(
+      'Saved, but the page could not be updated. Reloading the experiment.',
+    );
+    expect(client.getQueryData(experimentKeys.detail(ID))).toBe(experiment);
+    expect(client.getQueryState(experimentKeys.detail(ID))?.isInvalidated).toBe(true);
+  });
+
+  /**
    * The cached patch outlives the tables. One mounting into it — the page reopened, the tab
    * selected again — must not replay the last edit's flash, but must still see the next patch.
    */

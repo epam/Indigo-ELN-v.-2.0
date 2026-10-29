@@ -93,8 +93,7 @@ function AddExperimentDialog({
                   back to null. `placeholder` is what names the control until something is picked.
 
                   A failed load needs nothing beyond `error` — the popup then says why it is
-                  empty, `apiFetch` has already toasted, and Save stays disabled because there is
-                  nothing to choose.
+                  empty, and Save stays disabled because there is nothing to choose.
                 */}
                 <Select<Template>
                   id={field.name}

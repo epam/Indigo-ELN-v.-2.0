@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { ApiError } from '@/lib/api';
-import { describeError } from '@/lib/toast';
+import { INCIDENTS_PATH } from '@/lib/report-error';
+import { describeError, notifyError, toastManager } from '@/lib/toast';
 
 describe('describeError', () => {
   it('names the missing permission on 403', () => {
@@ -53,5 +54,32 @@ describe('describeError', () => {
   it('falls back to Unknown error for a non-Error throw', () => {
     const [message] = describeError('nope');
     expect(message).toBe('Unknown error');
+  });
+});
+
+describe('notifyError', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  /** The cache's `onError` passes the error alone: the request has to come from the error itself. */
+  it('offers to report an ApiError, with the request it carries', () => {
+    const add = vi.spyOn(toastManager, 'add');
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    notifyError(new ApiError(500, 'boom', { path: '/api/eln/projects', method: 'POST', json: { name: 'p' } }));
+
+    expect(add).toHaveBeenCalledWith(
+      expect.objectContaining({ actionProps: expect.objectContaining({ children: 'Report Error' }) }),
+    );
+    expect(console.error).toHaveBeenCalledWith('Server error calling /api/eln/projects: 500', expect.any(ApiError));
+  });
+
+  /** A failed report offering to report itself would loop. */
+  it('offers no report for a failed report', () => {
+    const add = vi.spyOn(toastManager, 'add');
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    notifyError(new ApiError(500, null, { path: INCIDENTS_PATH, method: 'POST', json: undefined }));
+
+    expect(add).toHaveBeenCalledWith(expect.not.objectContaining({ actionProps: expect.anything() }));
   });
 });

@@ -78,8 +78,7 @@ export function VersionHistoryPanel({ experiment }: { experiment: ExperimentDeta
           </p>
         )}
         {error != null && (
-          // Repeated from the toast apiFetch already raised: a toast is gone in five seconds and
-          // an empty table is not.
+          // A toast is gone in five seconds and an empty table is not.
           <p className="p-6 text-center text-[14px]/6 text-destructive">
             Could not load the revision log: {describeError(error)[0]}
           </p>

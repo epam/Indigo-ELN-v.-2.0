@@ -52,8 +52,8 @@ const sent: unknown[] = [];
 const spyHandlers = [
   http.post('/api/eln/experiments/:id/mutate', async ({ request }) => {
     sent.push(await request.json());
-    // A whole `MutationResponse`: one without `messages` rejects in `applyMutationResponse`,
-    // which a dialog waiting on its save reads as a failure and stays open for.
+    // A whole `MutationResponse`, as the backend's `@NotNull` fields guarantee: `applyMutationResponse`
+    // reads them unguarded, so a partial one would fail the save.
     return HttpResponse.json({ patch: {}, unresolvedInputs: {}, messages: [], conflicts: {} });
   }),
   ...handlers,
@@ -424,6 +424,40 @@ export const EditsStructure: Story = {
       ]),
     );
     await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Structure Editor' })).not.toBeInTheDocument());
+  },
+};
+
+/**
+ * The server saved, but its patch would not apply. No HTTP error, so nothing but the mutation cache
+ * reports it: the toast says the write landed, and the sketcher stays open as for any failed save.
+ */
+export const StructureSaveNotApplied: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.post('/api/eln/experiments/:id/mutate', () =>
+          HttpResponse.json({ patch: 'x', unresolvedInputs: {}, messages: [], conflicts: {} }),
+        ),
+        ...handlers,
+      ],
+    },
+  },
+  render: () => <PanelFromCache />,
+  play: async ({ canvasElement }) => {
+    const edit = await within(canvasElement).findByRole('button', { name: 'Edit structure' });
+    await waitFor(() => expect(edit).toBeEnabled());
+    await userEvent.click(edit);
+
+    const save = await screen.findByRole('button', { name: 'Save' });
+    await waitFor(() => expect(save).toBeEnabled());
+    await userEvent.click(save);
+
+    await waitFor(() =>
+      expect(
+        screen.getByText('Saved, but the page could not be updated. Reloading the experiment.'),
+      ).toBeInTheDocument(),
+    );
+    await expect(screen.getByRole('dialog', { name: 'Structure Editor' })).toBeInTheDocument();
   },
 };
 

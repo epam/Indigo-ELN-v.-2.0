@@ -165,7 +165,7 @@ export const Empty: Story = {
   },
 };
 
-/** apiFetch toasts the failure; this explains the missing list. */
+/** The list explains why it is missing. */
 export const Failed: Story = {
   parameters: { msw: { handlers: searchErrorHandlers } },
   play: async ({ canvasElement }) => {

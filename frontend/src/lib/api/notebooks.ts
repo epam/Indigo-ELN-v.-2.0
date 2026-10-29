@@ -4,6 +4,7 @@ import { apiFetch } from '@/lib/api';
 import { collectionQueryParams, getNextPageParam, useSettledSearch } from '@/lib/api/collections';
 import { useEntityAttachments, useUpdateEntityAccess } from '@/lib/api/entity-writes';
 import { projectKeys } from '@/lib/api/projects';
+import { notifyError } from '@/lib/toast';
 import type { CollectionFilters, Page, UUID } from '@/lib/types/common.ts';
 import type { Notebook, NotebookDetails, NotebookEditRequest, NotebookRequest } from '@/lib/types/notebooks.ts';
 
@@ -70,8 +71,14 @@ export function useNotebook(id: UUID) {
 
 /** Pre-flight for the notebook_name_uq constraint, which has no friendly server message. */
 export async function checkNotebookNameExists(name: string): Promise<boolean> {
-  const result = await apiFetch<{ exists: boolean }>(`/api/eln/notebooks/existence?name=${encodeURIComponent(name)}`);
-  return result.exists;
+  try {
+    const result = await apiFetch<{ exists: boolean }>(`/api/eln/notebooks/existence?name=${encodeURIComponent(name)}`);
+    return result.exists;
+  } catch (error) {
+    // A form validator, not a query, so no cache reports this for it.
+    notifyError(error);
+    throw error;
+  }
 }
 
 function editNotebook(id: UUID, request: NotebookEditRequest): Promise<NotebookDetails> {

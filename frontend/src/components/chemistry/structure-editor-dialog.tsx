@@ -98,9 +98,9 @@ function StructureEditorDialog({ open, onOpenChange, value, onSave }: StructureE
       await onSave(result);
       onOpenChange(false);
     } catch {
-      // Deliberately silent: apiFetch toasts every failed request, and a second toast would
-      // say the same thing twice. Leave the dialog open with the drawing intact so the work
-      // is not lost.
+      // Deliberately silent: whoever rejected has reported it — the mutation cache
+      // (`createCaches`), or a caller's `notifyAndThrow`. Leave the dialog open with the
+      // drawing intact so the work is not lost.
     } finally {
       setIsSaving(false);
     }

@@ -4,6 +4,7 @@ import { apiFetch } from '@/lib/api';
 import { collectionQueryParams, getNextPageParam, SUGGEST_DEBOUNCE_MS, useSettledSearch } from '@/lib/api/collections';
 import { useEntityAttachments, useUpdateEntityAccess } from '@/lib/api/entity-writes';
 import { useSettled } from '@/lib/hooks/use-settled';
+import { notifyError } from '@/lib/toast';
 import type { CollectionFilters, Page, UUID } from '@/lib/types/common.ts';
 import type { Project, ProjectDetails, ProjectEditRequest, ProjectRequest, TotalCounts } from '@/lib/types/projects.ts';
 
@@ -32,8 +33,14 @@ function suggestKeywords(search: string, signal?: AbortSignal): Promise<string[]
 
 /** Pre-flight for the project_name_uq constraint, which has no friendly server message. */
 export async function checkProjectNameExists(name: string): Promise<boolean> {
-  const result = await apiFetch<{ exists: boolean }>(`/api/eln/projects/existence?name=${encodeURIComponent(name)}`);
-  return result.exists;
+  try {
+    const result = await apiFetch<{ exists: boolean }>(`/api/eln/projects/existence?name=${encodeURIComponent(name)}`);
+    return result.exists;
+  } catch (error) {
+    // A form validator, not a query, so no cache reports this for it.
+    notifyError(error);
+    throw error;
+  }
 }
 
 /**

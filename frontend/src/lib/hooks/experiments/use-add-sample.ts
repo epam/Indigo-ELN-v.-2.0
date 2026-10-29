@@ -29,8 +29,7 @@ export interface AddSample {
  * queue behind the stoichiometry table's cell saves instead of racing them, and their response
  * patches the cached detail, which is how the table behind the dialog fills itself in.
  *
- * On failure nothing local changes: `apiFetch` has already raised the toast, the row keeps its
- * enabled Add button. Nothing here is optimistic, which is why `run` reports the outcome rather
+ * On failure nothing local changes: the row keeps its enabled Add button. Nothing here is optimistic, which is why `run` reports the outcome rather
  * than the caller assuming one.
  */
 export function useAddSample(experiment: ExperimentDetails): AddSample {
@@ -47,8 +46,7 @@ export function useAddSample(experiment: ExperimentDetails): AddSample {
         await runMutation(mutation);
         return true;
       } catch {
-        // Deliberately silent: apiFetch toasts every failed request, and repeating it here
-        // would say the same thing twice.
+        // Deliberately silent: reported by the mutation cache (`createCaches`).
         return false;
       } finally {
         setAddingRows((rows) => {

@@ -39,7 +39,7 @@ function ResidualSolventsDialog({
     defaultValues: initialValues,
     onSubmit: async ({ value: values }) => {
       const next = toResidualSolvents(values.rows);
-      // Whoever reported the failure has already toasted it; the throw only keeps the dialog open.
+      // The throw only keeps the dialog open.
       if (!isSameValue(next, toResidualSolvents(initialValues.rows)) && !(await onSave(next))) {
         throw new Error('Not saved');
       }

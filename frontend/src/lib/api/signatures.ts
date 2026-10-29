@@ -104,8 +104,8 @@ function decisionBody(decision: SignatureDecision): { formData?: FormData } {
  * The response is the whole updated document, and it is **patched into the cached pages** rather
  * than invalidating them. Acting moves `lastModifiedDate`, which is the sort key, so a refetch
  * would send the row the user just acted on to the top of the list under the default `LATEST`
- * sort — the one place the reader is not looking. A failure needs no handling here: `apiFetch`
- * has already toasted it, the cache is untouched, and the buttons leave their loading state.
+ * sort — the one place the reader is not looking. A failure needs no handling here: the
+ * cache is untouched, and the buttons leave their loading state.
  */
 export function useSignatureDecision(documentId: UUID) {
   const queryClient = useQueryClient();

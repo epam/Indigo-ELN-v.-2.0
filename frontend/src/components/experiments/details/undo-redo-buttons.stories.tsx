@@ -122,7 +122,7 @@ export const ReadOnly: Story = {
 };
 
 /**
- * The empty-stack answer: 400 with the backend's own wording, toasted centrally by `apiFetch`.
+ * The empty-stack answer: 400 with the backend's own wording, toasted.
  * That is the whole error path — nothing here tracks a local stack to grey the button out.
  */
 export const NothingToUndo: Story = {

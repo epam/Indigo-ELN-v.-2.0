@@ -12,8 +12,7 @@ import { PasswordInput } from '@/components/ui/password-input';
  * so the signature in the document is the certificate chosen here.
  *
  * Like `SignDialog`, it resolves the choice to the caller rather than posting anything itself, and
- * `FormDialog` keeps it open on a rejection — a wrong password, say, which `apiFetch` has already
- * toasted — with the file still chosen.
+ * `FormDialog` keeps it open on a rejection — a wrong password, say — with the file still chosen.
  */
 export function ApproveDialog({
   open,

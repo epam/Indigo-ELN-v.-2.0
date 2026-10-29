@@ -156,8 +156,8 @@ export const CreateInitializing: Story = {
 };
 
 /**
- * A failed next-number leaves the field blank and editable rather than blocking the dialog —
- * `apiFetch` has already reported the failure, and the name was always the user's to type.
+ * A failed next-number leaves the field blank and editable rather than blocking the dialog — the
+ * name was always the user's to type.
  */
 export const CreateNextNumberFails: Story = {
   parameters: { msw: { handlers: nextNumberErrorHandlers } },

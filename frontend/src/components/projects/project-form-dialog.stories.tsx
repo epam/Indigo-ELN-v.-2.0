@@ -91,7 +91,7 @@ export const ServerError: Story = {
     await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled());
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
-    // apiFetch reports the failure, and nothing the user typed is lost.
+    // The failure is toasted, and nothing the user typed is lost.
     await waitFor(() => expect(screen.getByText('name: Project could not be created')).toBeInTheDocument());
     await expect(screen.getByRole('heading', { name: 'Add Project' })).toBeInTheDocument();
     await expect(screen.getByLabelText(/Project Name/)).toHaveValue('Novel Route Scouting');

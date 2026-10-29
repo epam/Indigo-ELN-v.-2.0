@@ -63,7 +63,7 @@ export function ExperimentRefsCombobox({
       emptyMessage="No matching experiments"
       // An empty box is not pending anything; the query is disabled until something is typed.
       loading={query !== '' && isPending}
-      // apiFetch has already toasted the failure; this says why the list is empty.
+      // Says why the list is empty.
       error={isError}
       disabled={disabled}
     />

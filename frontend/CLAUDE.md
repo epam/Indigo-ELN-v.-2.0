@@ -101,7 +101,7 @@ Search params are the source of truth for filter state. Route files validate par
 - Attaches a Cognito **access token** (not ID token) as `Authorization: Bearer`. The backend reads the `username` claim which only exists on the access token.
 - **There is no `init.body`.** A request names the *kind* of payload it carries, and `RequestInit` is spread with `body` omitted so a leftover one is a type error rather than a third, unhandled path. `init.json` is an arbitrary value, serialised here, and is the sole source of `Content-Type: application/json`. `init.formData` is a `FormData` — the two attachment uploads and `importSDF` — handed to `fetch` untouched so the browser serialises it and sets its own type: only the browser knows the multipart boundary it generated, and naming the type without one makes the body unparseable. Since the header follows from *which field* was set, nothing inspects the value; a third payload kind becomes a third field rather than a `typeof` ladder. Eleven call sites used to write `body: JSON.stringify(x)` and rely on an `instanceof FormData` check to tell them apart.
 - `init.responseType` — `'json'` (default), `'text'`, or `'blob'` — decides how a successful body is read; there is no guessing and no fallback, so a malformed body in `json` mode throws. Overloads type the result, so `apiFetch(path, { responseType: 'text' })` is a `Promise<string>` without a generic. The default `Accept` follows from it: `application/json` for `json`, `*/*` otherwise — the image endpoints declare a concrete `@Produces` and answer 406 to a JSON-only `Accept`. Error bodies are always parsed as JSON-or-text whatever the mode, so `describeError` still gets the bean-validation shape.
-- Throws `ApiError(status, body)` on non-2xx, and first raises an error toast via `notifyError` in `src/lib/toast.ts`. Every failed request is reported once, centrally, and still thrown so callers can react. `describeError` there picks the message (403 → permission copy, bean-validation array → one line per field, anything else → a generic message), plus a 401 branch.
+- Throws `ApiError(status, body, request)` on non-2xx, carrying the failed request (path, method, JSON body) for the toast's log line and its Report Error action. A `fetch` that never got a response throws `Could not reach the server`, and an abort passes through as is. **`apiFetch` toasts nothing**; see *Errors are reported by the caches* below. `describeError` in `src/lib/toast.ts` picks the message (403 → permission copy, bean-validation array → one line per field, anything else → a generic message), plus a 401 branch.
 
 **401 is reported, not acted on.** Two very different things produce one here: API Gateway's
 user-pool authorizer answers `{"message":"Unauthorized"}` when the token is missing, expired
@@ -127,6 +127,29 @@ Not covered, deliberately: a token rejected by Cognito while Amplify still belie
 user one click on Reload.
 
 `src/lib/query-client.ts` — `staleTime: 30_000`; no retry on `ApiError.status < 500`.
+
+**Errors are reported by the caches, not by `apiFetch`.** `createCaches()` gives the client a
+`QueryCache` and a `MutationCache` whose `onError` is `notifyError`, so every failed query and
+mutation is toasted once, whatever failed. That includes what never was an HTTP error: a dropped
+connection, a body that would not parse, and a mutation `onSuccess` that threw after the server had
+saved. `applyMutationResponse` turns a patch it cannot apply into `Saved, but the page could not
+be updated` and refetches the detail. A query reports after its last retry, not on each attempt.
+The story decorator uses the same `createCaches()`. An `apiFetch` outside any query or mutation
+has no cache to report it, and calls `notifyError` itself. Today that is `useDownload` and the two
+name validators (`checkProjectNameExists`, `checkNotebookNameExists`).
+
+Three rules follow, and they are stated **here only**. Code comments don't repeat "already
+reported"; a silent `catch` points to `createCaches` at most.
+
+- **A `catch` around a query or mutation stays silent.** The failure has been toasted, and a second
+  toast would say the same thing. A screen that also shows the failure inline (an empty list, a
+  combobox's `Could not load suggestions`) does so because a toast is gone in five seconds.
+- **A rejection is a request to stay open.** `FormDialog`, `StructureEditorDialog` and the batch
+  composite dialogs keep their contents on a rejected `onSubmit`/`onSave` and say nothing, on the
+  grounds that whoever rejected has reported it.
+- **So a caller that refuses for its own reasons reports first:** `notifyAndThrow(message)` toasts,
+  then throws. Add Material refuses a reaction that way, and `ReactionSchemePanel` and the batch
+  structure refuse a molecule and a reaction respectively.
 
 **Cache persistence is per signed-in user, and follows the session.** What is persisted
 (`PERSIST_OPTIONS`) is the sidebar chrome — `currentUser`, `experiments/marked` — plus the
@@ -439,9 +462,9 @@ the values, the request, the summary. Three things are particular to it:
 - **A drawn reaction is refused, not dropped.** `FindSamplesRequest` has one structure field and
   a catalog holds compounds, so there is nothing for a rxnfile to match — Global Search routes one
   into `reactionStructure`, and there is no such field here. `handleStructure` therefore toasts
-  `REACTION_NOT_SEARCHABLE` and **throws**, which is the documented way to hold the sketcher open
-  with the drawing intact: `StructureEditorDialog` swallows a rejection from `onSave` on the
-  grounds that whoever rejected has already reported it. So `values.structure` is always a molfile.
+  `REACTION_NOT_SEARCHABLE` and **throws** (`notifyAndThrow`), which holds the sketcher open with
+  the drawing intact — see *Errors are reported by the caches*. So `values.structure` is always a
+  molfile.
 
 `StoichiometryTable` renders the sheet whether or not it is open — see the `DialogContent`
 notes below for why a sheet behind a `{open && …}` flag cannot slide out. The form is therefore
@@ -498,11 +521,11 @@ has never mounted, so the query inside it has never run.
 
 `MultiCombobox` gets most of its keyboard contract from Base UI (Backspace deletes the last chip, ArrowLeft/Right walk the chips, ArrowUp/Down and Home/End move through suggestions, Escape closes). Two behaviours are added on top: **PageUp/PageDown** — Base UI declares `PAGE_UP`/`PAGE_DOWN` but leaves them out of `COMPOSITE_KEYS`, and exposes no way to set the highlighted index, so the component replays arrow keydowns on the input — clamped to the distance left in the list, because Base UI's navigation wraps at the ends and a fixed count would run off the bottom and back round to the top — and committing typed text as a free-form chip on Enter when no suggestion is highlighted. `combobox.stories.tsx` pins all of it with browser-mode `play` functions.
 
-`MultiCombobox` is **suggestion-only by default**; `allowCustomValues` opts a call site into committing typed text as a new chip (`KeywordCombobox` does, because project keywords are arbitrary strings). With the prop off, Enter on unmatched text adds nothing and Base UI clears the input — the selection can only come from the list. **Enter is the only commit key, deliberately** — comma is the usual second one in a tag input, but chemistry names are full of commas (`N,N-dimethylformamide`, `1,3-butadiene`, `2,4-D`) and committing on comma makes those impossible to type. It used to, and `combobox.stories.tsx` now pins that it does not. With it on, the empty popup reads `Press Enter to add “…”` instead of the plain `emptyMessage`, but only when the typed value is not already a chip (`addChip` de-duplicates, so otherwise the hint would promise a no-op). `loading` and `error` props suppress the empty state and speak through `Combobox.Status` instead — `Searching…`, or `Could not load suggestions` when the lookup failed (the error is also toasted by `apiFetch`; this just explains the empty list). The Enter-to-add hint deliberately survives a failure, since adding a custom value never depended on the lookup. `Combobox.Status` (Base UI's live region for asynchronously loaded lists, same must-stay-mounted rule as `Empty`), with the chevron swapped for a spinner and `aria-busy` on the trigger — "no matches" is a claim about a search that has finished. Before anything is typed there is **no** empty-state message at all — neither the hint nor `emptyMessage`, since nothing has been searched for — and `open` is controlled so the popup stays shut instead of opening an empty box.
+`MultiCombobox` is **suggestion-only by default**; `allowCustomValues` opts a call site into committing typed text as a new chip (`KeywordCombobox` does, because project keywords are arbitrary strings). With the prop off, Enter on unmatched text adds nothing and Base UI clears the input — the selection can only come from the list. **Enter is the only commit key, deliberately** — comma is the usual second one in a tag input, but chemistry names are full of commas (`N,N-dimethylformamide`, `1,3-butadiene`, `2,4-D`) and committing on comma makes those impossible to type. It used to, and `combobox.stories.tsx` now pins that it does not. With it on, the empty popup reads `Press Enter to add “…”` instead of the plain `emptyMessage`, but only when the typed value is not already a chip (`addChip` de-duplicates, so otherwise the hint would promise a no-op). `loading` and `error` props suppress the empty state and speak through `Combobox.Status` instead — `Searching…`, or `Could not load suggestions` when the lookup failed (this explains the empty list; the toast is the cache's). The Enter-to-add hint deliberately survives a failure, since adding a custom value never depended on the lookup. `Combobox.Status` (Base UI's live region for asynchronously loaded lists, same must-stay-mounted rule as `Empty`), with the chevron swapped for a spinner and `aria-busy` on the trigger — "no matches" is a claim about a search that has finished. Before anything is typed there is **no** empty-state message at all — neither the hint nor `emptyMessage`, since nothing has been searched for — and `open` is controlled so the popup stays shut instead of opening an empty box.
 
 Note that `Combobox.Empty` is the popup's `role="status"` live region: Base UI requires it to stay mounted and visible, nulling its *children* itself once the list has items. So vary its children, never mount/unmount it or hide it with `display: none` — and keep padding on an inner node, or a populated list gets a blank strip above its first row.
 
-`Toast` is mounted once in `src/routes/__root.tsx` and bound to the module-level manager in `src/lib/toast.ts`, which is what lets `apiFetch` raise toasts from outside React. Note that Base UI marks an unfocused high-priority toast `aria-hidden` and announces it through a visually-hidden `role="alert"` region instead — so its controls are outside the accessibility tree until the viewport is focused (F6), and tests must query them by label rather than by role.
+`Toast` is mounted once in `src/routes/__root.tsx` and bound to the module-level manager in `src/lib/toast.ts`, which is what lets the query and mutation caches raise toasts from outside React. Note that Base UI marks an unfocused high-priority toast `aria-hidden` and announces it through a visually-hidden `role="alert"` region instead — so its controls are outside the accessibility tree until the viewport is focused (F6), and tests must query them by label rather than by role.
 
 `RichTextEditor` is Tiptap (ProseMirror). StarterKit v3 already bundles bold/italic/underline/strike/code/blockquote; colour and background colour come from `@tiptap/extension-text-style`, plus separate sub/superscript and image extensions and `Placeholder` from `@tiptap/extensions`. It reads and writes **HTML strings**, matching the backend's unbounded `TEXT` columns. Mark styling lives in `@layer components` in `src/styles.css` because ProseMirror emits bare tags with no classes. Image paste/drop is wired to an optional `onUploadImage` prop; until a project-less upload endpoint exists that prop is left unset and pasted images are swallowed rather than inlined as base64.
 
@@ -619,11 +642,9 @@ fields.
 `ReactionSchemePanel` hold the sketcher open — Save still spinning — until its `SetScheme`
 mutation lands, and leave the drawing in place if it fails. `StructureEditorDialog.handleSave`
 therefore has two `try` blocks rather than one: a Ketcher failure gets `notifyError`, since
-nobody else reports it, while an `onSave` rejection is deliberately silent because `apiFetch`
-has already toasted it. Global Search returns nothing from `onChange`, so `await` resolves in a
-microtask and its sketcher closes immediately, exactly as before. A caller that refuses a drawing
-for its own reasons uses the same channel — it toasts and throws, since the silent branch assumes
-the rejector spoke; Add Material does that for a reaction, and `ReactionSchemePanel` for a molecule.
+nobody else reports it, while an `onSave` rejection is silent (see *Errors are reported by the
+caches*). Global Search returns nothing from `onChange`, so `await` resolves in a microtask and its
+sketcher closes immediately, exactly as before.
 
 **A canvas with no atoms never reaches `onSave`.** `handleSave` refuses it before it starts —
 `ketcher.editor.struct().atoms.size === 0`, which covers an empty save as well as a lone plus or
@@ -640,7 +661,7 @@ Storybook 10 + `@storybook/react-vite`. `.storybook/main.ts` inherits the whole 
 |---|---|
 | `withQuery` | A **fresh** `QueryClient` per story with `retry: false`. Never the `src/lib/query-client.ts` singleton — its cache leaks across stories and makes loading states unreachable. |
 | `withRouter` | A throwaway memory router whose root route renders the story. `LINK_PATHS` in `with-router.tsx` lists every `to` the components link to; **a `<Link>` to a path missing from that list throws**, so add new link targets there. |
-| `withToast` | Mounts `ToastProvider`. `apiFetch` toasts every failed request, so any story with failing handlers needs the context. |
+| `withToast` | Mounts `ToastProvider`. Every failed query and mutation toasts (the decorator's client uses `createCaches()`), so any story with failing handlers needs the context. |
 
 Anything rendered through a portal — dialogs, combobox popups, toasts — is outside `canvasElement`, so `play` functions must reach it with `screen`, not `within(canvasElement)`.
 

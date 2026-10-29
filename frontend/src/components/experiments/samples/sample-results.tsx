@@ -183,8 +183,8 @@ export function SampleResults({
         </p>
       )}
       {error != null && (
-        // Repeated from the toast apiFetch already raised: a toast is gone in five seconds and
-        // an empty table is not, and this says which search came back with nothing.
+        // A toast is gone in five seconds and an empty table is not, and this says which search
+        // came back with nothing.
         <p className="p-6 text-center text-[14px]/6 text-destructive">
           Could not search the catalogs: {describeError(error)[0]}
         </p>

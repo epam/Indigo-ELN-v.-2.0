@@ -1,12 +1,12 @@
 import { Toast } from '@base-ui/react/toast';
 
 import { ApiError } from '@/lib/api';
-import { openReportError } from '@/lib/report-error';
+import { buildReportErrorContext, INCIDENTS_PATH, openReportError } from '@/lib/report-error';
 
 import type { ReportErrorContext } from '@/lib/report-error';
 
 /**
- * Created outside React so `apiFetch` can raise a toast without a hook. The provider
+ * Created outside React so the query and mutation caches can raise a toast without a hook. The provider
  * in `__root.tsx` binds it to the rendered viewport.
  */
 export const toastManager = Toast.createToastManager();
@@ -78,13 +78,20 @@ export function notifyAndThrow(message: string): never {
 }
 
 /**
- * Toasts a failed request. Called from `apiFetch` so every endpoint reports failures
- * the same way; `apiFetch` still throws, leaving callers free to handle the error as well.
+ * Toasts a failure. Every query and mutation reports through here from its cache's `onError`
+ * (`query-client.ts`), so a call site reaches for it only for what TanStack never sees — a Ketcher
+ * error, a download, a form validator's own request.
  *
  * `report` is the failed request, when there is one: it puts a Report Error action on the
- * toast, which opens the dialog with the request attached.
+ * toast, which opens the dialog with the request attached. An `ApiError` carries its own, and
+ * `url` defaults to its path — except a failed report, whose action would loop.
  */
 export function notifyError(error: unknown, url?: string, id?: string, report?: ReportErrorContext): void {
+  if (error instanceof ApiError && error.request != null) {
+    const { path, method, json } = error.request;
+    url ??= path;
+    if (path !== INCIDENTS_PATH) report ??= buildReportErrorContext(path, method, json, error.body);
+  }
   const [message, log] = describeError(error, url);
   console.error(log, error);
 

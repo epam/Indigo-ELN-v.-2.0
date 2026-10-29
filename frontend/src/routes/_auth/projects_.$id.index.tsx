@@ -25,7 +25,6 @@ function ProjectInfoTab() {
   const changeLevel = useUpdateProjectAccess(id);
 
   if (isPending) return <ProjectInfoSkeleton />;
-  // apiFetch has already toasted the failure; this is the page saying what it cannot show.
   if (isError || !project) {
     return <p className="text-[14px]/6 text-destructive">This project could not be loaded.</p>;
   }

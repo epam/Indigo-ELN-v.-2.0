@@ -58,7 +58,7 @@ function DictionaryCombobox({
       // A no-break space, so the blank row is still a line tall.
       emptyLabel={clearable ? ' ' : undefined}
       loading={isPending}
-      // apiFetch has already toasted the failure; this says why the list is empty.
+      // Says why the list is empty.
       error={isError}
       disabled={disabled}
       size={size}
@@ -135,7 +135,7 @@ function MultiDictionaryCombobox({
       itemToKey={(item) => item.id}
       itemToLabel={(item) => item.name}
       loading={isPending}
-      // apiFetch has already toasted the failure; this says why the list is empty.
+      // Says why the list is empty.
       error={isError}
       disabled={disabled}
       size={size}

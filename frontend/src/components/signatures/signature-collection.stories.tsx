@@ -31,7 +31,7 @@ export const Empty: Story = {
   parameters: { msw: { handlers: emptyHandlers } },
 };
 
-/** apiFetch toasts the failure; this explains the missing list, in the same words. */
+/** The list explains why it is missing, in the toast's words. */
 export const Error: Story = {
   parameters: { msw: { handlers: errorHandlers } },
   play: async ({ canvasElement }) => {

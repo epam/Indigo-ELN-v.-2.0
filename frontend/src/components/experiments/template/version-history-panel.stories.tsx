@@ -90,7 +90,7 @@ export const Loading: Story = {
   parameters: { msw: { handlers: loadingHandlers } },
 };
 
-/** `apiFetch` has toasted already; the panel says which table is empty and why. */
+/** The panel says which table is empty and why. */
 export const LoadFailed: Story = {
   parameters: { msw: { handlers: errorHandlers } },
   play: async ({ canvasElement }) => {

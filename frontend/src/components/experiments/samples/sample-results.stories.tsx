@@ -143,8 +143,8 @@ export const Empty: Story = {
 };
 
 /**
- * The search failed. `apiFetch` has already toasted why; this says which table is empty, because
- * the toast is gone in five seconds and the table is not.
+ * The search failed. This says which table is empty, because a toast is gone in five seconds and
+ * the table is not.
  */
 export const Failed: Story = {
   parameters: { msw: { handlers: failingSampleSearchHandlers } },
