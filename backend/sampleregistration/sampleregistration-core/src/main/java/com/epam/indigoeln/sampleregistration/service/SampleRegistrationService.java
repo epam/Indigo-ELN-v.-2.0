@@ -112,6 +112,10 @@ public class SampleRegistrationService {
             compound.setSaltEQ(compoundKey.getSaltEQ());
             compound.setStrCode(generateStrCodeCompound(compoundKey, saltCodeNumeric));
 
+            // stored with coordinates, so the sketcher seeded with it draws a structure, not a dot
+            if (!molecule.hasLayout()) {
+                molecule.layout();
+            }
             compound.setMolFile(molecule.molfile());
             compound.setMolWeight(molWeight != null ? molWeight : molecule.molecularWeight());
             compound.setExactMass(exactMass != null ? exactMass : molecule.monoisotopicMass());

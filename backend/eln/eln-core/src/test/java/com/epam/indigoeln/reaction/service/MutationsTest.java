@@ -58,6 +58,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.validation.constraints.NotNull;
 import one.util.streamex.IntStreamEx;
+import one.util.streamex.StreamEx;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -70,6 +71,7 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -85,6 +87,7 @@ import static com.epam.indigoeln.eln.test.ReactionInputSampleAssert.assertThat;
 import static com.epam.indigoeln.eln.test.ReactionOutputSampleAssert.assertThat;
 import static com.epam.indigoeln.test.ClientCallAssert.assertThatClientCall;
 import static com.epam.indigoeln.test.ClientUtil.uploadForm;
+import static com.epam.indigoeln.test.MolfileTestUtil.atomCoordinates;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
@@ -1097,6 +1100,34 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolfile(anchor, molfile), false);
         assertThat(experiment.output(3).isIntended()).isFalse();
         assertThat(experiment.output(3).getSamples()).singleElement().satisfies(s -> assertThat(s.getAnchor()).isEqualTo(anchor));
+    }
+
+    @Test
+    void testSetOutputMolfileLaysOutStructureWithoutCoordinates() {
+        experiment.mutateSetSchemeFromResource(REACTION_RXN);
+        experiment.mutateAddProductSample(1);
+        OutputSampleAnchor anchor = experiment.outputSample(1, 1).getAnchor();
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolfile(anchor, "OC(=O)c1ccc(Br)cc1Cl"), false);
+        List<String> coordinates = atomCoordinates(compoundMolfile(anchor));
+        assertThat(coordinates).hasSize(11).doesNotHaveDuplicates();
+    }
+
+    @Test
+    void testSetOutputMolfileKeepsCoordinates() {
+        experiment.mutateSetSchemeFromResource(REACTION_RXN);
+        experiment.mutateAddProductSample(1);
+        OutputSampleAnchor anchor = experiment.outputSample(1, 1).getAnchor();
+        String molfile = new String(ModelUtil.loadResource(UPDATED_MOLFILE));
+        experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolfile(anchor, molfile), false);
+        assertThat(atomCoordinates(compoundMolfile(anchor))).isEqualTo(atomCoordinates(molfile));
+    }
+
+    private String compoundMolfile(OutputSampleAnchor anchor) {
+        CompoundRef compound = StreamEx.of(experiment.reaction().getOutputs())
+                .findFirst(output -> StreamEx.of(output.getSamples()).anyMatch(sample -> sample.getAnchor().equals(anchor)))
+                .orElseThrow()
+                .getCompound();
+        return compoundClient.getCompoundMolfile(Objects.requireNonNull(compound.getCompoundID()));
     }
 
     @Test

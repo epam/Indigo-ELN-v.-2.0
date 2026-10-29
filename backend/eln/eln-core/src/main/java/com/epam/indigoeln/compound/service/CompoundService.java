@@ -67,6 +67,10 @@ public class CompoundService {
         boolean isNew = compound == null;
         if (isNew) {
             compound = new CompoundEntity(source, compoundKey, canSmiles, dictionaryService.lookup(stereoisomerCode), dictionaryService.lookup(saltCode), saltEQ);
+            // stored with coordinates, so the sketcher seeded with it draws a structure, not a dot
+            if (!molecule.hasLayout()) {
+                molecule.layout();
+            }
             compound.setMolFile(molecule.molfile());
             compound.setMolWeight(molWeightCalculator.calculateMolWeight(molecule.molfile(), saltCode, compound.getSaltEQ()));
             compound.setExactMass(molWeightCalculator.calculateExactMass(molecule.molfile()));

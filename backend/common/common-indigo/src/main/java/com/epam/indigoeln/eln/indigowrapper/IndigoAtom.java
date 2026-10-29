@@ -11,4 +11,8 @@ public class IndigoAtom extends AbstractIndigoObject {
     public Integer charge() {
         return obj.charge();
     }
+
+    public float[] xyz() {
+        return obj.xyz();
+    }
 }
