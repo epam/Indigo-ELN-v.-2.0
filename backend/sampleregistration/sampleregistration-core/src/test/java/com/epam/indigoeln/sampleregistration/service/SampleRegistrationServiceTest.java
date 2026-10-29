@@ -16,13 +16,10 @@ import com.epam.indigoeln.sampleregistration.model.STRCodeCompound;
 import com.epam.indigoeln.sampleregistration.model.STRCodeSample;
 import com.epam.indigoeln.sampleregistration.model.SampleRegistrationRequest;
 import com.epam.indigoeln.sampleregistration.model.SampleRegistrationResponse;
-import com.epam.indigoeln.sampleregistration.migrations.V3_0_1__layout_compound_molfiles;
 import com.epam.indigoeln.test.BaseTest;
 import io.quarkus.test.junit.QuarkusTest;
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.data.Percentage;
-import org.flywaydb.core.api.configuration.Configuration;
-import org.flywaydb.core.api.migration.Context;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -47,7 +44,6 @@ import java.util.UUID;
 
 import static com.epam.indigoeln.test.ClientUtil.uploadForm;
 import static com.epam.indigoeln.test.MolfileTestUtil.atomCoordinates;
-import static com.epam.indigoeln.test.MolfileTestUtil.withoutCoordinates;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -221,49 +217,17 @@ class SampleRegistrationServiceTest extends BaseTest {
     @Test
     @Order(500)
     void testRegisterSampleLaysOutStructureWithoutCoordinates() throws SQLException {
-        STRCodeSample strCode = registerFromSmiles("OC(=O)c1ccc(I)cc1F", "12345678-1234-007");
-        assertThat(atomCoordinates(compoundMolfile(strCode))).hasSize(11).doesNotHaveDuplicates();
-    }
-
-    @Test
-    @Order(501)
-    void testMigrationLaysOutStoredMolfileWithoutCoordinates() throws Exception {
-        STRCodeSample strCode = registerFromSmiles("OC(=O)c1ccc(I)cc1Cl", "12345678-1234-008");
-        try (Connection connection = databasePool.get().getConnection()) {
-            // as stored before compounds were laid out on creation
-            try (PreparedStatement st = connection.prepareStatement("update SRS_Compound set mol_file = ? where id = (select compound_id from SRS_Sample where str_code = ?)")) {
-                st.setString(1, withoutCoordinates(compoundMolfile(strCode)));
-                st.setString(2, strCode.toString());
-                st.executeUpdate();
-            }
-            assertThat(atomCoordinates(compoundMolfile(strCode))).hasSize(11).containsOnly("0.0000 0.0000");
-
-            new V3_0_1__layout_compound_molfiles().migrate(new Context() {
-                @Override
-                public Configuration getConfiguration() {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public Connection getConnection() {
-                    return connection;
-                }
-            });
-        }
-        assertThat(atomCoordinates(compoundMolfile(strCode))).hasSize(11).doesNotHaveDuplicates();
-    }
-
-    private STRCodeSample registerFromSmiles(String smiles, String nbkBatchNumber) {
-        return sampleRegistrationClient.registerSample(SampleRegistrationRequest.builder()
-                .molfile(smiles)
+        STRCodeSample strCode = sampleRegistrationClient.registerSample(SampleRegistrationRequest.builder()
+                .molfile("OC(=O)c1ccc(I)cc1F")
                 .stereoisomerCode(stereoisomerCode)
                 .saltCode(saltCode)
                 .saltCodeNumeric(5)
                 .saltEQ(new BigDecimal("2"))
-                .nbkBatchNumber(NbkBatchNumber.parse(nbkBatchNumber))
+                .nbkBatchNumber(NbkBatchNumber.parse("12345678-1234-007"))
                 .molWeight(100.0)
                 .exactMass(150.0)
                 .build()).strCode();
+        assertThat(atomCoordinates(compoundMolfile(strCode))).hasSize(11).doesNotHaveDuplicates();
     }
 
     private String compoundMolfile(STRCodeSample strCode) throws SQLException {
