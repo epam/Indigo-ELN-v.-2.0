@@ -68,15 +68,13 @@ public class CompoundService {
         if (isNew) {
             compound = new CompoundEntity(source, compoundKey, canSmiles, dictionaryService.lookup(stereoisomerCode), dictionaryService.lookup(saltCode), saltEQ);
             // stored with coordinates, so the sketcher seeded with it draws a structure, not a dot
-            if (!molecule.hasLayout()) {
-                molecule.layout();
-            }
-            compound.setMolFile(molecule.molfile());
-            compound.setMolWeight(molWeightCalculator.calculateMolWeight(molecule.molfile(), saltCode, compound.getSaltEQ()));
-            compound.setExactMass(molWeightCalculator.calculateExactMass(molecule.molfile()));
-            compound.setFormula(new MolFormula(molecule.molecularFormula()));
+            IndigoMolecule laidOut = molecule.laidOut();
+            compound.setMolFile(laidOut.molfile());
+            compound.setMolWeight(molWeightCalculator.calculateMolWeight(laidOut.molfile(), saltCode, compound.getSaltEQ()));
+            compound.setExactMass(molWeightCalculator.calculateExactMass(laidOut.molfile()));
+            compound.setFormula(new MolFormula(laidOut.molecularFormula()));
             indigoRenderer.setRenderOptions("svg", 300, 200);
-            byte[] buf = indigoRenderer.renderToBuffer(molecule);
+            byte[] buf = indigoRenderer.renderToBuffer(laidOut);
             compound.setPicture(buf);
         }
         if (compound.getSource() == SampleSource.VIRTUAL) {

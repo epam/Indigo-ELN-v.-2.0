@@ -110,6 +110,7 @@ public class MutationsTest extends MutationsTestBase {
     private static final String SINGLE_INPUT_RXN = "/single-input.rxn";
     private static final String COMPOUND_SDF = "/Compound_000000001_000500000.1.sdf";
     private static final String UPDATED_MOLFILE = "/updated-molfile.mol";
+    private static final String LAID_OUT_MOLFILE = "/laid-out-molfile.mol";
     private static final String RING_SUBSTRUCTURE_MOL = "/ring-substructure.mol";
     private static final String COMMENT = "comment";
     private static final String NEW_CHEMICAL_NAME = "newChemicalName";
@@ -1117,7 +1118,7 @@ public class MutationsTest extends MutationsTestBase {
         experiment.mutateSetSchemeFromResource(REACTION_RXN);
         experiment.mutateAddProductSample(1);
         OutputSampleAnchor anchor = experiment.outputSample(1, 1).getAnchor();
-        String molfile = new String(ModelUtil.loadResource(UPDATED_MOLFILE));
+        String molfile = new String(ModelUtil.loadResource(LAID_OUT_MOLFILE));
         experiment.mutate(new ReactionOutputSampleMutation.SetOutputMolfile(anchor, molfile), false);
         assertThat(atomCoordinates(compoundMolfile(anchor))).isEqualTo(atomCoordinates(molfile));
     }

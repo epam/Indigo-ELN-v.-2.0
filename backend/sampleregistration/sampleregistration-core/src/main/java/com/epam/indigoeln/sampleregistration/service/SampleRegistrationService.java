@@ -113,13 +113,11 @@ public class SampleRegistrationService {
             compound.setStrCode(generateStrCodeCompound(compoundKey, saltCodeNumeric));
 
             // stored with coordinates, so the sketcher seeded with it draws a structure, not a dot
-            if (!molecule.hasLayout()) {
-                molecule.layout();
-            }
-            compound.setMolFile(molecule.molfile());
-            compound.setMolWeight(molWeight != null ? molWeight : molecule.molecularWeight());
-            compound.setExactMass(exactMass != null ? exactMass : molecule.monoisotopicMass());
-            compound.setFormula(new MolFormula(molecule.molecularFormula()));
+            IndigoMolecule laidOut = molecule.laidOut();
+            compound.setMolFile(laidOut.molfile());
+            compound.setMolWeight(molWeight != null ? molWeight : laidOut.molecularWeight());
+            compound.setExactMass(exactMass != null ? exactMass : laidOut.monoisotopicMass());
+            compound.setFormula(new MolFormula(laidOut.molecularFormula()));
         }
         if (compound.getChemicalName() == null) {
             compound.setChemicalName(chemicalName);
