@@ -86,7 +86,7 @@ public class NotebookService {
 
     private NotebookDetailsDTO getNotebookDetails(NotebookEntity notebook) {
         Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(notebook.getCurrentAccess());
-        currentPermissions.retainAll(EnumSet.of(VIEW_NOTEBOOKS, EDIT_NOTEBOOKS, MANAGE_NOTEBOOK_ACCESS, DELETE_NOTEBOOKS));
+        currentPermissions.retainAll(EnumSet.of(VIEW_NOTEBOOKS, EDIT_NOTEBOOKS, MANAGE_NOTEBOOK_ACCESS, DELETE_NOTEBOOKS, CREATE_EXPERIMENTS));
         return notebookMapper.entityToDetailsDTO(notebook, currentPermissions);
     }
 

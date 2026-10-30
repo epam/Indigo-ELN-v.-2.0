@@ -769,6 +769,41 @@ class PermissionsTest extends ELNBaseTest {
         }
 
         @Test
+        @Order(450)
+        void testImplicitViewNotCountedInList() {
+            ProjectDTO projectDTO = projectClient.getProjects(project.getName(), null, null, PAGING).getItems().getFirst();
+            assertThatACL(projectDTO.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
+            assertThat(projectDTO.getAclCount()).isEqualTo(1);
+
+            NotebookDTO notebookDTO = notebookClient.getProjectNotebooks(project.getId(), notebook2.getName(), null, null, PAGING).getItems().getFirst();
+            assertThatACL(notebookDTO.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
+            assertThat(notebookDTO.getAclCount()).isEqualTo(1);
+
+            // implicit viewers are still shown in details
+            assertThatACL(projectClient.getProject(project.getId()).getAcl())
+                    .containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, IMPLICIT_VIEW, false);
+        }
+
+        @Test
+        @Order(460)
+        void testCreatePermissionsInDetailsFollowAccess() {
+            withUser(WILLOW_USERNAME, () -> {
+                assertThat(projectClient.getProject(project.getId()).getCurrentPermissions()).doesNotContain(ApplicationPermission.CREATE_NOTEBOOKS);
+                assertThat(notebookClient.getNotebook(notebook2.getId()).getCurrentPermissions()).doesNotContain(ApplicationPermission.CREATE_EXPERIMENTS);
+            });
+
+            projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, EDIT));
+            try {
+                withUser(WILLOW_USERNAME, () -> {
+                    assertThat(projectClient.getProject(project.getId()).getCurrentPermissions()).contains(ApplicationPermission.CREATE_NOTEBOOKS);
+                    assertThat(notebookClient.getNotebook(notebook2.getId()).getCurrentPermissions()).contains(ApplicationPermission.CREATE_EXPERIMENTS);
+                });
+            } finally {
+                projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
+            }
+        }
+
+        @Test
         @Order(500)
         void testACLInListLimitedTo3() {
             projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, EDIT));

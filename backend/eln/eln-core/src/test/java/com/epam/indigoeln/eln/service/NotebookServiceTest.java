@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.epam.indigoeln.common.util.ContentDispositionUtil.extractFilename;
+import static com.epam.indigoeln.eln.model.ApplicationPermission.CREATE_EXPERIMENTS;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.DELETE_NOTEBOOKS;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.EDIT_NOTEBOOKS;
 import static com.epam.indigoeln.eln.model.ApplicationPermission.MANAGE_NOTEBOOK_ACCESS;
@@ -168,7 +169,7 @@ class NotebookServiceTest extends ELNBaseTest {
         assertThat(notebook.getExperimentCount()).isZero();
         assertThat(notebook.getExperimentCountByStatus()).isEmpty();
         assertThat(notebook.getAttachments()).isEmpty();
-        assertThat(notebook.getCurrentPermissions()).containsExactlyInAnyOrder(VIEW_NOTEBOOKS, EDIT_NOTEBOOKS, MANAGE_NOTEBOOK_ACCESS, DELETE_NOTEBOOKS);
+        assertThat(notebook.getCurrentPermissions()).containsExactlyInAnyOrder(VIEW_NOTEBOOKS, EDIT_NOTEBOOKS, MANAGE_NOTEBOOK_ACCESS, DELETE_NOTEBOOKS, CREATE_EXPERIMENTS);
         assertThat(notebook.getRevision()).isOne();
         assertThat(notebookClient.getNotebookRevisions(notebook.getId()))
                 .hasSize(1)
