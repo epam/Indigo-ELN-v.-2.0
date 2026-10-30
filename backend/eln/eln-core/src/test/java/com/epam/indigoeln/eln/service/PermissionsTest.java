@@ -759,6 +759,22 @@ class PermissionsTest extends ELNBaseTest {
         }
 
         @Test
+        @Order(450)
+        void testImplicitViewNotCountedInList() {
+            ProjectDTO projectDTO = projectClient.getProjects(project.getName(), null, null, PAGING).getItems().getFirst();
+            assertThatACL(projectDTO.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
+            assertThat(projectDTO.getAclCount()).isEqualTo(1);
+
+            NotebookDTO notebookDTO = notebookClient.getProjectNotebooks(project.getId(), notebook2.getName(), null, null, PAGING).getItems().getFirst();
+            assertThatACL(notebookDTO.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false);
+            assertThat(notebookDTO.getAclCount()).isEqualTo(1);
+
+            // implicit viewers are still shown in details
+            assertThatACL(projectClient.getProject(project.getId()).getAcl())
+                    .containsOnly(JOHN_DISPLAY_NAME, AUTHOR, false, WILLOW_DISPLAY_NAME, IMPLICIT_VIEW, false);
+        }
+
+        @Test
         @Order(401)
         @TestSecurity(user = WILLOW_USERNAME)
         void testImplicitViewDoesntListSiblingEntities() {

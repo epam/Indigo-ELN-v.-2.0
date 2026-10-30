@@ -33,13 +33,13 @@ public abstract class AbstractMapper {
 
     /**
      * Sets the short ACL shown in lists and the total ACL size, computing the effective ACL once.
+     * Implicit viewers are excluded from both, so the size counts exactly the entries the short ACL is cut from.
      */
     protected void mapShortACL(WithACL<?, ?> entity, Consumer<List<ACLEntryDTO>> aclSetter, Consumer<Integer> aclCountSetter) {
-        List<ACLEntry> acl = entity.getEffectiveACL();
-        aclSetter.accept(convertACLList(acl.stream()
+        List<ACLEntry> acl = entity.getEffectiveACL().stream()
                 .filter(e -> e.getLevel() != AccessLevel.IMPLICIT_VIEW)
-                .limit(SHORT_ACL_SIZE)
-                .toList()));
+                .toList();
+        aclSetter.accept(convertACLList(acl.stream().limit(SHORT_ACL_SIZE).toList()));
         aclCountSetter.accept(acl.size());
     }
 
