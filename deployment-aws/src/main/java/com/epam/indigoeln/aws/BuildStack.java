@@ -163,7 +163,7 @@ public class BuildStack extends Stack {
                 .projectName(projectName)
                 .source(Source.gitHub(GitHubSourceProps.builder()
                         .owner("epam")
-                        .repo("Indigo-ELN-v.-2.0")
+                        .repo("IndigoELN")
                         .branchOrRef("3.0")
                         .webhook(false)
                         .build()))

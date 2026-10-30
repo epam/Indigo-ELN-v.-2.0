@@ -40,8 +40,8 @@ colima start --arch aarch64 --vz-rosetta --cpu 4 --memory 16 --disk 100
 ### Setup
 
 ```bash
-git clone https://github.com/epam/Indigo-ELN-v.-2.0.git
-cd Indigo-ELN-v.-2.0/deployment-compose
+git clone https://github.com/epam/IndigoELN.git
+cd IndigoELN/deployment-compose
 ./deploy.sh
 ```
 ### Access
@@ -83,8 +83,8 @@ cd ../deployment-compose && docker compose up --build
 ## Installation on AWS
 - Check our Indigo ELN repository:
 ```bash
-git clone https://github.com/epam/Indigo-ELN-v.-2.0.git
-cd Indigo-ELN-v.-2.0
+git clone https://github.com/epam/IndigoELN.git
+cd IndigoELN
 ```
 
 ### Deploy a CloudFormation script
