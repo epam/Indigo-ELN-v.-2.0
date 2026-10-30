@@ -759,6 +759,16 @@ class PermissionsTest extends ELNBaseTest {
         }
 
         @Test
+        @Order(401)
+        @TestSecurity(user = WILLOW_USERNAME)
+        void testImplicitViewDoesntListSiblingEntities() {
+            Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, null, null, PAGING);
+            assertThat(notebooks.getItems()).extracting(NotebookDTO::getName).containsOnly(notebook2.getName());
+            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook2.getId(), null, null, null, null, PAGING);
+            assertThat(experiments.getItems()).extracting(ExperimentDTO::getName).containsOnly(experiment2.getName());
+        }
+
+        @Test
         @Order(450)
         void testImplicitViewNotCountedInList() {
             ProjectDTO projectDTO = projectClient.getProjects(project.getName(), null, null, PAGING).getItems().getFirst();
@@ -783,21 +793,14 @@ class PermissionsTest extends ELNBaseTest {
             });
 
             projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, EDIT));
-            withUser(WILLOW_USERNAME, () -> {
-                assertThat(projectClient.getProject(project.getId()).getCurrentPermissions()).contains(ApplicationPermission.CREATE_NOTEBOOKS);
-                assertThat(notebookClient.getNotebook(notebook2.getId()).getCurrentPermissions()).contains(ApplicationPermission.CREATE_EXPERIMENTS);
-            });
-            projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
-        }
-
-        @Test
-        @Order(401)
-        @TestSecurity(user = WILLOW_USERNAME)
-        void testImplicitViewDoesntListSiblingEntities() {
-            Page<NotebookDTO> notebooks = notebookClient.getProjectNotebooks(project.getId(), null, null, null, PAGING);
-            assertThat(notebooks.getItems()).extracting(NotebookDTO::getName).containsOnly(notebook2.getName());
-            Page<ExperimentDTO> experiments = experimentClient.getNotebookExperiments(notebook2.getId(), null, null, null, null, PAGING);
-            assertThat(experiments.getItems()).extracting(ExperimentDTO::getName).containsOnly(experiment2.getName());
+            try {
+                withUser(WILLOW_USERNAME, () -> {
+                    assertThat(projectClient.getProject(project.getId()).getCurrentPermissions()).contains(ApplicationPermission.CREATE_NOTEBOOKS);
+                    assertThat(notebookClient.getNotebook(notebook2.getId()).getCurrentPermissions()).contains(ApplicationPermission.CREATE_EXPERIMENTS);
+                });
+            } finally {
+                projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
+            }
         }
 
         @Test

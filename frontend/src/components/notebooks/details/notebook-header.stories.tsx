@@ -1,3 +1,5 @@
+import { expect, within } from 'storybook/test';
+
 import { NotebookHeader } from '@/components/notebooks/details/notebook-header';
 import { makeNotebookDetails } from '@/mocks/fixtures';
 
@@ -15,13 +17,30 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByRole('button', { name: 'Add Experiment' })).toBeEnabled();
+  },
+};
 
 /**
  * Before the detail resolves: the trail keeps its bare labels and the count shows a skeleton,
  * so the header is the same height either way and the page below never jumps.
  */
-export const Loading: Story = { args: { notebook: undefined } };
+export const Loading: Story = {
+  args: { notebook: undefined },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByRole('button', { name: 'Add Experiment' })).toBeDisabled();
+  },
+};
+
+/** Access to this notebook does not grant creating experiments in it. */
+export const CannotCreate: Story = {
+  args: { notebook: makeNotebookDetails({ currentPermissions: ['VIEW_NOTEBOOKS'] }) },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByRole('button', { name: 'Add Experiment' })).toBeDisabled();
+  },
+};
 
 /** A notebook with nothing in it yet — the status strip falls back to a single zero cell. */
 export const EmptyNotebook: Story = {
