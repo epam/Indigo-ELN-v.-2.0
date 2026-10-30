@@ -65,7 +65,7 @@ public class ProjectService {
 
     private ProjectDetailsDTO getProjectDetails(ProjectEntity project) {
         Set<ApplicationPermission> currentPermissions = aclService.getCurrentPermissions(project.getCurrentAccess());
-        currentPermissions.retainAll(EnumSet.of(VIEW_PROJECTS, EDIT_PROJECTS, MANAGE_PROJECT_ACCESS, DELETE_PROJECTS));
+        currentPermissions.retainAll(EnumSet.of(VIEW_PROJECTS, EDIT_PROJECTS, MANAGE_PROJECT_ACCESS, DELETE_PROJECTS, CREATE_NOTEBOOKS));
         return projectMapper.entityToDetailsDTO(project, currentPermissions);
     }
 

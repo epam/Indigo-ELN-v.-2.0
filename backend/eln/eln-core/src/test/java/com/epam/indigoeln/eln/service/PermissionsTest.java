@@ -775,6 +775,22 @@ class PermissionsTest extends ELNBaseTest {
         }
 
         @Test
+        @Order(460)
+        void testCreatePermissionsInDetailsFollowAccess() {
+            withUser(WILLOW_USERNAME, () -> {
+                assertThat(projectClient.getProject(project.getId()).getCurrentPermissions()).doesNotContain(ApplicationPermission.CREATE_NOTEBOOKS);
+                assertThat(notebookClient.getNotebook(notebook2.getId()).getCurrentPermissions()).doesNotContain(ApplicationPermission.CREATE_EXPERIMENTS);
+            });
+
+            projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, EDIT));
+            withUser(WILLOW_USERNAME, () -> {
+                assertThat(projectClient.getProject(project.getId()).getCurrentPermissions()).contains(ApplicationPermission.CREATE_NOTEBOOKS);
+                assertThat(notebookClient.getNotebook(notebook2.getId()).getCurrentPermissions()).contains(ApplicationPermission.CREATE_EXPERIMENTS);
+            });
+            projectClient.updateProjectAccess(project.getId(), AccessForm.of(WILLOW_USERNAME, NONE));
+        }
+
+        @Test
         @Order(401)
         @TestSecurity(user = WILLOW_USERNAME)
         void testImplicitViewDoesntListSiblingEntities() {

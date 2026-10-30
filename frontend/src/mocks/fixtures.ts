@@ -780,7 +780,7 @@ export function makeProjectDetails(overrides: Partial<ProjectDetails> = {}): Pro
     description: '<p>Screening cascade for the kinase series.</p>',
     attachments: ATTACHMENTS,
     acl: PROJECT_ACL,
-    currentPermissions: ['VIEW_PROJECTS', 'EDIT_PROJECTS', 'MANAGE_PROJECT_ACCESS'],
+    currentPermissions: ['VIEW_PROJECTS', 'EDIT_PROJECTS', 'MANAGE_PROJECT_ACCESS', 'CREATE_NOTEBOOKS'],
     ...overrides,
   };
 }
@@ -818,7 +818,7 @@ export function makeNotebookDetails(overrides: Partial<NotebookDetails> = {}): N
     description: '<p>Aspirin synthesis strategies, route A.</p>',
     attachments: ATTACHMENTS,
     acl: NOTEBOOK_ACL,
-    currentPermissions: ['VIEW_NOTEBOOKS', 'EDIT_NOTEBOOKS', 'MANAGE_NOTEBOOK_ACCESS'],
+    currentPermissions: ['VIEW_NOTEBOOKS', 'EDIT_NOTEBOOKS', 'MANAGE_NOTEBOOK_ACCESS', 'CREATE_EXPERIMENTS'],
     projectId: '11111111-1111-1111-1111-111111111111',
     projectName: 'Kinase Inhibitor Screening',
     ...overrides,

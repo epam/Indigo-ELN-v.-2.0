@@ -118,7 +118,7 @@ class ProjectServiceTest extends ELNBaseTest {
         assertThat(project.getExperimentCount()).isZero();
         assertThat(project.getExperimentCountByStatus()).isEmpty();
         assertThat(project.getAttachments()).isEmpty();
-        assertThat(project.getCurrentPermissions()).containsExactlyInAnyOrder(VIEW_PROJECTS, EDIT_PROJECTS, MANAGE_PROJECT_ACCESS, DELETE_PROJECTS);
+        assertThat(project.getCurrentPermissions()).containsExactlyInAnyOrder(VIEW_PROJECTS, EDIT_PROJECTS, MANAGE_PROJECT_ACCESS, DELETE_PROJECTS, CREATE_NOTEBOOKS);
         assertThatACL(project.getAcl()).containsOnly(JOHN_DISPLAY_NAME, AccessLevel.AUTHOR, false);
         assertThat(project.getRevision()).isOne();
         assertThat(projectClient.getProjectRevisions(project.getId()))

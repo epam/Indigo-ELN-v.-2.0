@@ -7,7 +7,6 @@ import { Breadcrumbs } from '@/components/layout/breadcrumbs';
 import { StatTileGroup } from '@/components/common/stat-tile-group';
 import { StatusCountStrip } from '@/components/common/status-count-strip';
 import { Button } from '@/components/ui/button';
-import { useHasPermission } from '@/lib/api/user';
 
 import type { NotebookDetails } from '@/lib/types/notebooks.ts';
 
@@ -32,17 +31,9 @@ export function NotebookHeader({
   notebookId: string;
   notebook: NotebookDetails | undefined;
 }) {
-  /*
-    TODO: gate on the notebook's own permission once the backend ships it — same staged swap as in
-    ProjectHeader. `ExperimentHandlers` does `ensureAccess(experiment.getNotebook(),
-    CREATE_EXPERIMENTS)`, but `NotebookService.getNotebookDetails` retains `currentPermissions`
-    down to VIEW/EDIT/MANAGE_NOTEBOOK_ACCESS/DELETE, so the payload cannot answer it yet. Until
-    CREATE_EXPERIMENTS is added to that `retainAll`, the global permission is the closest
-    available answer. `=== true` because it is `undefined` while `currentUser` resolves, and the
-    button should not flicker from enabled to disabled.
-  */
-  // const canCreate = notebook?.currentPermissions.includes('CREATE_EXPERIMENTS') ?? false;
-  const canCreate = useHasPermission('CREATE_EXPERIMENTS') === true;
+  // Per-notebook, like the backend's `ensureAccess(experiment.getNotebook(), CREATE_EXPERIMENTS)`:
+  // the user's roles plus their access to this notebook. Disabled until the detail resolves.
+  const canCreate = notebook?.currentPermissions.includes('CREATE_EXPERIMENTS') ?? false;
   const [addOpen, setAddOpen] = useState(false);
 
   return (

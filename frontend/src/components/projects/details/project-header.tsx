@@ -7,7 +7,6 @@ import { NotebookFormDialog } from '@/components/notebooks/notebook-form-dialog'
 import { StatTileGroup } from '@/components/common/stat-tile-group';
 import { StatusCountStrip } from '@/components/common/status-count-strip';
 import { Button } from '@/components/ui/button';
-import { useHasPermission } from '@/lib/api/user';
 
 import type { ProjectDetails } from '@/lib/types/projects.ts';
 
@@ -24,18 +23,9 @@ const TAB_INACTIVE_CLASS = 'border-transparent text-neutral-800';
  * trail its bare `Project:` label, so the header never changes height as data lands.
  */
 export function ProjectHeader({ projectId, project }: { projectId: string; project: ProjectDetails | undefined }) {
-  /*
-    TODO: gate on the project's own permission once the backend ships it. The right question is
-    per-project — `NotebookHandlers` does `ensureAccess(notebook.getProject(), CREATE_NOTEBOOKS)` —
-    but `ProjectService.getProjectDetails` retains `currentPermissions` down to
-    VIEW/EDIT/MANAGE_PROJECT_ACCESS/DELETE_PROJECTS, so the payload cannot answer it yet. Adding
-    CREATE_NOTEBOOKS to that `retainAll` is all it takes; `ACLService.getCurrentPermissions`
-    already computes it (AccessLevel.EDIT and above grant it). Until that is deployed the global
-    permission is the closest available answer — `undefined` while `currentUser` resolves counts
-    as "not yet", so the button never flickers from enabled to disabled.
-  */
-  // const canCreate = project?.currentPermissions.includes('CREATE_NOTEBOOKS') ?? false;
-  const canCreate = useHasPermission('CREATE_NOTEBOOKS') === true;
+  // Per-project, like the backend's `ensureAccess(notebook.getProject(), CREATE_NOTEBOOKS)`: the
+  // user's roles plus their access to this project. Disabled until the detail resolves.
+  const canCreate = project?.currentPermissions.includes('CREATE_NOTEBOOKS') ?? false;
   const [addOpen, setAddOpen] = useState(false);
 
   return (
