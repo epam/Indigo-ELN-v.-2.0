@@ -3,11 +3,12 @@ import { Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { RequirePermission } from '@/components/auth/require-permission';
+import { STARTER_TEMPLATE_NAME } from '@/components/templates/template-form';
 import { TemplateFormDialog } from '@/components/templates/template-form-dialog';
 import { TemplateList } from '@/components/templates/template-list';
 import { TemplateSheet } from '@/components/templates/template-sheet';
 import { Button } from '@/components/ui/button';
-import { useTemplates } from '@/lib/api/templates';
+import { useTemplate, useTemplates } from '@/lib/api/templates';
 import { usePageTitle } from '@/lib/hooks/use-page-title';
 import { z } from '@/lib/zod';
 
@@ -26,8 +27,12 @@ export const Route = createFileRoute('/_auth/templates')({
 });
 
 /**
- * Template management: the list, a sheet for the one opened, and Add Template. Every write on
- * `/templates` is gated on the global `MANAGE_TEMPLATES` (`TemplateService`), so the whole page is.
+ * Template management: the list, a sheet for the one opened, and Add Template.
+ *
+ * Gated on the global `MANAGE_TEMPLATES` as a whole. Reading templates needs nothing — Add
+ * Experiment lists them for everyone — but this is the screen for managing them, and every write
+ * it offers is refused without that permission (`TemplateService`). Like Dictionaries behind
+ * `MANAGE_DICTIONARIES`, it is an admin's page, not a reader's.
  */
 function TemplatesPage() {
   usePageTitle('Templates');
@@ -35,12 +40,17 @@ function TemplatesPage() {
   const navigate = Route.useNavigate();
   const [addOpen, setAddOpen] = useState(false);
 
-  // The Add Experiment picker's query — one page big enough to be the whole list.
+  // One page big enough to be the whole list, shared with the Add Experiment picker's cache.
   const query = useTemplates(true);
   const templates = query.data?.items;
   // Resolved from the list rather than fetched again; a stale `?template=` leaves the sheet shut.
   const selected = templates?.find((item) => item.id === selectedId);
   const existingNames = useMemo(() => (templates ?? []).map((template) => template.name), [templates]);
+
+  // What Add Template starts as a copy of. Fetched with the page rather than when the dialog
+  // opens, so the copy is usually there already; the same cached detail the sheet reads.
+  const starterId = templates?.find((template) => template.name === STARTER_TEMPLATE_NAME)?.id;
+  const starter = useTemplate(starterId);
 
   // Pushed, not replaced, so Back undoes opening a sheet — see DictionariesPage.
   const select = (id: string | undefined) =>
@@ -61,6 +71,9 @@ function TemplatesPage() {
         open={addOpen}
         onOpenChange={setAddOpen}
         existingNames={existingNames}
+        starter={starter.data?.templateTabs}
+        // Only while a starter exists and has not arrived; without one the dialog starts empty.
+        initializing={query.isPending || (starterId !== undefined && starter.isPending)}
         // The new template's sheet opens on it, so what was just built is shown back at once.
         onCreated={(created) => select(created.id)}
       />

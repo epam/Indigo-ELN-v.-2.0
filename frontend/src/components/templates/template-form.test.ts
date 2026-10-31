@@ -2,13 +2,15 @@ import { describe, expect, it } from 'vitest';
 
 import {
   EMPTY_TEMPLATE_TAB,
-  isTemplateFormValid,
+  startingTemplateForm,
   tabComponentsError,
   tabNameError,
+  templateFormErrors,
   templateNameError,
   toggleComponent,
   toTemplateRequest,
 } from '@/components/templates/template-form';
+import { makeTemplateDetails } from '@/mocks/fixtures';
 
 import type { TemplateTabValues } from '@/components/templates/template-form';
 
@@ -37,12 +39,10 @@ describe('templateNameError', () => {
 });
 
 describe('tabNameError', () => {
-  /** The experiment screen opens a tab by name, so two equal names would be one tab. */
-  it('requires a name unique within the template', () => {
-    const tabs = [tab({ name: 'Reaction' }), tab({ name: ' Reaction ' }), tab({ name: '' })];
-    expect(tabNameError(tabs, 0)).toBe("Another tab is already called 'Reaction'");
-    expect(tabNameError(tabs, 2)).toBe('Tab Name is required');
-    expect(tabNameError([tab({ name: 'Reaction' })], 0)).toBeUndefined();
+  /** Only required: the backend allows two tabs one name, and the experiment screen copes. */
+  it('requires a name, and nothing more', () => {
+    expect(tabNameError(tab({ name: '  ' }))).toBe('Tab Name is required');
+    expect(tabNameError(tab({ name: 'Reaction' }))).toBeUndefined();
   });
 });
 
@@ -61,13 +61,32 @@ describe('tabComponentsError', () => {
   });
 });
 
-describe('isTemplateFormValid', () => {
-  it('passes only when the name and every tab do', () => {
+describe('templateFormErrors', () => {
+  /** Keyed the way a TanStack form-level validator hands errors to its fields. */
+  it('puts each message under the field it belongs to, and is empty when all is well', () => {
     const good = tab({ name: 'Reaction', components: ['experimentDetails'] });
-    expect(isTemplateFormValid({ name: 'New', tabs: [good] }, [])).toBe(true);
-    expect(isTemplateFormValid({ name: 'New', tabs: [good, tab({ name: 'Empty' })] }, [])).toBe(false);
-    expect(isTemplateFormValid({ name: 'New', tabs: [] }, [])).toBe(false);
-    expect(isTemplateFormValid({ name: 'Default', tabs: [good] }, ['Default'])).toBe(false);
+    expect(templateFormErrors({ name: 'New', tabs: [good] }, [])).toEqual({});
+    expect(templateFormErrors({ name: 'Default', tabs: [good, tab({ name: '' })] }, ['Default'])).toEqual({
+      name: "Template 'Default' already exists",
+      'tabs[1].name': 'Tab Name is required',
+      'tabs[1].components': 'Pick at least one component',
+    });
+  });
+});
+
+describe('startingTemplateForm', () => {
+  /** A copy of the starter's tabs, so a name and Save are enough — issue #739's steps. */
+  it("copies the starter's tabs, its stoichiometry blocks included, with no name", () => {
+    const starter = makeTemplateDetails().templateTabs;
+    const form = startingTemplateForm(starter);
+    expect(form.name).toBe('');
+    expect(form.tabs.map((copy) => copy.name)).toEqual(starter.map((original) => original.name));
+    expect(toTemplateRequest({ ...form, name: 'Copy' }).templateTabs).toEqual(starter);
+    expect(templateFormErrors({ ...form, name: 'Copy' }, ['Default'])).toEqual({});
+  });
+
+  it('falls back to one "Tab 1" with nothing ticked, as the Angular app began', () => {
+    expect(startingTemplateForm(undefined).tabs).toEqual([{ ...EMPTY_TEMPLATE_TAB, name: 'Tab 1' }]);
   });
 });
 

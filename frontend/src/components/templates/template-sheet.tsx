@@ -4,10 +4,8 @@ import { useTemplate } from '@/lib/api/templates';
 import { describeError } from '@/lib/toast';
 import { formatDate } from '@/lib/utils.ts';
 
-import type { StoichiometryPart, Template, TemplateComponent, TemplateTab } from '@/lib/types/templates.ts';
-import { COMPONENT_LABELS, STOICHIOMETRY_PART_LABELS } from '@/lib/types/templates.ts';
-
-const STOICHIOMETRY_PARTS = Object.keys(STOICHIOMETRY_PART_LABELS) as StoichiometryPart[];
+import type { Template, TemplateComponent, TemplateTab } from '@/lib/types/templates.ts';
+import { COMPONENT_LABELS, STOICHIOMETRY_PART_LABELS, STOICHIOMETRY_PARTS } from '@/lib/types/templates.ts';
 
 function Section({ label, children }: { label: string; children: string }) {
   return (
@@ -79,7 +77,8 @@ export function TemplateSheet({ template, onClose }: { template: Template | unde
               ) : details.error ? (
                 <p className="text-[14px]/6 text-destructive">Could not load tabs: {describeError(details.error)[0]}</p>
               ) : (
-                details.data.templateTabs.map((tab) => <TabCard key={tab.name} tab={tab} />)
+                // By position: two tabs may share a name.
+                details.data.templateTabs.map((tab, index) => <TabCard key={index} tab={tab} />)
               )}
             </section>
           </>

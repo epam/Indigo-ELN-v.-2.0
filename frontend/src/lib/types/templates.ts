@@ -94,7 +94,14 @@ export const COMPONENT_LABELS: Record<TemplateComponentType, string> = {
 /** The three sub-blocks a `stoichiometryTable` component switches on, keyed as on the wire. */
 export type StoichiometryPart = 'reactionScheme' | 'reactantsReagentsSolvents' | 'intendedProducts';
 
-/** In the order `StoichiometryPanel` stacks them, under the headings it gives them. */
+/** In the order `StoichiometryPanel` stacks them — the order every list of them follows. */
+export const STOICHIOMETRY_PARTS = [
+  'reactionScheme',
+  'reactantsReagentsSolvents',
+  'intendedProducts',
+] as const satisfies readonly StoichiometryPart[];
+
+/** Under the headings `StoichiometryPanel` gives them. */
 export const STOICHIOMETRY_PART_LABELS: Record<StoichiometryPart, string> = {
   reactionScheme: 'Reaction Scheme',
   reactantsReagentsSolvents: 'Reactants, Reagents, Solvents',

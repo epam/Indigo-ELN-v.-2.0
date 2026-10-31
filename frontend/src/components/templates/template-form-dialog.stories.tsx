@@ -7,9 +7,17 @@ import { makeTemplateDetails } from '@/mocks/fixtures';
 import { handlers } from '@/mocks/handlers';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { TemplateDetails, TemplateRequest } from '@/lib/types/templates.ts';
+import type { TemplateDetails, TemplateRequest, TemplateTab } from '@/lib/types/templates.ts';
 
-function TemplateFormDialogHarness({ onCreated }: { onCreated: (template: TemplateDetails) => void }) {
+const DEFAULT_TABS = makeTemplateDetails().templateTabs;
+
+function TemplateFormDialogHarness({
+  starter,
+  onCreated,
+}: {
+  starter: readonly TemplateTab[] | undefined;
+  onCreated: (template: TemplateDetails) => void;
+}) {
   const [open, setOpen] = useState(true);
   return (
     <>
@@ -18,6 +26,7 @@ function TemplateFormDialogHarness({ onCreated }: { onCreated: (template: Templa
         open={open}
         onOpenChange={setOpen}
         existingNames={['Default', 'Analytical']}
+        starter={starter}
         onCreated={onCreated}
       />
     </>
@@ -41,27 +50,30 @@ const spyHandlers = [
 const meta = {
   title: 'Templates/TemplateFormDialog',
   component: TemplateFormDialogHarness,
-  args: { onCreated: fn() },
+  args: { starter: DEFAULT_TABS, onCreated: fn() },
 } satisfies Meta<typeof TemplateFormDialogHarness>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** One empty tab to start from; Save waits for a name, a tab name and a component. */
+/** Opens as a copy of Default's tabs, unnamed. */
 export const Default: Story = {
   play: async () => {
     const dialog = await screen.findByRole('dialog', { name: 'Add Template' });
-    await expect(within(dialog).getByRole('button', { name: 'Save' })).toBeDisabled();
-    await expect(within(dialog).queryByRole('button', { name: /Remove Tab/ })).not.toBeInTheDocument();
+    const d = within(dialog);
+    await expect(d.getByLabelText(/Template Name/)).toHaveValue('');
+    await expect(d.getByLabelText(/Tab 1 Name/)).toHaveValue(DEFAULT_TABS[0].name);
+    await expect(d.getByLabelText(new RegExp(`Tab ${DEFAULT_TABS.length} Name`))).toHaveValue(
+      DEFAULT_TABS.at(-1)!.name,
+    );
   },
 };
 
 /**
- * Two tabs, the second with a stoichiometry table trimmed to two blocks. The body is the wire
- * shape the backend validates: names trimmed, components in layout order, and only the
- * stoichiometry component carrying settings.
+ * Issue #739's own steps: enter a valid name, Save. The template created is Default's structure
+ * under the new name, exactly as the backend will store it.
  */
-export const CreatesTemplate: Story = {
+export const NameAndSaveIsEnough: Story = {
   parameters: { msw: { handlers: spyHandlers } },
   play: async ({ args }) => {
     posted.length = 0;
@@ -69,29 +81,50 @@ export const CreatesTemplate: Story = {
     const d = within(dialog);
 
     await userEvent.type(d.getByLabelText(/Template Name/), ' Synthesis ');
+    const save = d.getByRole('button', { name: 'Save' });
+    await waitFor(() => expect(save).toBeEnabled());
+    await userEvent.click(save);
 
+    await waitFor(() => expect(posted).toEqual([{ name: 'Synthesis', templateTabs: DEFAULT_TABS }]));
+    await waitFor(() => expect(args.onCreated).toHaveBeenCalledOnce());
+    await expect(await screen.findByText('Dialog closed.')).toBeInTheDocument();
+  },
+};
+
+/**
+ * Built from scratch: without a starter there is one "Tab 1". Components go out in layout order
+ * whatever order they were ticked in, and only the stoichiometry component carries settings.
+ */
+export const BuildsFromScratch: Story = {
+  args: { starter: undefined },
+  parameters: { msw: { handlers: spyHandlers } },
+  play: async () => {
+    posted.length = 0;
+    const dialog = await screen.findByRole('dialog', { name: 'Add Template' });
+    const d = within(dialog);
+
+    await userEvent.type(d.getByLabelText(/Template Name/), 'Synthesis');
+    await expect(d.getByLabelText(/Tab 1 Name/)).toHaveValue('Tab 1');
     const first = d.getByRole('group', { name: 'Tab 1 components' });
-    await userEvent.type(d.getByLabelText(/Tab 1 Name/), 'Summary');
     await userEvent.click(within(first).getByRole('checkbox', { name: 'Product Batch Summary' }));
 
     await userEvent.click(d.getByRole('button', { name: 'Add Tab' }));
     const second = d.getByRole('group', { name: 'Tab 2 components' });
+    await userEvent.clear(d.getByLabelText(/Tab 2 Name/));
     await userEvent.type(d.getByLabelText(/Tab 2 Name/), 'Reaction');
     // Ticked out of layout order on purpose.
     await userEvent.click(within(second).getByRole('checkbox', { name: 'Stoichiometric Calculation' }));
     await userEvent.click(within(second).getByRole('checkbox', { name: 'Experiment Details' }));
     await userEvent.click(within(second).getByRole('checkbox', { name: 'Reaction Products' }));
 
-    const save = d.getByRole('button', { name: 'Save' });
-    await waitFor(() => expect(save).toBeEnabled());
-    await userEvent.click(save);
+    await userEvent.click(d.getByRole('button', { name: 'Save' }));
 
     await waitFor(() =>
       expect(posted).toEqual([
         {
           name: 'Synthesis',
           templateTabs: [
-            { name: 'Summary', components: [{ type: 'batches' }] },
+            { name: 'Tab 1', components: [{ type: 'batches' }] },
             {
               name: 'Reaction',
               components: [
@@ -108,42 +141,53 @@ export const CreatesTemplate: Story = {
         },
       ]),
     );
-    await waitFor(() => expect(args.onCreated).toHaveBeenCalledOnce());
-    await expect(await screen.findByText('Dialog closed.')).toBeInTheDocument();
   },
 };
 
-/** A taken name, and two tabs of one name, are refused as they are typed. */
-export const RefusesDuplicates: Story = {
+/** A taken name is refused as it is typed, and Save waits for a free one. */
+export const RefusesTakenName: Story = {
   play: async () => {
     const dialog = await screen.findByRole('dialog', { name: 'Add Template' });
     const d = within(dialog);
-
-    const name = d.getByLabelText(/Template Name/);
-    await userEvent.type(name, 'Default');
-    await userEvent.tab();
+    await userEvent.type(d.getByLabelText(/Template Name/), 'Default');
     await expect(await d.findByText("Template 'Default' already exists")).toBeInTheDocument();
-
-    await userEvent.type(d.getByLabelText(/Tab 1 Name/), 'Reaction');
-    await userEvent.click(d.getByRole('button', { name: 'Add Tab' }));
-    await userEvent.type(d.getByLabelText(/Tab 2 Name/), 'Reaction');
-    await expect((await d.findAllByText("Another tab is already called 'Reaction'")).length).toBe(2);
-    await expect(d.getByRole('button', { name: 'Save' })).toBeDisabled();
+    await waitFor(() => expect(d.getByRole('button', { name: 'Save' })).toBeDisabled());
   },
 };
 
-/** A tab with no component keeps Save disabled, however complete the rest is. */
-export const RequiresAComponent: Story = {
+/**
+ * Emptying a tab says why at once, beside the tab — not just by greying Save out — and Save
+ * comes back as soon as the tab has a component again.
+ */
+export const SaysWhyATabCannotBeSaved: Story = {
   play: async () => {
     const dialog = await screen.findByRole('dialog', { name: 'Add Template' });
     const d = within(dialog);
-    await userEvent.type(d.getByLabelText(/Template Name/), 'Empty');
-    await userEvent.type(d.getByLabelText(/Tab 1 Name/), 'Reaction');
-    // Ticking a component makes the tab valid; unticking it empties the tab again.
-    const group = d.getByRole('group', { name: 'Tab 1 components' });
-    await userEvent.click(within(group).getByRole('checkbox', { name: 'Attachments' }));
-    await expect(d.getByRole('button', { name: 'Save' })).toBeEnabled();
-    await userEvent.click(within(group).getByRole('checkbox', { name: 'Attachments' }));
-    await expect(d.getByRole('button', { name: 'Save' })).toBeDisabled();
+    await userEvent.type(d.getByLabelText(/Template Name/), 'Synthesis');
+
+    // Default's last tab holds Version History alone.
+    const last = d.getByRole('group', { name: `Tab ${DEFAULT_TABS.length} components` });
+    const versionHistory = within(last).getByRole('checkbox', { name: 'Version History' });
+    await userEvent.click(versionHistory);
+
+    await expect(await within(last).findByRole('alert')).toHaveTextContent('Pick at least one component');
+    await waitFor(() => expect(d.getByRole('button', { name: 'Save' })).toBeDisabled());
+
+    await userEvent.click(versionHistory);
+    await waitFor(() => expect(within(last).queryByRole('alert')).not.toBeInTheDocument());
+    await waitFor(() => expect(d.getByRole('button', { name: 'Save' })).toBeEnabled());
+  },
+};
+
+/** Pressing Save on an empty name says what is missing rather than doing nothing. */
+export const SaveWithoutAName: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
+  play: async () => {
+    posted.length = 0;
+    const dialog = await screen.findByRole('dialog', { name: 'Add Template' });
+    const d = within(dialog);
+    await userEvent.click(d.getByRole('button', { name: 'Save' }));
+    await expect(await d.findByText('Template Name is required')).toBeInTheDocument();
+    await expect(posted).toEqual([]);
   },
 };

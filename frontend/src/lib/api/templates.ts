@@ -26,8 +26,9 @@ function fetchTemplates(signal?: AbortSignal): Promise<Page<Template>> {
 }
 
 /**
- * Every template, for the Add Experiment picker. Enabled by the caller only while that dialog is
- * open, so a notebook page nobody creates from never asks.
+ * Every template — for the Add Experiment picker, which enables it only while that dialog is open
+ * so a notebook page nobody creates from never asks, and for the Templates screen, which always
+ * does.
  *
  * Two deliberate differences from `useNextNotebookNumber`, the other query a dialog's initializing
  * phase waits on:
