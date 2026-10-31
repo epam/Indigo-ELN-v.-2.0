@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiFetch } from '@/lib/api';
 import type { Page, UUID } from '@/lib/types/common.ts';
-import type { Template, TemplateDetails } from '@/lib/types/templates.ts';
+import type { Template, TemplateDetails, TemplateRequest } from '@/lib/types/templates.ts';
 
 /**
  * Exported although no component reads it: `src/lib/query-client.ts` hashes `list()` and matches
@@ -26,8 +26,9 @@ function fetchTemplates(signal?: AbortSignal): Promise<Page<Template>> {
 }
 
 /**
- * Every template, for the Add Experiment picker. Enabled by the caller only while that dialog is
- * open, so a notebook page nobody creates from never asks.
+ * Every template — for the Add Experiment picker, which enables it only while that dialog is open
+ * so a notebook page nobody creates from never asks, and for the Templates screen, which always
+ * does.
  *
  * Two deliberate differences from `useNextNotebookNumber`, the other query a dialog's initializing
  * phase waits on:
@@ -72,5 +73,24 @@ export function useTemplate(id: UUID | undefined) {
     // and the save that follows would dehydrate a cache no longer holding it — taking it off
     // disk too. Every persisted query needs this.
     gcTime: Infinity,
+  });
+}
+
+function createTemplate(request: TemplateRequest): Promise<TemplateDetails> {
+  return apiFetch<TemplateDetails>('/api/eln/templates', { method: 'POST', json: request });
+}
+
+/**
+ * Creates a template. The answer is the whole detail, so it goes straight into the cache the
+ * Templates sheet and every experiment built on it read; the list is refetched for the new row.
+ */
+export function useCreateTemplate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createTemplate,
+    onSuccess: (template) => {
+      queryClient.setQueryData(templateKeys.detail(template.id), template);
+      void queryClient.invalidateQueries({ queryKey: templateKeys.list() });
+    },
   });
 }

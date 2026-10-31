@@ -59,3 +59,57 @@ export interface Template extends BaseDTO {
 export interface TemplateDetails extends Template {
   templateTabs: TemplateTab[];
 }
+
+/** TemplateEntity.name is `@Size(max = 256)`. */
+export const TEMPLATE_NAME_MAX_LENGTH = 256;
+
+/**
+ * Every component type, in the order a tab lays them out when a template is built in the app —
+ * the order the experiment screen reads top to bottom. `satisfies` against the union keeps a new
+ * backend type from being left off.
+ */
+export const TEMPLATE_COMPONENT_TYPES = [
+  'experimentDetails',
+  'experimentDescription',
+  'stoichiometryTable',
+  'batches',
+  'attachments',
+  'versionHistory',
+] as const satisfies readonly TemplateComponentType[];
+
+/**
+ * What each component is called when a template is described rather than rendered — the template
+ * editor and its read-only view. Unlike `COMPONENT_TITLES` every type has one, named after the
+ * heading the experiment screen gives it.
+ */
+export const COMPONENT_LABELS: Record<TemplateComponentType, string> = {
+  experimentDetails: 'Experiment Details',
+  experimentDescription: 'Experiment Description',
+  attachments: 'Attachments',
+  stoichiometryTable: 'Stoichiometric Calculation',
+  batches: 'Product Batch Summary',
+  versionHistory: 'Version History',
+};
+
+/** The three sub-blocks a `stoichiometryTable` component switches on, keyed as on the wire. */
+export type StoichiometryPart = 'reactionScheme' | 'reactantsReagentsSolvents' | 'intendedProducts';
+
+/** In the order `StoichiometryPanel` stacks them — the order every list of them follows. */
+export const STOICHIOMETRY_PARTS = [
+  'reactionScheme',
+  'reactantsReagentsSolvents',
+  'intendedProducts',
+] as const satisfies readonly StoichiometryPart[];
+
+/** Under the headings `StoichiometryPanel` gives them. */
+export const STOICHIOMETRY_PART_LABELS: Record<StoichiometryPart, string> = {
+  reactionScheme: 'Reaction Scheme',
+  reactantsReagentsSolvents: 'Reactants, Reagents, Solvents',
+  intendedProducts: 'Reaction Products',
+};
+
+/** Body of `POST /templates`. Both fields are `@NotEmpty`, and so is every tab's `components`. */
+export interface TemplateRequest {
+  name: string;
+  templateTabs: TemplateTab[];
+}

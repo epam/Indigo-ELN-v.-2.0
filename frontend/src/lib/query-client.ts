@@ -59,7 +59,8 @@ export const queryClient = new QueryClient({
  *
  * The Dictionaries screen mutates the dictionary entries, and nothing here had to change for
  * it: the `invalidateQueries` its writes issue refetch and re-persist through the existing
- * subscription. The same holds for the templates admin screen, which is still unwritten.
+ * subscription. The same holds for the Templates screen: creating one invalidates the persisted
+ * list and puts the new detail straight into the cache.
  *
  * Every query listed here needs `gcTime: Infinity` on its hook. A collected query is gone from
  * the next dehydration, which takes it off disk as well.
