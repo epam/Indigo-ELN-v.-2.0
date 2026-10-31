@@ -76,4 +76,15 @@ function MenuCheckboxItem({ className, children, ...props }: MenuPrimitive.Check
   );
 }
 
-export { MenuRoot as Menu, MenuTrigger, MenuContent, MenuItem, MenuCheckboxItem };
+/** A hairline between groups of items — a destructive action set apart from the choices above it. */
+function MenuSeparator({ className, ...props }: MenuPrimitive.Separator.Props) {
+  return (
+    <MenuPrimitive.Separator
+      data-slot="menu-separator"
+      className={cn('-mx-1 my-1 h-px bg-neutral-300', className)}
+      {...props}
+    />
+  );
+}
+
+export { MenuRoot as Menu, MenuTrigger, MenuContent, MenuItem, MenuCheckboxItem, MenuSeparator };

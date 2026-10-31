@@ -111,7 +111,7 @@ export const ChangeLevel: Story = {
 };
 
 /**
- * None asks first. The cascade box starts ticked, so a plain Remove takes the member off
+ * Remove Member asks first. The cascade box starts ticked, so a plain Remove takes the member off
  * everything below the project too.
  */
 export const RemoveMember: Story = {
@@ -122,7 +122,7 @@ export const RemoveMember: Story = {
     const canvas = within(canvasElement);
 
     await userEvent.click(await canvas.findByRole('button', { name: /Can View/ }));
-    await userEvent.click(await screen.findByRole('menuitem', { name: 'None' }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Remove Member' }));
 
     await expect(await screen.findByRole('checkbox', { name: NESTED_REMOVAL_LABEL })).toBeChecked();
     await expect(sent).toHaveLength(0);
@@ -142,12 +142,49 @@ export const RemoveMemberCancelled: Story = {
     const canvas = within(canvasElement);
 
     await userEvent.click(await canvas.findByRole('button', { name: /Can View/ }));
-    await userEvent.click(await screen.findByRole('menuitem', { name: 'None' }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Remove Member' }));
     await userEvent.click(await screen.findByRole('button', { name: 'Cancel' }));
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     await expect(canvas.getByText('Tom Becker')).toBeInTheDocument();
     await expect(sent).toHaveLength(0);
+  },
+};
+
+/**
+ * The level menu offers the levels a manager can grant, and Remove Member apart from them: not
+ * AUTHOR or Limited View, which the backend owns, and not None, which is Remove Member's job.
+ */
+export const LevelMenuChoices: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole('button', { name: /Can View/ }));
+    const items = await screen.findAllByRole('menuitem');
+    await expect(items.map((item) => item.textContent)).toEqual(['Admin', 'Can Edit', 'Can View', 'Remove Member']);
+  },
+};
+
+/**
+ * Limited View is derived from nested access, so there is no entry of this project's own to
+ * remove — but the member can still be promoted, which adds one.
+ */
+export const LimitedViewCanBePromotedNotRemoved: Story = {
+  args: {
+    acl: [makeAclEntry('Administrator', { level: 'AUTHOR' }), makeAclEntry('Anna Petrova', { level: 'IMPLICIT_VIEW' })],
+  },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole('button', { name: /Limited View/ }));
+    const items = await screen.findAllByRole('menuitem');
+    await expect(items.map((item) => item.textContent)).toEqual(['Admin', 'Can Edit', 'Can View']);
+  },
+};
+
+/** An inherited member is on a parent's ACL: it can be re-levelled here, not removed from here. */
+export const InheritedIsNotRemovable: Story = {
+  play: async ({ canvasElement }) => {
+    // Sofia Rossi, the one inherited entry.
+    await userEvent.click(within(canvasElement).getByRole('button', { name: /Can Edit/ }));
+    await expect(await screen.findByRole('menuitem', { name: 'Admin' })).toBeInTheDocument();
+    await expect(screen.queryByRole('menuitem', { name: 'Remove Member' })).not.toBeInTheDocument();
   },
 };
 

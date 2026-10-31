@@ -82,8 +82,13 @@ export function isImmutableLevel(level: AccessLevel): boolean {
   return level === 'AUTHOR';
 }
 
+/**
+ * What the level menu offers. Not `IMPLICIT_VIEW` — the backend derives it from nested access and
+ * refuses to have it assigned (`ACLService.applyAccess`) — and not `NONE`, which is not a level a
+ * member is left at but the menu's separate Remove Member action.
+ */
 export const ELIGIBLE_ACL_LEVELS = (Object.keys(ACL_LEVEL_LABELS) as AccessLevel[]).filter(
-  (level) => !isImmutableLevel(level),
+  (level) => !isImmutableLevel(level) && level !== 'IMPLICIT_VIEW' && level !== 'NONE',
 );
 
 /**
