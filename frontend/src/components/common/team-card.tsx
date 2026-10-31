@@ -11,7 +11,7 @@ import { useUserSuggestions } from '@/lib/api/user';
 import { cn } from '@/lib/utils';
 import type { UseMutationResult } from '@tanstack/react-query';
 import type { AccessForm, AccessLevel, ACLEntry, UserRef } from '@/lib/types/common.ts';
-import { ACL_LEVEL_LABELS, ELIGIBLE_ACL_LEVELS, isImmutableLevel } from '@/lib/types/common.ts';
+import { ACL_LEVEL_LABELS, ELIGIBLE_ACL_LEVELS, isDerivedLevel, isImmutableLevel } from '@/lib/types/common.ts';
 
 /** What a newly added member gets. Anything more is a deliberate step up in the level menu. */
 const DEFAULT_LEVEL: AccessLevel = 'VIEW';
@@ -72,13 +72,9 @@ function MemberRow({
 }) {
   // AUTHOR is the creator's own entry; the backend rejects any change to it.
   const locked = isImmutableLevel(member.level) || !canManage;
-  /*
-    Remove Member only where there is an entry of this entity's own to remove. An inherited member
-    is on a parent's ACL, and a Limited View one is derived from nested access — `POST /access`
-    with NONE deletes neither, so the row would come straight back. Both can still be re-levelled:
-    that adds an own entry, which outranks the inherited or implicit one.
-  */
-  const removable = !member.inherited && member.level !== 'IMPLICIT_VIEW';
+  // Remove Member only for a member of this entity's own ACL: an inherited one stays on the
+  // parent's, and a Limited View one is hidden from removal at the maintainers' request (#805).
+  const removable = !member.inherited && !isDerivedLevel(member.level);
 
   return (
     <li className={cn('grid items-center gap-x-2 py-2 text-[14px]/6', ROW_COLUMNS)}>

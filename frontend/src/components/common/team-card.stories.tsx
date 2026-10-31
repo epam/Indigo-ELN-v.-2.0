@@ -157,32 +157,42 @@ export const RemoveMemberCancelled: Story = {
  */
 export const LevelMenuChoices: Story = {
   play: async ({ canvasElement }) => {
-    await userEvent.click(within(canvasElement).getByRole('button', { name: /Can View/ }));
+    await userEvent.click(await within(canvasElement).findByRole('button', { name: /Can View/ }));
     const items = await screen.findAllByRole('menuitem');
     await expect(items.map((item) => item.textContent)).toEqual(['Admin', 'Can Edit', 'Can View', 'Remove Member']);
   },
 };
 
 /**
- * Limited View is derived from nested access, so there is no entry of this project's own to
- * remove — but the member can still be promoted, which adds one.
+ * Limited View is derived, so it is never offered and the row has no Remove Member — but the
+ * member can be promoted: picking a level posts it, which gives them an entry of their own.
  */
-export const LimitedViewCanBePromotedNotRemoved: Story = {
+export const LimitedViewCanBePromoted: Story = {
+  parameters: { msw: { handlers: spyHandlers } },
   args: {
     acl: [makeAclEntry('Administrator', { level: 'AUTHOR' }), makeAclEntry('Anna Petrova', { level: 'IMPLICIT_VIEW' })],
   },
   play: async ({ canvasElement }) => {
-    await userEvent.click(within(canvasElement).getByRole('button', { name: /Limited View/ }));
+    sent.length = 0;
+    await userEvent.click(await within(canvasElement).findByRole('button', { name: /Limited View/ }));
     const items = await screen.findAllByRole('menuitem');
     await expect(items.map((item) => item.textContent)).toEqual(['Admin', 'Can Edit', 'Can View']);
+
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Can View' }));
+    await waitFor(() => expect(sent).toEqual([[{ username: 'anna.petrova', level: 'VIEW' }]]));
   },
 };
 
 /** An inherited member is on a parent's ACL: it can be re-levelled here, not removed from here. */
 export const InheritedIsNotRemovable: Story = {
+  args: {
+    acl: [
+      makeAclEntry('Administrator', { level: 'AUTHOR' }),
+      makeAclEntry('Sofia Rossi', { level: 'EDIT', inherited: true }),
+    ],
+  },
   play: async ({ canvasElement }) => {
-    // Sofia Rossi, the one inherited entry.
-    await userEvent.click(within(canvasElement).getByRole('button', { name: /Can Edit/ }));
+    await userEvent.click(await within(canvasElement).findByRole('button', { name: /Can Edit/ }));
     await expect(await screen.findByRole('menuitem', { name: 'Admin' })).toBeInTheDocument();
     await expect(screen.queryByRole('menuitem', { name: 'Remove Member' })).not.toBeInTheDocument();
   },
