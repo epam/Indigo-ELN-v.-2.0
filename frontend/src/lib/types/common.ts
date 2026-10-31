@@ -82,8 +82,21 @@ export function isImmutableLevel(level: AccessLevel): boolean {
   return level === 'AUTHOR';
 }
 
+/**
+ * A level nobody grants: `IMPLICIT_VIEW` is derived from access to something nested, and
+ * `ACLService.applyAccess` refuses to assign it. A member holding it has no entry of this entity's
+ * own — they can be promoted, which adds one, but are never offered it.
+ */
+export function isDerivedLevel(level: AccessLevel): boolean {
+  return level === 'IMPLICIT_VIEW';
+}
+
+/**
+ * What the level menu offers: no immutable or derived level, and not `NONE`, which is not a level
+ * a member is left at but the menu's separate Remove Member action.
+ */
 export const ELIGIBLE_ACL_LEVELS = (Object.keys(ACL_LEVEL_LABELS) as AccessLevel[]).filter(
-  (level) => !isImmutableLevel(level),
+  (level) => !isImmutableLevel(level) && !isDerivedLevel(level) && level !== 'NONE',
 );
 
 /**
