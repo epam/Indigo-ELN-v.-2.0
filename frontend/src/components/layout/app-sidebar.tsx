@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { BookA, Briefcase, type LucideIcon, PanelLeft, PanelLeftClose, Signature } from 'lucide-react';
+import { BookA, Briefcase, LayoutTemplate, PanelLeft, PanelLeftClose, Signature, type LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { StarredExperiments } from '@/components/layout/starred-experiments';
@@ -11,6 +11,7 @@ type NavItem = { to: string; label: string; icon: LucideIcon; permission?: Appli
 
 const NAV_ITEMS = [
   { to: '/projects', label: 'All Projects', icon: Briefcase },
+  { to: '/templates', label: 'Templates', icon: LayoutTemplate, permission: 'MANAGE_TEMPLATES' },
   { to: '/dictionaries', label: 'Dictionaries', icon: BookA, permission: 'MANAGE_DICTIONARIES' },
   { to: '/signatures', label: 'Signatures', icon: Signature, permission: 'SIGN_EXPERIMENTS' },
 ] as const satisfies readonly NavItem[];

@@ -49,6 +49,7 @@ import type { NotebookEditRequest, NotebookRequest } from '@/lib/types/notebooks
 import type { ProjectEditRequest } from '@/lib/types/projects.ts';
 import type { FindSamplesRequest, SampleDTO, SearchCatalog } from '@/lib/types/samples.ts';
 import type { SignatureDocument } from '@/lib/types/signatures.ts';
+import type { TemplateRequest } from '@/lib/types/templates.ts';
 
 // apiFetch sends the path verbatim, so handlers match the same full paths the
 // callers in src/lib/api/ pass.
@@ -369,6 +370,16 @@ export const handlers = [
   // Before /templates/:id, which would otherwise swallow it — MSW takes the first match.
   http.get(`${ELN}/templates`, () => HttpResponse.json(page(TEMPLATES))),
   http.get(`${ELN}/templates/:id`, ({ params }) => HttpResponse.json(makeTemplateDetails({ id: String(params.id) }))),
+  http.post(`${ELN}/templates`, async ({ request }) => {
+    const body = (await request.json()) as TemplateRequest;
+    return HttpResponse.json(
+      makeTemplateDetails({
+        id: '33333333-3333-3333-3333-3333333333ff',
+        name: body.name,
+        templateTabs: body.templateTabs,
+      }),
+    );
+  }),
   http.patch(`${ELN}/experiments/:id`, async ({ params, request }) => {
     const { title, therapeuticArea, projectCode, description, literature, ...lists } =
       (await request.json()) as ExperimentEditRequest;
